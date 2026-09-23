@@ -3,8 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#070B18">
 <title>Aravind Natarajan — Quality Assurance Leader</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧭</text></svg>">
+
+<!-- GOOGLE STANDARDS FAVICON SETUP -->
+<!-- 1. SVG for modern browsers (Scalable, High Contrast, Custom 'A' Logo) -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='48' y2='48'%3E%3Cstop offset='0%25' stop-color='%234F7CFF'/%3E%3Cstop offset='100%25' stop-color='%2322D3EE'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='48' height='48' rx='12' fill='%23070B18'/%3E%3Cpath d='M24 11L10 37h6.5l7.5-16 7.5 16H38Z' fill='url(%23g)'/%3E%3C/svg%3E">
+<!-- 2. Legacy fallback for older browsers (Uncomment when you have the physical file) -->
+<!-- <link rel="icon" href="/favicon.ico" sizes="any"> -->
+<!-- 3. Apple Touch Icon for iOS/macOS (Uncomment when you have a 180x180 png) -->
+<!-- <link rel="apple-touch-icon" href="/apple-touch-icon.png"> -->
+<!-- 4. Web App Manifest for Android (Uncomment when you have the physical file) -->
+<!-- <link rel="manifest" href="/site.webmanifest"> -->
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -14,30 +25,27 @@
     --bg:#070B18; --bg2:#0C1330; --panel:#101838;
     --text:#F3F6FC; --muted:#A6B0CC; --muted2:#6B7690;
     --hair:#1E2748;
-    --glass-bg:rgba(16,24,56,.4); --glass-border:rgba(255,255,255,.08);
+    --glass-bg:rgba(16,24,56,.6); --glass-border:rgba(255,255,255,.15);
     --header-bg:rgba(7,11,24,.72); --header-hair:rgba(255,255,255,.06);
     --glow:rgba(34,211,238,.5); --sel-fg:#fff;
-    --cursor-opacity:.28; --cursor-speed:1; --cursor-length:34;
   }
   [data-theme="ember"]{
-    --blue:#FF6B5B; --violet:#D6409F; --cyan:#FFB020; --gold:#FF8A5B;
-    --bg:#170D0A; --bg2:#20130E; --panel:#2A1811;
-    --text:#FBF3EC; --muted:#D8B9A8; --muted2:#8A6B5C;
-    --hair:#3A241A;
-    --glass-bg:rgba(42,24,17,.5); --glass-border:rgba(255,255,255,.10);
-    --header-bg:rgba(23,13,10,.75); --header-hair:rgba(255,255,255,.08);
+    --blue:#FF5138; --violet:#E2336B; --cyan:#FFB020; --gold:#FF8A5B;
+    --bg:#1A0F0D; --bg2:#241512; --panel:#2F1B16;
+    --text:#FDF6F2; --muted:#D9BFA9; --muted2:#937666;
+    --hair:#42281F;
+    --glass-bg:rgba(47,27,22,.7); --glass-border:rgba(255,255,255,.12);
+    --header-bg:rgba(26,15,13,.75); --header-hair:rgba(255,255,255,.08);
     --glow:rgba(255,176,32,.45); --sel-fg:#1A0E09;
-    --cursor-opacity:.34; --cursor-speed:1.18; --cursor-length:25;
   }
   [data-theme="daybreak"]{
-    --blue:#2454E8; --violet:#7C3AED; --cyan:#0891B2; --gold:#B8790A;
-    --bg:#F2F0EB; --bg2:#E9E6DE; --panel:#FFFFFF;
-    --text:#14181F; --muted:#4B5468; --muted2:#8890A0;
-    --hair:#D8D4C9;
-    --glass-bg:rgba(255,255,255,.55); --glass-border:rgba(20,24,31,.09);
-    --header-bg:rgba(242,240,235,.75); --header-hair:rgba(20,24,31,.08);
-    --glow:rgba(8,145,178,.35); --sel-fg:#fff;
-    --cursor-opacity:.20; --cursor-speed:.78; --cursor-length:20;
+    --blue:#1D4ED8; --violet:#6D28D9; --cyan:#0E7490; --gold:#B45309;
+    --bg:#FAFAFA; --bg2:#F0F0F0; --panel:#FFFFFF;
+    --text:#171717; --muted:#525252; --muted2:#737373;
+    --hair:#D4D4D4;
+    --glass-bg:rgba(255,255,255,.8); --glass-border:rgba(0,0,0,.15);
+    --header-bg:rgba(250,250,250,.85); --header-hair:rgba(0,0,0,.1);
+    --glow:rgba(14,116,144,.35); --sel-fg:#fff;
   }
 
   :root{
@@ -58,20 +66,26 @@
     transition:color .5s ease;
   }
   #bgCanvas{ position:fixed; inset:0; z-index:-2; pointer-events:none; display:block; }
+  
+  /* --- Flowing Page Trace --- */
   #pageTrace{
-    position:absolute; top:0; left:0; width:100%; height:100%; z-index:1;
-    pointer-events:none; overflow:visible;
+    position:absolute; top:0; left:0; width:100%; height:100%; z-index:0;
+    pointer-events:none; overflow:hidden;
   }
-  #pageTrace path{fill:none; stroke:var(--cyan); stroke-width:5; stroke-linecap:round; stroke-linejoin:round; opacity:.38;}
-  #pageTrace .trace-glow{stroke:var(--violet); stroke-width:11; opacity:.08; filter:blur(4px);}
-  #pageTrace .trace-node{fill:var(--bg); stroke:var(--cyan); stroke-width:3; opacity:.9; transition:fill .4s, stroke .4s, transform .4s;}
-  @media (max-width:760px){ #pageTrace path{stroke-width:3;} #pageTrace .trace-glow{stroke-width:7;} }
+  #pageTrace path{
+    fill:none; stroke:var(--cyan); stroke-width:8; stroke-linecap:round; stroke-linejoin:round; opacity:.4;
+  }
+  #pageTrace .trace-glow{stroke:var(--violet); stroke-width:16; opacity:.15; filter:blur(6px);}
+  #pageTrace .trace-node{fill:var(--bg); stroke:var(--cyan); stroke-width:4; opacity:.9; transition:fill .4s, stroke .4s, transform .4s, r .3s;}
+  #pageTrace .trace-node.active-node { fill:var(--cyan); r: 10; filter: drop-shadow(0 0 10px var(--glow)); }
+  @media (max-width:760px){ #pageTrace path{stroke-width:5;} #pageTrace .trace-glow{stroke-width:10;} }
+  
   ::selection{background:var(--violet); color:var(--sel-fg);}
   a{color:var(--cyan); text-decoration:none; border-bottom:1px solid transparent; transition:border-color .2s, color .3s;}
   a:hover, a:focus-visible{border-bottom-color:var(--cyan);}
   a:focus-visible, button:focus-visible{outline:2px solid var(--cyan); outline-offset:3px;}
 
-  .wrap{max-width:1000px; margin:0 auto; padding:0 28px;}
+  .wrap{max-width:1000px; margin:0 auto; padding:0 28px; position:relative; z-index:2;}
   section{padding:130px 0;}
   @media (max-width:640px){ section{padding:80px 0;} .wrap{padding:0 20px;} }
 
@@ -83,6 +97,12 @@
   .gradient-text{
     background:var(--grad); -webkit-background-clip:text; background-clip:text;
     color:transparent; -webkit-text-fill-color:transparent; transition:background .4s;
+  }
+
+  /* Accessibility */
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
   }
 
   /* ---------- top bar ---------- */
@@ -108,7 +128,7 @@
   .theme-dot[data-t="ember"]{ --sw: linear-gradient(135deg,#170D0A,#FF6B5B); background:var(--sw); }
   .theme-dot[data-t="daybreak"]{ --sw: linear-gradient(135deg,#F2F0EB,#2454E8); background:var(--sw); }
   .theme-dot:hover{transform:scale(1.2);}
-  .theme-dot.active{border-color:#fff;}
+  .theme-dot.active{border-color:var(--text);}
   @media (max-width:640px){ nav a{margin-left:14px; font-size:12px;} .head-right{gap:16px;} }
   body{padding-top:60px;}
 
@@ -130,24 +150,23 @@
     min-height:2.1em; overflow:visible;
   }
   .hero h1 .hero-word{
-    display:inline-block; opacity:0; transform:translateY(24px) scale(.985);
-    filter:blur(10px); clip-path:inset(0 100% 0 0);
-    animation:heroWordReveal .9s cubic-bezier(.2,.8,.2,1) forwards;
+    display:inline-block; opacity:0; transform:translateY(15px);
+    filter:blur(8px);
+    animation:heroWordReveal .8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
-  .hero h1 .hero-word:nth-child(2){animation-delay:.10s}
-  .hero h1 .hero-word:nth-child(3){animation-delay:.20s}
-  .hero h1 .hero-word:nth-child(4){animation-delay:.30s}
-  .hero h1 .hero-word:nth-child(5){animation-delay:.40s}
-  .hero h1 .hero-word:nth-child(6){animation-delay:.50s}
-  .hero h1 .hero-word:nth-child(7){animation-delay:.60s}
-  .hero h1 .hero-word:nth-child(8){animation-delay:.70s}
+  .hero h1 .hero-word:nth-child(2){animation-delay:.08s}
+  .hero h1 .hero-word:nth-child(3){animation-delay:.16s}
+  .hero h1 .hero-word:nth-child(4){animation-delay:.24s}
+  .hero h1 .hero-word:nth-child(5){animation-delay:.32s}
+  .hero h1 .hero-word:nth-child(6){animation-delay:.40s}
+  .hero h1 .hero-word:nth-child(7){animation-delay:.48s}
+  .hero h1 .hero-word:nth-child(8){animation-delay:.56s}
   @keyframes heroWordReveal{
-    0%{opacity:0; transform:translateY(24px) scale(.985); filter:blur(10px); clip-path:inset(0 100% 0 0)}
-    45%{opacity:1; filter:blur(2px); clip-path:inset(0 0 0 0)}
-    100%{opacity:1; transform:translateY(0) scale(1); filter:blur(0); clip-path:inset(0 0 0 0)}
+    0%{opacity:0; transform:translateY(15px) scale(0.95); filter:blur(8px);}
+    100%{opacity:1; transform:translateY(0) scale(1); filter:blur(0);}
   }
   @media (prefers-reduced-motion: reduce){
-    .hero h1 .hero-word{animation:none; opacity:1; transform:none; filter:none; clip-path:none;}
+    .hero h1 .hero-word{animation:none; opacity:1; transform:none; filter:none;}
   }
   .hero p.lede{font-size:clamp(17px,1.7vw,20px); margin-top:30px;}
 
@@ -155,13 +174,13 @@
   .icon-link{
     display:inline-flex; align-items:center; gap:9px; font-family:var(--mono); font-size:14px;
     border:1px solid var(--hair); border-radius:999px; padding:10px 18px 10px 14px;
-    color:var(--text); background:rgba(255,255,255,.02); border-bottom:1px solid var(--hair);
+    color:var(--text); background:var(--glass-bg); border-bottom:1px solid var(--hair);
     transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease, background .25s ease;
   }
   .icon-link svg{width:16px; height:16px; flex:0 0 auto; color:var(--cyan);}
   .icon-link:hover{
     transform:translateY(-3px) scale(1.03); border-color:var(--cyan);
-    box-shadow:0 10px 28px -8px var(--glow); background:rgba(255,255,255,.04);
+    box-shadow:0 10px 28px -8px var(--glow); background:var(--panel);
     border-bottom-color:var(--cyan);
   }
 
@@ -169,7 +188,7 @@
   .scrolldown .ln{width:22px; height:1px; background:var(--muted2);}
 
   /* ================= STATEMENT MARQUEE ================= */
-  .statement{ padding:80px 0; border-top:1px solid var(--hair); border-bottom:1px solid var(--hair); background:var(--bg2); overflow:hidden; transition:background .4s ease, border-color .4s ease; }
+  .statement{ padding:80px 0; border-top:1px solid var(--hair); border-bottom:1px solid var(--hair); background:var(--bg2); overflow:hidden; transition:background .4s ease, border-color .4s ease; position:relative; z-index:2;}
   .marquee-track{ display:flex; width:max-content; animation:marquee 38s linear infinite; }
   .marquee-track:hover{ animation-play-state:paused; }
   @media (prefers-reduced-motion: reduce){ .marquee-track{ animation:none; } }
@@ -184,34 +203,37 @@
 
   /* ================= STACKED IMPACT CARDS ================= */
   .stat-section{
-    min-height:360vh;
-    padding:110px 0 0;
+    padding: 120px 0 160px;
+    background: transparent;
   }
-  .stat-section > .wrap{position:sticky; top:90px; height:calc(100vh - 130px); display:flex; flex-direction:column; justify-content:center;}
-  .stat-stack{
-    position:relative; height:min(430px,58vh); max-width:920px; width:100%; margin:0 auto;
+  .stat-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 40px; 
+    padding-bottom: 30vh; 
   }
   .stat-card{
-    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-    padding:42px; border-radius:24px; overflow:hidden;
-    background:linear-gradient(135deg, var(--glass-bg), rgba(255,255,255,.025));
-    border:1px solid var(--glass-border);
-    box-shadow:0 30px 80px -45px rgba(0,0,0,.55);
-    transform-origin:center bottom;
-    transition:
-      transform .75s cubic-bezier(.2,.8,.2,1),
-      opacity .55s ease,
-      filter .55s ease,
-      border-color .4s ease,
-      box-shadow .55s ease;
-    will-change:transform,opacity,filter;
+    position: sticky;
+    top: 15vh; 
+    display: flex; align-items: center; justify-content: center;
+    padding: 50px 42px; border-radius: 24px; overflow: hidden;
+    background: linear-gradient(135deg, var(--glass-bg), rgba(255,255,255,.03));
+    backdrop-filter: blur(24px);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 -10px 40px rgba(0,0,0,.2);
+    transition: transform 0.3s ease, filter 0.3s ease;
   }
+  .stat-card:nth-child(1) { top: 15vh; z-index: 1; }
+  .stat-card:nth-child(2) { top: 17vh; z-index: 2; }
+  .stat-card:nth-child(3) { top: 19vh; z-index: 3; }
+  .stat-card:nth-child(4) { top: 21vh; z-index: 4; }
+  
   .stat-card::after{
     content:''; position:absolute; inset:0; pointer-events:none;
     background:radial-gradient(circle at 75% 25%, color-mix(in srgb,var(--cyan) 18%,transparent), transparent 42%);
     opacity:.75;
   }
-  .stat-card .stat-inner{position:relative; z-index:1; width:min(720px,100%); text-align:center;}
+  .stat-inner{position:relative; z-index:1; width:min(720px,100%); text-align:center;}
   .stat-card .num{
     font-family:var(--display); font-size:clamp(58px,10vw,126px);
     line-height:.95; color:var(--gold); font-weight:600; letter-spacing:-.04em;
@@ -224,28 +246,13 @@
     position:absolute; top:28px; left:32px; font-family:var(--mono);
     font-size:11px; color:var(--muted2); letter-spacing:.08em;
   }
-  .stat-stack .stat-card:nth-child(1){z-index:4;}
-  .stat-stack .stat-card:nth-child(2){z-index:3;}
-  .stat-stack .stat-card:nth-child(3){z-index:2;}
-  .stat-stack .stat-card:nth-child(4){z-index:1;}
-  .stat-progress{
-    width:min(920px,100%); height:2px; margin:34px auto 0;
-    background:var(--hair); overflow:hidden; border-radius:99px;
-  }
-  .stat-progress span{
-    display:block; width:25%; height:100%; background:var(--grad);
-    transition:transform .65s cubic-bezier(.2,.8,.2,1);
-  }
+
   @media (max-width:700px){
-    .stat-section{min-height:430vh; padding:80px 0 0;}
-    .stat-section > .wrap{top:76px; height:calc(100vh - 100px);}
-    .stat-stack{height:min(360px,58vh);}
-    .stat-card{padding:28px 22px;}
+    .stat-card{padding:32px 22px; top: 12vh;}
     .stat-card .index{top:20px; left:22px;}
-  }
-  @media (prefers-reduced-motion: reduce){
-    .stat-card{transition:none;}
-    .stat-progress span{transition:none;}
+    .stat-card:nth-child(2) { top: 13vh;}
+    .stat-card:nth-child(3) { top: 14vh;}
+    .stat-card:nth-child(4) { top: 15vh;}
   }
 
   /* ================= SECTION HEADS ================= */
@@ -254,8 +261,7 @@
   .sec-head .sub{color:var(--muted2); font-size:15px; margin-top:12px; max-width:56ch;}
   .reveal{opacity:0; transform:translateY(28px); transition:opacity .75s ease, transform .75s cubic-bezier(.2,.8,.2,1);}
   .reveal.is-visible{opacity:1; transform:translateY(0);}
-  body > *:not(#pageTrace){position:relative;}
-  #pageTrace{position:absolute !important;}
+  
   @media (prefers-reduced-motion: reduce){
     .reveal{opacity:1; transform:none; transition:none;}
   }
@@ -263,65 +269,68 @@
   /* ================= EXPERIENCE ================= */
   .tl{position:relative; padding-left:34px;}
   .tl-fill{
-    position:absolute; left:8px; top:0; width:3px; height:0;
+    position:absolute; left:8px; top:0; width:4px; height:100%;
+    background: var(--hair);
+    border-radius:99px;
+  }
+  .tl-fill-active{
+    position:absolute; left:8px; top:0; width:4px; height:0;
     background:linear-gradient(to bottom,var(--cyan),var(--violet));
     box-shadow:0 0 14px var(--glow); border-radius:99px;
-    transition:height .12s linear;
+    transition:height .15s linear;
   }
+  
   .tl-item{
-    position:relative; padding:30px 30px 64px; margin:0 0 18px;
-    border:1px solid transparent; border-radius:22px;
+    position:relative; padding:32px; margin:0 0 32px;
+    border:1px solid transparent; border-radius:24px;
     background:transparent;
     transition:
-      transform .65s cubic-bezier(.2,.8,.2,1),
-      background .45s ease,
-      border-color .45s ease,
-      box-shadow .55s ease,
-      opacity .45s ease;
+      transform .4s cubic-bezier(.175, .885, .32, 1.275),
+      background .4s ease,
+      border-color .4s ease,
+      box-shadow .4s ease,
+      opacity .4s ease;
     will-change:transform;
   }
-  .tl-item:last-child{padding-bottom:0;}
   .tl-item::before{
-    content:''; position:absolute; left:-31px; top:38px; width:12px; height:12px;
+    content:''; position:absolute; left:-33px; top:42px; width:14px; height:14px;
     border-radius:50%; background:var(--bg); border:2px solid var(--hair);
     transition:border-color .35s, box-shadow .35s, transform .45s, background .35s;
+    z-index: 2;
   }
-  .tl-item.active{
-    transform:translateX(10px) scale(1.012);
-    background:var(--glass-bg);
-    border-color:var(--glass-border);
-    box-shadow:0 28px 70px -50px rgba(0,0,0,.75);
+  
+  .tl-item:hover, .tl-item.active {
+    transform: translateX(15px) scale(1.02);
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    border-color: var(--cyan);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.25), 0 0 0 1px var(--glass-border) inset;
+    opacity: 1;
+    z-index: 10;
   }
-  .tl-item.active::before{
-    border-color:var(--cyan); background:var(--cyan);
-    box-shadow:0 0 0 5px color-mix(in srgb,var(--cyan) 12%,transparent), 0 0 18px var(--glow);
-    transform:scale(1.25);
+  
+  .tl-item:hover::before, .tl-item.active::before {
+    border-color: var(--cyan); background: var(--cyan);
+    box-shadow: 0 0 0 6px color-mix(in srgb,var(--cyan) 20%,transparent), 0 0 20px var(--glow);
+    transform: scale(1.3);
   }
-  .tl-item:not(.active){opacity:.72;}
-  .tl-item.active .tl-role{color:var(--text);}
-  .tl-item.active .tl-date{color:var(--cyan);}
-  .tl-date{font-family:var(--mono); font-size:13px; color:var(--muted2);}
-  .tl-role{font-family:var(--display); font-size:23px; font-weight:600; margin-top:8px;}
+  .tl-item:not(:hover):not(.active){opacity:.75;}
+  
+  .tl-item:hover .tl-role, .tl-item.active .tl-role {color:var(--text);}
+  .tl-item:hover .tl-date, .tl-item.active .tl-date {color:var(--cyan);}
+  
+  .tl-date{font-family:var(--mono); font-size:13px; color:var(--muted2); transition: color 0.3s;}
+  .tl-role{font-family:var(--display); font-size:23px; font-weight:600; margin-top:8px; transition: color 0.3s;}
   .tl-role span{color:var(--muted); font-weight:400; font-size:16px; font-family:var(--sans);}
   .tl-group{margin-top:22px;}
   .tl-group h4{font-family:var(--mono); font-size:12.5px; color:var(--cyan); font-weight:400; letter-spacing:.02em; margin:0 0 8px;}
   .tl ul{margin:0; padding:0; list-style:none;}
   .tl li{position:relative; padding-left:20px; margin-top:9px; color:var(--muted); max-width:62ch; font-size:15.5px;}
-  .tl li{
-    opacity:0; transform:translateX(-14px);
-    clip-path:inset(0 100% 0 0);
-    transition:
-      opacity .4s ease,
-      transform .45s cubic-bezier(.2,.8,.2,1),
-      clip-path .45s cubic-bezier(.2,.8,.2,1);
-  }
-  .tl li.unfolded{opacity:1; transform:translateX(0); clip-path:inset(0 0 0 0);}
   .tl li::before{content:'—'; position:absolute; left:0; color:var(--muted2);}
   .tl li b{color:var(--text); font-weight:600;}
 
   /* ================= BUILT ================= */
-  .built-list{display:flex; flex-direction:column; perspective:1400px;}
-  .built-item{ transform-style:preserve-3d; will-change:transform; transition:transform .05s linear; }
+  .built-list{display:flex; flex-direction:column;}
   .built-item{padding:44px 0; border-top:1px solid var(--hair); display:grid; grid-template-columns:1fr 2fr; gap:32px;}
   .built-list .built-item:last-child{border-bottom:1px solid var(--hair);}
   @media (max-width:700px){ .built-item{grid-template-columns:1fr;} }
@@ -348,8 +357,14 @@
   footer h2{font-size:clamp(30px,4.6vw,50px); max-width:14ch;}
   .fine{margin-top:80px; font-size:13px; color:var(--muted2); font-family:var(--mono);}
 
-  @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto;} .hero h1 .cursor{animation:none;} }
+  @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto;} }
 </style>
+
+<noscript>
+  <style>
+    .reveal { opacity: 1 !important; transform: none !important; }
+  </style>
+</noscript>
 </head>
 <body>
 <canvas id="bgCanvas" aria-hidden="true"></canvas>
@@ -373,324 +388,328 @@
   </div>
 </header>
 
-<section class="hero">
-  <div class="orb orb-a"></div>
-  <div class="orb orb-b"></div>
-  <div class="wrap">
-    <div class="eyebrow"><span class="dot"></span>Quality Assurance Leader</div>
-    <h1 id="typedHead" aria-label="I make quality something a business can plan around.">
-  <span class="gradient-text hero-word">I make</span> <span class="gradient-text hero-word">quality</span>
-  <span class="gradient-text hero-word">something</span> <span class="gradient-text hero-word">a business</span>
-  <span class="gradient-text hero-word">can plan</span> <span class="gradient-text hero-word">around.</span>
-</h1>
-    <p class="lede">Close to 10 years across Amazon, Brightcove, and a 0-to-1 mandate for
-      a Series A grocery delivery platform that raised $11M+. I turn ambiguous,
-      early-stage QA problems into governed, AI-accelerated processes, and I build the
-      tools myself when engineering doesn't have the bandwidth to.</p>
-    <div class="link-row">
-      <a class="icon-link" href="mailto:Aravin4d@gmail.com">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18v12H3z"/><path d="M3 7l9 6 9-6"/></svg>
-        Aravin4d@gmail.com
-      </a>
-      <a class="icon-link" href="https://www.linkedin.com/in/natarajan-aravind" target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.94 5a2 2 0 11-4-.02 2 2 0 014 .02zM7 8.48H3V21h4zm6.32 0H9.34V21h3.94v-6.57c0-3.66 4.77-4 4.77 0V21H22v-7.93c0-6.17-7.06-5.94-8.68-2.91z"/></svg>
-        LinkedIn
-      </a>
-    </div>
-  </div>
-  <div class="scrolldown"><span class="ln"></span>scroll</div>
-</section>
-
-<section class="statement">
-  <div class="marquee-track" id="marquee">
-    <!-- set A -->
-    <div class="stmt">Daily hotfixes became <span class="hl">predictable bi-weekly releases</span>. That's not luck — <b>that's the system I build.</b></div>
-    <div class="stmt">$220 spent building my own tools. <span class="hl">$69,450 saved</span> across three employers. <b>I don't wait on engineering bandwidth.</b></div>
-    <div class="stmt">Sole QA owner for an entire region. Founding member of Alexa Identity. <b>I don't wait for a team to be built around me</b> — <span class="hl">I build it.</span></div>
-    <div class="stmt">Every process I've run on measures success the same way: <span class="hl">by what the customer never has to deal with.</span></div>
-    <!-- set B (duplicate for seamless loop) -->
-    <div class="stmt">Daily hotfixes became <span class="hl">predictable bi-weekly releases</span>. That's not luck — <b>that's the system I build.</b></div>
-    <div class="stmt">$220 spent building my own tools. <span class="hl">$69,450 saved</span> across three employers. <b>I don't wait on engineering bandwidth.</b></div>
-    <div class="stmt">Sole QA owner for an entire region. Founding member of Alexa Identity. <b>I don't wait for a team to be built around me</b> — <span class="hl">I build it.</span></div>
-    <div class="stmt">Every process I've run on measures success the same way: <span class="hl">by what the customer never has to deal with.</span></div>
-  </div>
-</section>
-
-<section class="stat-section" id="impact">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <h2>Impact</h2>
-      <div class="sub">The numbers behind the systems, tools, and release processes I built.</div>
-    </div>
-    <div class="stat-stack" id="statStack">
-      <article class="stat-card">
-        <span class="index">01 / SAVINGS</span>
-        <div class="stat-inner">
-          <div class="num">$69,450</div>
-          <div class="cap">saved across three employers — no added headcount</div>
-        </div>
-      </article>
-      <article class="stat-card">
-        <span class="index">02 / TIME</span>
-        <div class="stat-inner">
-          <div class="num">1,300+</div>
-          <div class="cap">engineering hours reclaimed a year</div>
-        </div>
-      </article>
-      <article class="stat-card">
-        <span class="index">03 / CUSTOMER</span>
-        <div class="stat-inner">
-          <div class="num">4.8★</div>
-          <div class="cap">app store rating after the customer communications revamp</div>
-        </div>
-      </article>
-      <article class="stat-card">
-        <span class="index">04 / SCALE</span>
-        <div class="stat-inner">
-          <div class="num">18</div>
-          <div class="cap">locales shipped for Alexa Identity</div>
-        </div>
-      </article>
-    </div>
-    <div class="stat-progress" aria-hidden="true"><span id="statProgress"></span></div>
-  </div>
-</section>
-
-<section id="experience">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <h2>Experience</h2>
-      <div class="sub">Four roles, one pattern: walk into reactive, underbuilt QA, leave behind
-        something the business can run on. This is the fuller version — the résumé version
-        is deliberately shorter.</div>
-    </div>
-    <div class="tl reveal" id="expTimeline">
-      <div class="tl-fill" id="tlFill"></div>
-      <div class="tl-item">
-        <div class="tl-date">May 2025 – Sept 2026</div>
-        <div class="tl-role">Buncha <span>· Quality Assurance Manager / Product</span></div>
-
-        <div class="tl-group">
-          <h4>governance &amp; process</h4>
-          <ul>
-            <li>Established <b>0-to-1 QA governance</b>, taking release cadence from daily hotfixes to predictable bi-weekly deployments — team ownership, SDLC engagement points, P0-P3 severity frameworks, signed release gates.</li>
-            <li>Held a standing seat on the <b>executive release-priority panel</b> and owned company-wide PRD review, catching contradictory logic before development (conflicting capacity-check rules, an ETA-routing gating conflict) and authoring a 74-case suite for a third-party delivery integration.</li>
-            <li>Cut new-task ramp-up friction by pre-validating PRDs a week ahead during sprint planning — test approach, test cases, and acceptance criteria signed off before the sprint even started.</li>
-            <li>Cut <b>SOS escalations from 4–6 a week to 3–4 a month</b> by authoring and enforcing a company-wide incident-severity framework, with same-day fixes via daily RCA and an in-app customer feedback flow I pushed engineering to ship.</li>
-          </ul>
-        </div>
-
-        <div class="tl-group">
-          <h4>major releases &amp; integrations</h4>
-          <ul>
-            <li>Owned quality for <b>one-hour delivery, payments, marketplace expansion, WIW, Matcher, dynamic ETA</b>, the DoorDash and Uber integrations, and the phone-masking and TalkJS communication backbone.</li>
-            <li>Owned quality for a real-time checkpoint-tracking system feeding a three-tab admin console (run, shopper, driver), Onfleet-based route and van optimization, Branch-based 1099 payment integration, in-app shift acceptance, and geofencing for attendance.</li>
-            <li>Led QA for a <b>3-store Grand Rapids launch with Meijer</b>, contributing to scaling Buncha's fulfillment network to 9 total stores generating ~350–380 orders and $4,900–$5,300+ in daily revenue.</li>
-            <li>Owned QA for a <b>customer communications revamp</b> that lifted app store ratings from 4.5–4.6 to 4.8 stars.</li>
-          </ul>
-        </div>
-
-        <div class="tl-group">
-          <h4>team &amp; leadership</h4>
-          <ul>
-            <li>Directed a <b>3-person QA team</b> through an unbacked headcount reduction without missing a release — hiring, onboarding, individual KPIs, performance reviews, growth plans, sprint retrospectives.</li>
-            <li>Served as company-wide first point of contact for production issues and onboarded every new operations and engineering hire.</li>
-          </ul>
-        </div>
-
-        <div class="tl-group">
-          <h4>tools I built — <a href="#built">see below</a></h4>
-          <ul>
-            <li>Bytecast, Forgeflow, a live-data order creation admin tool, and a Meijer self-serve ordering feature — <b>1,300+ hours and $69,450 reclaimed</b> across everything I built.</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="tl-item">
-        <div class="tl-date">Dec 2021 – March 2025</div>
-        <div class="tl-role">Brightcove <span>· Quality Assurance Engineer / Lead</span></div>
-        <div class="tl-group">
-          <h4>ownership &amp; delivery</h4>
-          <ul>
-            <li>Directed regional QA strategy as <b>APAC's sole QA owner</b>, leading 2–3 rotating contractors across multiple markets and time zones.</li>
-            <li>Shipped <b>50+ projects</b>, five large-scale, saving more than <b>$40,000 a year</b> in rework and support costs through standardized pre-production test gates.</li>
-            <li>Cut regression execution time from <b>10 hours to 4</b>, reclaiming 20+ hours per release through a risk-based strategy built with product, cutting test case volume 30% without losing critical coverage.</li>
-          </ul>
-        </div>
-        <div class="tl-group">
-          <h4>process &amp; stability</h4>
-          <ul>
-            <li>Built a <b>root cause analysis and triage process</b> from scratch that cut recurring issues over half and invalid defects 40%, and set up a centralized Xray test repository saving ~4 hours per project.</li>
-            <li>Drove production rollback incidents down <b>over half</b> and lifted customer satisfaction scores <b>20%</b> through tighter test planning and earlier defect detection.</li>
-            <li>Owned end-to-end testing across web, mobile (Android and iOS), Android TV, and admin consoles — carousel, video, live content, live TV — plus data-integrity validation on every customer onboarding and offboarding migration.</li>
-          </ul>
-        </div>
-        <div class="tl-group">
-          <h4>clients &amp; recognition</h4>
-          <ul>
-            <li>Delivered QA for a global enterprise and broadcast client base including <b>Spotify, AT&amp;T, BBC, Cisco, Dell, ServiceNow, ExxonMobil, GM, Sky</b>, and Tennis Australia.</li>
-            <li>Recognized by the Director and Senior VP, and commended by multiple clients, for running critical projects independently under tight deadlines.</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="tl-item">
-        <div class="tl-date">Dec 2019 – Dec 2021</div>
-        <div class="tl-role">Amazon <span>· Sr. Associate, Quality Service</span></div>
-        <div class="tl-group">
-          <h4>alexa identity</h4>
-          <ul>
-            <li>Joined as a <b>founding QA member</b> and delivered Alexa Identity to launch across <b>18 locales, languages, and regions</b>, covering voice and face enrollment and every authentication method behind Alexa's user recognition.</li>
-            <li>Validated Identity across <b>20+ hardware devices</b> — Fire tablets, Fire TV Stick, Echo Auto, wearables, the Alexa app on Android and iOS — and third-party integrations with Bose and Sony. Zero launch-blocking defects.</li>
-          </ul>
-        </div>
-        <div class="tl-group">
-          <h4>process &amp; efficiency</h4>
-          <ul>
-            <li>Rebuilt the regression suite from <b>1,100 test cases to 180</b> for a one-day cycle, saving ~$15,000 a year and raising test efficiency 40%.</li>
-            <li>Cut personal after-hours reporting time from <b>2 hours to 20 minutes</b>, reclaiming 400+ hours a year, and separately automated bug/comment templates with a Tampermonkey script saving ~$2,000 a year and standardizing reporting across the team.</li>
-            <li>Rewrote defect reporting standards across <b>950+ critical bugs and 2,000+ test cases</b>, cutting invalid defect rates to under 1% and resolution time 20%.</li>
-          </ul>
-        </div>
-        <div class="tl-group">
-          <h4>program &amp; people</h4>
-          <ul>
-            <li>Ran <b>6 concurrent major projects and 28+ features</b>, managing a team of 10+ and partnering daily with US-based leadership, developers, TPMs, and product across a full time-zone gap.</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="tl-item">
-        <div class="tl-date">June 2017 – Dec 2019</div>
-        <div class="tl-role">Amazon <span>· Associate, Quality Service</span></div>
-        <ul>
-          <li>Tested the Alexa mobile app across Android, iOS, and Fire Tablets on a weekly build and release cycle.</li>
-          <li>Grew from owning one functional area of the Alexa app to full end-to-end Alexa Identity validation on promotion.</li>
-          <li>Earned <b>9 company awards in 2.5 years</b> and a fast-track promotion to Senior Associate, with direct recognition from the Director.</li>
-        </ul>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<section id="built">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <h2>Built</h2>
-      <div class="sub">When engineering didn't have the bandwidth, or a process had no owner, I built it myself.</div>
-    </div>
-    <div class="built-list reveal">
-
-      <div class="built-item">
-        <div>
-          <h3>Bytecast</h3>
-          <span class="tag">Chrome extension · live on the Chrome Web Store</span>
-        </div>
-        <div>
-          <p>I was retyping near-duplicate bug reports by hand. Bytecast records a web
-            page and captures everything happening on it, then turns that recording into
-            a bug in one click.</p>
-          <ul>
-            <li>Built-in lightweight video editing and custom bug templates, or manual entry when there's nothing to record</li>
-            <li>Claude-powered, and can switch models to keep bug write-ups concise every time</li>
-            <li>Files into Jira, ClickUp, and five-plus other trackers out of the box</li>
-            <li>The real trick: every recorded video, console log, network call, and inspected element gets bundled into one interactive file attached to the bug. Open that attachment and it plays back like the live page, logs synced to the exact moment they happened</li>
-            <li>Cross-checks the details a reporter typed against what the logs actually show, so a bug report isn't just a story, it's backed by evidence</li>
-          </ul>
-          <p><a href="https://chromewebstore.google.com/detail/fnikljikgfjjkalbhnbcbdgogeiaiiml" target="_blank" rel="noopener">View on the Chrome Web Store →</a></p>
-        </div>
-      </div>
-
-      <div class="built-item">
-        <div>
-          <h3>Live-Data Order Admin</h3>
-          <span class="tag">Internal admin tool</span>
-        </div>
-        <p>Every test order used to mean a real transaction and a manual API setup, per
-          order, per environment. This tool pulls live data straight from whichever
-          environment you're pointed at, production included, and creates a fully
-          detailed order in one click, no separate setup per order, no extra cost. It
-          was later extended through Greenhouse into a company-wide in-store trial
-          order automation flow.</p>
-      </div>
-
-      <div class="built-item">
-        <div>
-          <h3>Meijer Self-Serve</h3>
-          <span class="tag">In-app feature</span>
-        </div>
-        <p>Meijer could only place orders through their own system, but every one of
-          those orders still needed QA to manually shop and deliver it inside our app,
-          just to work around internal dependencies. I built a feature giving their own
-          staff direct access to assign themselves as shopper and driver and run the
-          whole flow start to finish, no one on my team involved. Saved ~4 hours of QA
-          time a week.</p>
-      </div>
-
-      <div class="built-item">
-        <div>
-          <h3>Forgeflow</h3>
-          <span class="tag">Android app · internal tool</span>
-        </div>
-        <p>Records a real session on the phone and turns it into a working test script,
-          cross-platform, no separate build per OS. What used to cost a QA engineer real
-          hours writing and maintaining automation by hand now happens in the time it
-          takes to record the flow once, freeing that time for the testing a script
-          can't do: exploring the parts of the product no one's thought to check yet.</p>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<section id="skills">
-  <div class="wrap">
-    <div class="sec-head reveal"><h2>Skills &amp; tools</h2></div>
-    <div class="skill-list reveal">
-      <div class="skill-block">
-        <h3>qa leadership &amp; strategy</h3>
-        <p>0-to-1 QA governance, release management, incident governance, hiring &amp; onboarding, performance reviews &amp; 1:1 mentoring, vendor &amp; stakeholder management.</p>
-      </div>
-      <div class="skill-block">
-        <h3>testing methodologies</h3>
-        <p>Test planning &amp; design, risk-based testing, regression, functional, compatibility, cross-platform &amp; OTT, exploratory, end-to-end, UAT, localization, root cause analysis.</p>
-      </div>
-      <div class="skill-block">
-        <h3>ai-assisted qa tooling</h3>
-        <p>Claude AI &amp; LLM prompt engineering, Chrome extension development, custom Tampermonkey scripting, SQL.</p>
-      </div>
-      <div class="skill-block">
-        <h3>observability &amp; platforms</h3>
-        <p>Datadog, New Relic, Redis, RabbitMQ, Elasticsearch, Postman, JMeter, BrowserStack, LambdaTest.</p>
-      </div>
-      <div class="skill-block">
-        <h3>reporting &amp; version control</h3>
-        <p>Jira, Xray, ClickUp, Confluence, TestRail, Git, test reports &amp; dashboards.</p>
+<main>
+  <section class="hero" id="hero">
+    <div class="orb orb-a"></div>
+    <div class="orb orb-b"></div>
+    <div class="wrap">
+      <div class="eyebrow"><span class="dot"></span>Quality Assurance Leader</div>
+      <h1 id="typedHead">
+        <span class="sr-only">I make quality something a business can plan around.</span>
+        <span aria-hidden="true">
+          <span class="gradient-text hero-word">I make</span> <span class="gradient-text hero-word">quality</span>
+          <span class="gradient-text hero-word">something</span> <span class="gradient-text hero-word">a business</span>
+          <span class="gradient-text hero-word">can plan</span> <span class="gradient-text hero-word">around.</span>
+        </span>
+      </h1>
+      <p class="lede">Close to 10 years across Amazon, Brightcove, and a 0-to-1 mandate for
+        a Series A grocery delivery platform that raised $11M+. I turn ambiguous,
+        early-stage QA problems into governed, AI-accelerated processes, and I build the
+        tools myself when engineering doesn't have the bandwidth to.</p>
+      <div class="link-row">
+        <a class="icon-link" href="mailto:Aravin4d@gmail.com">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18v12H3z"/><path d="M3 7l9 6 9-6"/></svg>
+          Aravin4d@gmail.com
+        </a>
+        <a class="icon-link" href="https://www.linkedin.com/in/natarajan-aravind" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.94 5a2 2 0 11-4-.02 2 2 0 014 .02zM7 8.48H3V21h4zm6.32 0H9.34V21h3.94v-6.57c0-3.66 4.77-4 4.77 0V21H22v-7.93c0-6.17-7.06-5.94-8.68-2.91z"/></svg>
+          LinkedIn
+        </a>
       </div>
     </div>
-  </div>
-</section>
+    <div class="scrolldown"><span class="ln"></span>scroll</div>
+  </section>
 
-<section id="education">
-  <div class="wrap">
-    <div class="sec-head reveal"><h2>Education &amp; certifications</h2></div>
-    <div class="reveal">
-      <div class="edu-row">
-        <div class="edu-name">B.E., Electronics &amp; Communication Engineering — Sri Krishna College of Engineering and Technology</div>
-        <div class="edu-meta">CGPA 8.13</div>
+  <section class="statement">
+    <div class="marquee-track" id="marquee">
+      <div class="stmt">Daily hotfixes became <span class="hl">predictable bi-weekly releases</span>. That's not luck — <b>that's the system I build.</b></div>
+      <div class="stmt">$220 spent building my own tools. <span class="hl">$69,450 saved</span> across three employers. <b>I don't wait on engineering bandwidth.</b></div>
+      <div class="stmt">Sole QA owner for an entire region. Founding member of Alexa Identity. <b>I don't wait for a team to be built around me</b> — <span class="hl">I build it.</span></div>
+      <div class="stmt">Every process I've run on measures success the same way: <span class="hl">by what the customer never has to deal with.</span></div>
+      <div class="stmt">Daily hotfixes became <span class="hl">predictable bi-weekly releases</span>. That's not luck — <b>that's the system I build.</b></div>
+      <div class="stmt">$220 spent building my own tools. <span class="hl">$69,450 saved</span> across three employers. <b>I don't wait on engineering bandwidth.</b></div>
+      <div class="stmt">Sole QA owner for an entire region. Founding member of Alexa Identity. <b>I don't wait for a team to be built around me</b> — <span class="hl">I build it.</span></div>
+      <div class="stmt">Every process I've run on measures success the same way: <span class="hl">by what the customer never has to deal with.</span></div>
+    </div>
+  </section>
+
+  <section class="stat-section" id="impact">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <h2>Impact</h2>
+        <div class="sub">The numbers behind the systems, tools, and release processes I built.</div>
       </div>
-      <div class="edu-row">
-        <div class="edu-name">Six Sigma Yellow Belt</div>
-        <div class="edu-meta">Certified</div>
-      </div>
-      <div class="edu-row">
-        <div class="edu-name">ISTQB Certification</div>
-        <div class="edu-meta">Expected Dec 2026</div>
+      <div class="stat-stack">
+        <article class="stat-card reveal">
+          <span class="index">01 / SAVINGS</span>
+          <div class="stat-inner">
+            <div class="num">$69,450</div>
+            <div class="cap">saved across three employers — no added headcount</div>
+          </div>
+        </article>
+        <article class="stat-card reveal">
+          <span class="index">02 / TIME</span>
+          <div class="stat-inner">
+            <div class="num">1,300+</div>
+            <div class="cap">engineering hours reclaimed a year</div>
+          </div>
+        </article>
+        <article class="stat-card reveal">
+          <span class="index">03 / CUSTOMER</span>
+          <div class="stat-inner">
+            <div class="num">4.8★</div>
+            <div class="cap">app store rating after the customer communications revamp</div>
+          </div>
+        </article>
+        <article class="stat-card reveal">
+          <span class="index">04 / SCALE</span>
+          <div class="stat-inner">
+            <div class="num">18</div>
+            <div class="cap">locales shipped for Alexa Identity</div>
+          </div>
+        </article>
       </div>
     </div>
-  </div>
-</section>
+  </section>
+
+  <section id="experience">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <h2>Experience</h2>
+        <div class="sub">Four roles, one pattern: walk into reactive, underbuilt QA, leave behind
+          something the business can run on. This is the fuller version — the résumé version
+          is deliberately shorter.</div>
+      </div>
+      <div class="tl reveal" id="expTimeline">
+        <div class="tl-fill"></div>
+        <div class="tl-fill-active" id="tlFill"></div>
+        
+        <div class="tl-item">
+          <div class="tl-date">May 2025 – Sept 2026</div>
+          <div class="tl-role">Buncha <span>· Quality Assurance Manager / Product</span></div>
+
+          <div class="tl-group">
+            <h4>governance &amp; process</h4>
+            <ul>
+              <li>Established <b>0-to-1 QA governance</b>, taking release cadence from daily hotfixes to predictable bi-weekly deployments — team ownership, SDLC engagement points, P0-P3 severity frameworks, signed release gates.</li>
+              <li>Held a standing seat on the <b>executive release-priority panel</b> and owned company-wide PRD review, catching contradictory logic before development (conflicting capacity-check rules, an ETA-routing gating conflict) and authoring a 74-case suite for a third-party delivery integration.</li>
+              <li>Cut new-task ramp-up friction by pre-validating PRDs a week ahead during sprint planning — test approach, test cases, and acceptance criteria signed off before the sprint even started.</li>
+              <li>Authored and enforced a company-wide incident-severity framework, streamlining daily RCAs and establishing an in-app customer feedback flow to ensure rapid, targeted resolutions.</li>
+            </ul>
+          </div>
+
+          <div class="tl-group">
+            <h4>major releases &amp; integrations</h4>
+            <ul>
+              <li>Owned quality for <b>one-hour delivery, payments, marketplace expansion, WIW, Matcher, dynamic ETA</b>, the DoorDash and Uber integrations, and the phone-masking and TalkJS communication backbone.</li>
+              <li>Owned quality for a real-time checkpoint-tracking system feeding a three-tab admin console (run, shopper, driver), Onfleet-based route and van optimization, Branch-based 1099 payment integration, in-app shift acceptance, and geofencing for attendance.</li>
+              <li>Led QA for a <b>3-store Grand Rapids launch with Meijer</b>, contributing to scaling Buncha's fulfillment network to 9 total stores generating ~350–380 orders and $4,900–$5,300+ in daily revenue.</li>
+              <li>Owned QA for a <b>customer communications revamp</b> that lifted app store ratings from 4.5–4.6 to 4.8 stars.</li>
+            </ul>
+          </div>
+
+          <div class="tl-group">
+            <h4>team &amp; leadership</h4>
+            <ul>
+              <li>Directed a <b>3-person QA team</b> through an unbacked headcount reduction without missing a release — hiring, onboarding, individual KPIs, performance reviews, growth plans, sprint retrospectives.</li>
+              <li>Served as company-wide first point of contact for production issues and onboarded every new operations and engineering hire.</li>
+            </ul>
+          </div>
+
+          <div class="tl-group">
+            <h4>tools I built — <a href="#built">see below</a></h4>
+            <ul>
+              <li>Bytecast, Forgeflow, a live-data order creation admin tool, and a Meijer self-serve ordering feature — <b>1,300+ hours and $69,450 reclaimed</b> across everything I built.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-date">Dec 2021 – March 2025</div>
+          <div class="tl-role">Brightcove <span>· Quality Assurance Engineer / Lead</span></div>
+          <div class="tl-group">
+            <h4>ownership &amp; delivery</h4>
+            <ul>
+              <li>Directed regional QA strategy as <b>APAC's sole QA owner</b>, leading 2–3 rotating contractors across multiple markets and time zones.</li>
+              <li>Shipped <b>50+ projects</b>, five large-scale, saving more than <b>$40,000 a year</b> in rework and support costs through standardized pre-production test gates.</li>
+              <li>Cut regression execution time from <b>10 hours to 4</b>, reclaiming 20+ hours per release through a risk-based strategy built with product, cutting test case volume 30% without losing critical coverage.</li>
+            </ul>
+          </div>
+          <div class="tl-group">
+            <h4>process &amp; stability</h4>
+            <ul>
+              <li>Built a <b>root cause analysis and triage process</b> from scratch that cut recurring issues over half and invalid defects 40%, and set up a centralized Xray test repository saving ~4 hours per project.</li>
+              <li>Drove production rollback incidents down <b>over half</b> and lifted customer satisfaction scores <b>20%</b> through tighter test planning and earlier defect detection.</li>
+              <li>Owned end-to-end testing across web, mobile (Android and iOS), Android TV, and admin consoles — carousel, video, live content, live TV — plus data-integrity validation on every customer onboarding and offboarding migration.</li>
+            </ul>
+          </div>
+          <div class="tl-group">
+            <h4>clients &amp; recognition</h4>
+            <ul>
+              <li>Delivered QA for a global enterprise and broadcast client base including <b>Spotify, AT&amp;T, BBC, Cisco, Dell, ServiceNow, ExxonMobil, GM, Sky</b>, and Tennis Australia.</li>
+              <li>Recognized by the Director and Senior VP, and commended by multiple clients, for running critical projects independently under tight deadlines.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-date">Dec 2019 – Dec 2021</div>
+          <div class="tl-role">Amazon <span>· Sr. Associate, Quality Service</span></div>
+          <div class="tl-group">
+            <h4>alexa identity</h4>
+            <ul>
+              <li>Joined as a <b>founding QA member</b> and delivered Alexa Identity to launch across <b>18 locales, languages, and regions</b>, covering voice and face enrollment and every authentication method behind Alexa's user recognition.</li>
+              <li>Validated Identity across <b>20+ hardware devices</b> — Fire tablets, Fire TV Stick, Echo Auto, wearables, the Alexa app on Android and iOS — and third-party integrations with Bose and Sony. Zero launch-blocking defects.</li>
+            </ul>
+          </div>
+          <div class="tl-group">
+            <h4>process &amp; efficiency</h4>
+            <ul>
+              <li>Rebuilt the regression suite from <b>1,100 test cases to 180</b> for a one-day cycle, saving ~$15,000 a year and raising test efficiency 40%.</li>
+              <li>Cut personal after-hours reporting time from <b>2 hours to 20 minutes</b>, reclaiming 400+ hours a year, and separately automated bug/comment templates with a Tampermonkey script saving ~$2,000 a year and standardizing reporting across the team.</li>
+              <li>Rewrote defect reporting standards across <b>950+ critical bugs and 2,000+ test cases</b>, cutting invalid defect rates to under 1% and resolution time 20%.</li>
+            </ul>
+          </div>
+          <div class="tl-group">
+            <h4>program &amp; people</h4>
+            <ul>
+              <li>Ran <b>6 concurrent major projects and 28+ features</b>, managing a team of 10+ and partnering daily with US-based leadership, developers, TPMs, and product across a full time-zone gap.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-date">June 2017 – Dec 2019</div>
+          <div class="tl-role">Amazon <span>· Associate, Quality Service</span></div>
+          <ul>
+            <li>Tested the Alexa mobile app across Android, iOS, and Fire Tablets on a weekly build and release cycle.</li>
+            <li>Grew from owning one functional area of the Alexa app to full end-to-end Alexa Identity validation on promotion.</li>
+            <li>Earned <b>9 company awards in 2.5 years</b> and a fast-track promotion to Senior Associate, with direct recognition from the Director.</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section id="built">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <h2>Built</h2>
+        <div class="sub">When engineering didn't have the bandwidth, or a process had no owner, I built it myself.</div>
+      </div>
+      <div class="built-list reveal">
+
+        <div class="built-item">
+          <div>
+            <h3>Bytecast</h3>
+            <span class="tag">Chrome extension · live on the Chrome Web Store</span>
+          </div>
+          <div>
+            <p>I was retyping near-duplicate bug reports by hand. Bytecast records a web
+              page and captures everything happening on it, then turns that recording into
+              a bug in one click.</p>
+            <ul>
+              <li>Built-in lightweight video editing and custom bug templates, or manual entry when there's nothing to record</li>
+              <li>Claude-powered, and can switch models to keep bug write-ups concise every time</li>
+              <li>Files into Jira, ClickUp, and five-plus other trackers out of the box</li>
+              <li>The real trick: every recorded video, console log, network call, and inspected element gets bundled into one interactive file attached to the bug. Open that attachment and it plays back like the live page, logs synced to the exact moment they happened</li>
+              <li>Cross-checks the details a reporter typed against what the logs actually show, so a bug report isn't just a story, it's backed by evidence</li>
+            </ul>
+            <p><a href="https://chromewebstore.google.com/detail/fnikljikgfjjkalbhnbcbdgogeiaiiml" target="_blank" rel="noopener">View on the Chrome Web Store →</a></p>
+          </div>
+        </div>
+
+        <div class="built-item">
+          <div>
+            <h3>Live-Data Order Admin</h3>
+            <span class="tag">Internal admin tool</span>
+          </div>
+          <p>Every test order used to mean a real transaction and a manual API setup, per
+            order, per environment. This tool pulls live data straight from whichever
+            environment you're pointed at, production included, and creates a fully
+            detailed order in one click, no separate setup per order, no extra cost. It
+            was later extended through Greenhouse into a company-wide in-store trial
+            order automation flow.</p>
+        </div>
+
+        <div class="built-item">
+          <div>
+            <h3>Meijer Self-Serve</h3>
+            <span class="tag">In-app feature</span>
+          </div>
+          <p>Meijer could only place orders through their own system, but every one of
+            those orders still needed QA to manually shop and deliver it inside our app,
+            just to work around internal dependencies. I built a feature giving their own
+            staff direct access to assign themselves as shopper and driver and run the
+            whole flow start to finish, no one on my team involved. Saved ~4 hours of QA
+            time a week.</p>
+        </div>
+
+        <div class="built-item">
+          <div>
+            <h3>Forgeflow</h3>
+            <span class="tag">Android app · internal tool</span>
+          </div>
+          <p>Records a real session on the phone and turns it into a working test script,
+            cross-platform, no separate build per OS. What used to cost a QA engineer real
+            hours writing and maintaining automation by hand now happens in the time it
+            takes to record the flow once, freeing that time for the testing a script
+            can't do: exploring the parts of the product no one's thought to check yet.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section id="skills">
+    <div class="wrap">
+      <div class="sec-head reveal"><h2>Skills &amp; tools</h2></div>
+      <div class="skill-list reveal">
+        <div class="skill-block">
+          <h3>qa leadership &amp; strategy</h3>
+          <p>0-to-1 QA governance, release management, incident governance, hiring &amp; onboarding, performance reviews &amp; 1:1 mentoring, vendor &amp; stakeholder management.</p>
+        </div>
+        <div class="skill-block">
+          <h3>testing methodologies</h3>
+          <p>Test planning &amp; design, risk-based testing, regression, functional, compatibility, cross-platform &amp; OTT, exploratory, end-to-end, UAT, localization, root cause analysis.</p>
+        </div>
+        <div class="skill-block">
+          <h3>ai-assisted qa tooling</h3>
+          <p>Claude AI &amp; LLM prompt engineering, Chrome extension development, custom Tampermonkey scripting, SQL.</p>
+        </div>
+        <div class="skill-block">
+          <h3>observability &amp; platforms</h3>
+          <p>Datadog, New Relic, Redis, RabbitMQ, Elasticsearch, Postman, JMeter, BrowserStack, LambdaTest.</p>
+        </div>
+        <div class="skill-block">
+          <h3>reporting &amp; version control</h3>
+          <p>Jira, Xray, ClickUp, Confluence, TestRail, Git, test reports &amp; dashboards.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="education">
+    <div class="wrap">
+      <div class="sec-head reveal"><h2>Education &amp; certifications</h2></div>
+      <div class="reveal">
+        <div class="edu-row">
+          <div class="edu-name">B.E., Electronics &amp; Communication Engineering — Sri Krishna College of Engineering and Technology</div>
+          <div class="edu-meta">CGPA 8.13</div>
+        </div>
+        <div class="edu-row">
+          <div class="edu-name">Six Sigma Yellow Belt</div>
+          <div class="edu-meta">Certified</div>
+        </div>
+        <div class="edu-row">
+          <div class="edu-name">ISTQB Certification</div>
+          <div class="edu-meta">Expected Dec 2026</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
 
 <footer id="contact">
   <div class="wrap">
@@ -733,7 +752,7 @@
   /* ---------------- Hero reveal ---------------- */
   var heroWords = document.querySelectorAll('.hero-word');
   if (reduceMotion){
-    heroWords.forEach(function(word){ word.style.animation = 'none'; word.style.opacity = '1'; word.style.transform = 'none'; word.style.filter = 'none'; word.style.clipPath = 'none'; });
+    heroWords.forEach(function(word){ word.style.animation = 'none'; word.style.opacity = '1'; word.style.transform = 'none'; word.style.filter = 'none'; });
   }
 
   /* ---------------- Magnetic links ---------------- */
@@ -761,7 +780,6 @@
     expItems.forEach(function(item, i){
       item.classList.toggle('active', i === index);
     });
-    document.dispatchEvent(new CustomEvent('experiencechange', {detail:{index:index, item:expItems[index] || null}}));
   }
 
   if ('IntersectionObserver' in window && expItems.length){
@@ -782,7 +800,7 @@
   function updateExperienceLine(){
     if (!expTimeline || !tlFill) return;
     var r = expTimeline.getBoundingClientRect();
-    var total = r.height || 1;
+    var total = Math.max(r.height, 1);
     var seen = Math.min(Math.max(window.innerHeight * .48 - r.top, 0), total);
     tlFill.style.height = (seen / total * 100) + '%';
 
@@ -803,25 +821,6 @@
   window.addEventListener('resize', updateExperienceLine);
   updateExperienceLine();
 
-  /* ---------------- Fast bullet unfold ---------------- */
-  if ('IntersectionObserver' in window){
-    var lines = document.querySelectorAll('.tl li');
-    var lineObserver = new IntersectionObserver(function(entries){
-      entries.forEach(function(entry){
-        if (entry.isIntersecting){
-          entry.target.classList.add('unfolded');
-          lineObserver.unobserve(entry.target);
-        }
-      });
-    }, {threshold:.18, rootMargin:'0px 0px -8% 0px'});
-    lines.forEach(function(li, i){
-      li.style.transitionDelay = ((i % 5) * .045) + 's';
-      lineObserver.observe(li);
-    });
-  } else {
-    document.querySelectorAll('.tl li').forEach(function(li){ li.classList.add('unfolded'); });
-  }
-
   /* ---------------- Generic section reveals ---------------- */
   if ('IntersectionObserver' in window){
     var reveals = document.querySelectorAll('.reveal');
@@ -836,51 +835,6 @@
     reveals.forEach(function(el){ revealObserver.observe(el); });
   } else {
     document.querySelectorAll('.reveal').forEach(function(el){ el.classList.add('is-visible'); });
-  }
-
-  /* ---------------- Stacked impact cards ---------------- */
-  var stack = document.getElementById('statStack');
-  var cards = stack ? Array.prototype.slice.call(stack.querySelectorAll('.stat-card')) : [];
-  var progress = document.getElementById('statProgress');
-
-  function updateStats(){
-    if (!stack || !cards.length) return;
-    var rect = stack.getBoundingClientRect();
-    var travel = Math.max(rect.height - window.innerHeight * .42, 1);
-    var local = Math.min(Math.max((window.innerHeight * .50 - rect.top) / travel, 0), 1);
-    var active = Math.min(cards.length - 1, Math.floor(local * cards.length));
-    var intra = (local * cards.length) - active;
-
-    cards.forEach(function(card, i){
-      var distance = i - active;
-      if (distance < 0){
-        card.style.transform = 'translateY(-' + (34 + Math.min(Math.abs(distance) * 10, 24)) + 'px) scale(.96)';
-        card.style.opacity = '.28';
-        card.style.filter = 'blur(2px)';
-      } else if (distance === 0){
-        card.style.transform = 'translateY(0) scale(1)';
-        card.style.opacity = '1';
-        card.style.filter = 'blur(0)';
-      } else {
-        var depth = Math.min(distance, 3);
-        card.style.transform = 'translateY(' + (depth * 14 - intra * 22) + 'px) scale(' + (1 - depth * .035 + intra * .02) + ')';
-        card.style.opacity = String(Math.max(.38, 1 - depth * .16));
-        card.style.filter = 'blur(' + (depth * .45) + 'px)';
-      }
-    });
-
-    if (progress) progress.style.transform = 'translateX(' + (active * 100) + '%)';
-  }
-
-  if (!reduceMotion){
-    window.addEventListener('scroll', updateStats, {passive:true});
-    window.addEventListener('resize', updateStats);
-    updateStats();
-  } else {
-    cards.forEach(function(card, i){
-      card.style.transform = 'translateY(' + (i * 8) + 'px) scale(' + (1 - i * .025) + ')';
-      card.style.opacity = String(1 - i * .12);
-    });
   }
 
   /* ---------------- Full-page flowing trace ---------------- */
@@ -910,27 +864,28 @@
       var el = document.getElementById(id);
       if (!el) return null;
       var r = el.getBoundingClientRect();
-      return window.scrollY + r.top + r.height * .5;
+      return window.scrollY + r.top + Math.max(r.height, 0) * .4; 
     }
 
     function buildTrace(){
-      var pageHeight = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
+      var pageHeight = Math.max(document.body.scrollHeight, window.innerHeight);
       svg.setAttribute('viewBox','0 0 ' + window.innerWidth + ' ' + pageHeight);
       svg.setAttribute('width', window.innerWidth);
       svg.setAttribute('height', pageHeight);
 
       var w = window.innerWidth;
-      var left = Math.max(24, w * .055);
-      var right = Math.min(w - 24, w * .945);
+      var left = Math.max(30, w * .08);
+      var right = Math.min(w - 30, w * .92);
       var mid = w * .50;
 
       var sections = [
-        {id:null, y:80, x:left},
-        {id:'experience', x:right},
-        {id:'built', x:left},
-        {id:'skills', x:right},
-        {id:'education', x:left},
-        {id:'contact', x:right}
+        {id:'hero', x:left},
+        {id:'impact', x:right},
+        {id:'experience', x:left},
+        {id:'built', x:right},
+        {id:'skills', x:left},
+        {id:'education', x:right},
+        {id:'contact', x:mid}
       ];
 
       tracePoints = sections.map(function(s){
@@ -938,16 +893,19 @@
         return {x:s.x, y:y || 0};
       });
 
+      var lastPoint = tracePoints[tracePoints.length-1];
+      if(lastPoint.y > pageHeight) lastPoint.y = Math.max(0, pageHeight - 50);
+
       var d = 'M ' + tracePoints[0].x + ' ' + tracePoints[0].y + ' ';
       for (var i=1;i<tracePoints.length;i++){
         var a = tracePoints[i-1], b = tracePoints[i];
-        var dy = Math.max(120, (b.y-a.y) * .38);
+        var dy = Math.max(120, (b.y-a.y) * .4);
         d += 'C ' + a.x + ' ' + (a.y+dy) + ', ' + b.x + ' ' + (b.y-dy) + ', ' + b.x + ' ' + b.y + ' ';
       }
 
       path.setAttribute('d',d);
       glow.setAttribute('d',d);
-      totalLength = path.getTotalLength() || 1;
+      totalLength = Math.max(path.getTotalLength(), 1);
       path.style.strokeDasharray = totalLength;
       glow.style.strokeDasharray = totalLength;
 
@@ -958,7 +916,7 @@
         c.setAttribute('class','trace-node');
         c.setAttribute('cx',point.x);
         c.setAttribute('cy',point.y);
-        c.setAttribute('r','5');
+        c.setAttribute('r','6');
         svg.appendChild(c);
         nodes.push(c);
       });
@@ -974,7 +932,7 @@
       glow.style.strokeDashoffset = totalLength - draw;
 
       if (tracePoints.length){
-        var currentY = window.scrollY + window.innerHeight * .48;
+        var currentY = window.scrollY + window.innerHeight * .5;
         var nearest = 0, nearestDist = Infinity;
         tracePoints.forEach(function(p,i){
           var d = Math.abs(p.y-currentY);
@@ -982,15 +940,18 @@
         });
         activePoint = nearest;
         nodes.forEach(function(n,i){
-          n.setAttribute('r', i === activePoint ? '8' : '5');
-          n.style.opacity = i === activePoint ? '1' : '.5';
+          if(i === activePoint) {
+            n.classList.add('active-node');
+          } else {
+            n.classList.remove('active-node');
+          }
         });
       }
     }
 
     window.addEventListener('scroll', updateTrace, {passive:true});
     window.addEventListener('resize', buildTrace);
-    buildTrace();
+    setTimeout(buildTrace, 500); 
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(buildTrace);
   })();
 
@@ -1040,9 +1001,9 @@
     }
 
     var themeConfig = {
-      nebula:{speed:.95,length:34,opacity:.30,wobble:.16},
-      ember:{speed:1.18,length:25,opacity:.38,wobble:.23},
-      daybreak:{speed:.78,length:20,opacity:.21,wobble:.10}
+      nebula: {speed: .95, length: 34, opacity: .30, wobble: .16},
+      ember: {speed: .75, length: 42, opacity: .35, wobble: .08}, 
+      daybreak: {speed: 1.3, length: 22, opacity: .75, wobble: .03} 
     };
     var currentTheme = 'nebula';
     var config = themeConfig[currentTheme];
@@ -1060,11 +1021,14 @@
     document.addEventListener('themechange',function(e){
       currentTheme=e.detail;
       config=themeConfig[currentTheme] || themeConfig.nebula;
-      colors=readTheme();
-      mat.color.setRGB(colors.a[0],colors.a[1],colors.a[2]);
+      
+      setTimeout(function(){
+        colors=readTheme();
+        mat.color.setRGB(colors.a[0],colors.a[1],colors.a[2]);
+      }, 10);
     });
 
-    var MAX_HISTORY=40;
+    var MAX_HISTORY=50; 
     var headPos=new THREE.Vector3(0,0,4);
     var headVel=new THREE.Vector3();
     var headTarget=new THREE.Vector3(0,0,4);
@@ -1087,7 +1051,7 @@
       g.setAttribute('color',new THREE.BufferAttribute(c,3));
       var m=new THREE.LineBasicMaterial({
         vertexColors:true,transparent:true,opacity:.28,
-        blending:THREE.AdditiveBlending
+        blending:THREE.AdditiveBlending, linewidth:2
       });
       var line=new THREE.Line(g,m);
       scene.add(line);
@@ -1127,9 +1091,14 @@
 
       var now=performance.now()*.001*config.speed;
       strands.forEach(function(strand){
+        var renderLength = Math.min(config.length, MAX_HISTORY);
         for(var j=0;j<MAX_HISTORY;j++){
+          if(j >= renderLength) {
+             strand.col[j*3] = strand.col[j*3+1] = strand.col[j*3+2] = 0;
+             continue;
+          }
           var base=history[j];
-          var fade=1-j/MAX_HISTORY;
+          var fade=1-j/renderLength;
           var tailFade=Math.pow(fade,1.15);
           var wobble=config.wobble*tailFade;
           strand.pos[j*3]=base.x+Math.sin(now*1.15+j*.48+strand.phase)*wobble;
