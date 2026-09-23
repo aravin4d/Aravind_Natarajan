@@ -392,6 +392,99 @@
   @keyframes traceHalo{ from{ transform:scale(.6); opacity:.7; } to{ transform:scale(2.6); opacity:0; } }
   @media (prefers-reduced-motion: reduce){ #pageTrace .trace-halo{ animation:none; opacity:0; } }
 
+  /* ===================== v3 ===================== */
+  /* "how I work": app-switcher view */
+  .flip-wrap{ max-width:1000px; }
+  .sw-ready .flip-kicker{ text-align:center; }
+  .sw-ready .flip-controls{ display:flex; justify-content:center; }
+  .sw-ready .flip-stack{ display:grid; gap:0; perspective:1400px; padding:6px 0 34px; align-items:center; }
+  .sw-ready .flip-card{ grid-area:1/1; width:min(600px,80%); justify-self:center; will-change:transform;
+    transition:transform .7s cubic-bezier(.22,.8,.2,1), opacity .5s ease, filter .5s ease, box-shadow .5s ease; }
+  .sw-ready .flip-card[data-o="0"]{ z-index:5; transform:none; opacity:1; filter:none; box-shadow:0 44px 90px -34px rgba(0,0,0,.65); }
+  .sw-ready .flip-card[data-o="1"]{ z-index:3; transform:translateX(74%) scale(.82) rotateY(-16deg); opacity:.6; filter:saturate(.6) brightness(.8); cursor:pointer; }
+  .sw-ready .flip-card[data-o="-1"]{ z-index:3; transform:translateX(-74%) scale(.82) rotateY(16deg); opacity:.6; filter:saturate(.6) brightness(.8); cursor:pointer; }
+  .sw-ready .flip-card[data-o="2"]{ z-index:1; transform:translateX(130%) scale(.66) rotateY(-24deg); opacity:0; pointer-events:none; }
+  .sw-ready .flip-card[data-o="-2"]{ z-index:1; transform:translateX(-130%) scale(.66) rotateY(24deg); opacity:0; pointer-events:none; }
+  .sw-ready .flip-card[data-o="1"]:hover, .sw-ready .flip-card[data-o="-1"]:hover{ opacity:.85; }
+  .sw-ready .flip-card.no-anim{ transition:none !important; }
+  .sw-ready .flip-timer{ flex:0 0 120px; margin-left:18px; }
+  @media (max-width:640px){
+    .sw-ready .flip-card{ width:84%; }
+    .sw-ready .flip-card[data-o="1"]{ transform:translateX(66%) scale(.8) rotateY(-12deg); }
+    .sw-ready .flip-card[data-o="-1"]{ transform:translateX(-66%) scale(.8) rotateY(12deg); }
+  }
+
+  /* impact deck: plain-English labels */
+  .deck-label{ display:block; font-family:var(--mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--cyan); margin-bottom:14px; }
+  .deck-intro{ color:var(--muted); margin:-12px 0 26px; font-size:15px; }
+  .deck-num{ white-space:nowrap; }
+  .cinematic .deck-intro{ text-align:center; margin-left:auto; margin-right:auto; }
+  .cinematic .deck-card .deck-num{ font-size:clamp(46px,7.5vw,92px); }
+  .cinematic .deck-cap{ max-width:44ch; margin-left:auto; margin-right:auto; }
+
+  /* trace finale: the tip and the LinkedIn pill buzz together in short bursts */
+  #pageTrace.trace-done .trace-dot{ transform-box:fill-box; transform-origin:center; animation:tipBuzz 2.6s linear infinite; }
+  @keyframes tipBuzz{ 0%,24%,100%{ transform:translate(0,0); } 4%,12%,20%{ transform:translate(-2px,1px); } 8%,16%{ transform:translate(2px,-1px); } }
+  .icon-link.is-called{ border-color:var(--cyan); animation:pillBuzz 2.6s ease-in-out infinite; }
+  .icon-link.is-called:hover{ animation:none; }
+  @keyframes pillBuzz{
+    0%{ transform:none; box-shadow:0 0 0 0 var(--glow); }
+    4%,12%,20%{ transform:translateX(-3px) rotate(-1.2deg); }
+    8%,16%{ transform:translateX(3px) rotate(1.2deg); }
+    24%{ transform:none; }
+    60%{ box-shadow:0 0 0 12px transparent; }
+    100%{ transform:none; box-shadow:0 0 0 0 transparent; }
+  }
+  @media (prefers-reduced-motion: reduce){ .icon-link.is-called, #pageTrace.trace-done .trace-dot{ animation:none; } }
+
+
+  /* ===================== v4 ===================== */
+  /* carousel: slower, dissolving drift instead of a hard swap */
+  .sw-ready .flip-card{ transition:transform 1.15s cubic-bezier(.65,.05,.25,1), opacity .95s ease, filter .95s ease, box-shadow .8s ease; }
+  .sw-ready .flip-card[data-o="0"]{ cursor:pointer; }
+  .sw-ready .flip-card[data-o="1"], .sw-ready .flip-card[data-o="-1"]{ filter:saturate(.6) brightness(.8) blur(1.5px); }
+  .sw-ready .flip-card[data-o="-1"]{ opacity:.5; }
+  .sw-ready .flip-card[data-o="2"], .sw-ready .flip-card[data-o="-2"]{ filter:blur(10px); }
+  .flip-pause .ic-play{ display:none; }
+  .sw-paused .flip-pause .ic-play{ display:block; }
+  .sw-paused .flip-pause .ic-pause{ display:none; }
+  .sw-paused .flip-pause{ border-color:var(--cyan); color:var(--cyan); }
+  .sw-paused .flip-timer i{ background:var(--muted2); }
+  /* letter */
+  .letter-h{ display:block; margin-top:34px; font-family:var(--mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--cyan); }
+  .letter-h + p{ margin-top:10px; }
+  .letter-card{ max-width:74ch; }
+  .letter-sign{ font-family:var(--display); font-size:20px; font-weight:600; margin-top:26px !important; }
+
+
+  /* ===================== v5: daybreak depth ===================== */
+  [data-theme="daybreak"]{ --glass-bg:rgba(255,255,255,.72); --glass-border:rgba(20,24,31,.07); }
+  html[data-theme="daybreak"]{
+    background-color:#F3F1EC;
+    background-image:
+      radial-gradient(1100px 820px at 100% 0%, rgba(124,58,237,.13), transparent 62%),
+      radial-gradient(900px 700px at 100% 55%, rgba(36,84,232,.10), transparent 60%),
+      linear-gradient(100deg, #F6F4EF 0%, #F1EFEA 45%, #E9ECF6 100%);
+    background-attachment:fixed;
+  }
+  [data-theme="daybreak"] header{ box-shadow:0 10px 30px -22px rgba(36,50,90,.35); }
+  [data-theme="daybreak"] .stat-cell,
+  [data-theme="daybreak"] .deck-card .stat-cell,
+  [data-theme="daybreak"] .flip-card,
+  [data-theme="daybreak"] .bt-card,
+  [data-theme="daybreak"] .letter-card,
+  [data-theme="daybreak"] .sk-list .skill-block{
+    border-top-color:rgba(255,255,255,.95);
+    box-shadow:0 1px 2px rgba(20,24,40,.05), 0 12px 28px -14px rgba(36,50,110,.22), 0 36px 70px -36px rgba(80,60,180,.28);
+  }
+  [data-theme="daybreak"] .sw-ready .flip-card[data-o="0"]{ box-shadow:0 2px 4px rgba(20,24,40,.06), 0 30px 70px -28px rgba(60,50,160,.38); }
+  [data-theme="daybreak"] .bt-card.is-hover{ box-shadow:0 2px 6px rgba(20,24,40,.06), 0 44px 90px -34px rgba(6,174,212,.45); }
+  [data-theme="daybreak"] .icon-link{ background:rgba(255,255,255,.8); box-shadow:0 6px 16px -10px rgba(36,50,110,.35); }
+  [data-theme="daybreak"] .icon-link:hover{ box-shadow:0 12px 28px -10px rgba(6,174,212,.45); }
+  [data-theme="daybreak"] .flip-btn, [data-theme="daybreak"] .deck-details li{ background:rgba(255,255,255,.85); box-shadow:0 4px 12px -8px rgba(36,50,110,.35); }
+  [data-theme="daybreak"] .xp-index li{ border-bottom-color:rgba(20,24,31,.09); }
+  [data-theme="daybreak"] .xp-paper{ background-image:linear-gradient(100deg, #FFFFFF 0%, #FBFAF7 55%, #F1F2FA 100%); }
+
 </style>
 </head>
 <body>
@@ -406,6 +499,7 @@
         <a href="#experience">Experience</a>
         <a href="#built">Built</a>
         <a href="#skills">Skills</a>
+        <a href="#cover-letter">Letter</a>
         <a href="#contact">Contact</a>
       </nav>
       <div class="theme-picker" role="group" aria-label="Color theme">
@@ -425,8 +519,7 @@
     <h1 id="typedHead"><span id="heroHeadline">I make quality something a business can plan around.</span></h1>
     <p class="lede">Close to 10 years across Amazon, Brightcove, and a 0-to-1 mandate for
       a Series A grocery delivery platform that raised $11M+. I turn ambiguous,
-      early-stage QA problems into governed, AI-accelerated processes, and I build the
-      tools myself when engineering doesn't have the bandwidth to.</p>
+      early-stage QA problems into governed, AI-accelerated processes, and I build the tools that let the whole team move faster.</p>
     <div class="link-row">
       <a class="icon-link" href="mailto:Aravin4d@gmail.com">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18v12H3z"/><path d="M3 7l9 6 9-6"/></svg>
@@ -451,8 +544,7 @@
         relocating. Close to ten years in, the throughline hasn't changed much: I go
         looking for the gap nobody's been assigned yet, and I close it, whether that
         means rebuilding a QA function from the ground up, writing the tool that
-        removes a standing dependency on my own team, or just being the person who
-        says no when a release isn't ready.</p>
+        removes a standing dependency on my own team, or making sure every release reaches customers with the right expectations set from day one.</p>
       <p style="margin-top:18px;">I've done this at very different scales, as a founding QA member inside
         Amazon's Alexa Identity team, as the sole QA owner for an entire region at
         Brightcove, and as the person building QA policy from zero at a Series A
@@ -469,7 +561,7 @@
       <div class="flip-kicker">how I work</div>
       <div class="flip-stack">
         <article class="flip-card"><span class="flip-no">01 / 04</span><p>Daily hotfixes became <span class="hl">predictable bi-weekly releases</span>. That's not luck — <b>that's the system I build.</b></p></article>
-        <article class="flip-card"><span class="flip-no">02 / 04</span><p>$220 spent building my own tools. <span class="hl">$69,450 saved</span> across three employers. <b>I don't wait on engineering bandwidth.</b></p></article>
+        <article class="flip-card"><span class="flip-no">02 / 04</span><p>$220 spent building my own tools. <span class="hl">$69,450 saved</span> across three employers. <b>I build what the team needs to move faster.</b></p></article>
         <article class="flip-card"><span class="flip-no">03 / 04</span><p>Sole QA owner for an entire region. Founding member of Alexa Identity. <b>I don't wait for a team to be built around me</b> — <span class="hl">I build it.</span></p></article>
         <article class="flip-card"><span class="flip-no">04 / 04</span><p>Every process I've run on measures success the same way: <span class="hl">by what the customer never has to deal with.</span></p></article>
       </div>
@@ -477,6 +569,7 @@
         <button class="flip-btn flip-prev" type="button" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
         <div class="flip-dots"></div>
         <button class="flip-btn flip-next" type="button" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+        <button class="flip-btn flip-pause" type="button" aria-label="Pause" aria-pressed="false"><svg class="ic-pause" viewBox="0 0 24 24" fill="currentColor"><rect x="7" y="5" width="3.2" height="14" rx="1"/><rect x="13.8" y="5" width="3.2" height="14" rx="1"/></svg><svg class="ic-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l10.5-6.5z"/></svg></button>
         <div class="flip-timer" aria-hidden="true"><i></i></div>
       </div>
     </div>
@@ -487,25 +580,38 @@
   <div class="deck-stage">
     <div class="wrap" style="width:100%">
       <span class="kicker deck-kicker">impact, in numbers</span>
+      <p class="deck-intro">Each card says what the number means and where it came from.</p>
       <div class="deck-list">
         <div class="deck-card">
-          <div class="stat-cell"><div class="deck-num" data-to="69450" data-pre="$">$69,450</div><div class="deck-cap">saved across three employers — no added headcount</div></div>
+          <div class="stat-cell"><span class="deck-label">Money saved, every year</span><div class="deck-num" data-to="69450" data-pre="$">$69,450</div><div class="deck-cap">across three companies, without hiring anyone extra</div></div>
           <ul class="deck-details"><li>Brightcove · $40K rework &amp; support</li><li>Amazon · ~$15K regression redesign</li><li>Amazon · ~$4.6K reporting automation</li><li>Buncha · ~$9.8K script generation</li></ul>
         </div>
         <div class="deck-card">
-          <div class="stat-cell"><div class="deck-num" data-to="1300" data-suf="+">1,300+</div><div class="deck-cap">engineering hours reclaimed a year</div></div>
+          <div class="stat-cell"><span class="deck-label">Time given back</span><div class="deck-num" data-to="1300" data-suf="+">1,300+</div><div class="deck-cap">engineering hours a year, freed up by tools I built</div></div>
           <ul class="deck-details"><li>Bytecast · one-click bug filing</li><li>Forgeflow · scripts from recorded sessions</li><li>~$220 total build cost</li></ul>
         </div>
         <div class="deck-card">
-          <div class="stat-cell"><div class="deck-num" data-from="4.5" data-to="4.8" data-dec="1" data-pre="4.5 → ">4.5 → 4.8</div><div class="deck-cap">app store rating after a customer communications revamp</div></div>
-          <ul class="deck-details"><li>Owned end-to-end QA</li><li>More positive customer interactions post-release</li></ul>
+          <div class="stat-cell"><span class="deck-label">Wasted load removed</span><div class="deck-num" data-to="100" data-pre="~" data-suf="K">~100K</div><div class="deck-cap">redundant service calls a day, eliminated with a unified alerting platform I built</div></div>
+          <ul class="deck-details"><li>New Relic + Datadog in one view</li><li>Two runaway services found and fixed</li></ul>
         </div>
         <div class="deck-card">
-          <div class="stat-cell"><div class="deck-num" data-to="18">18</div><div class="deck-cap">locales shipped for Alexa Identity</div></div>
-          <ul class="deck-details"><li>20+ device types</li><li>Voice &amp; face recognition</li><li>Zero launch-blocking defects</li><li>Founding QA member</li></ul>
+          <div class="stat-cell"><span class="deck-label">Emergencies, down</span><div class="deck-num" >3–4/mo</div><div class="deck-cap">critical SOS escalations, down from 4–6 every week, after the incident-severity framework I authored</div></div>
+          <ul class="deck-details"><li>P0–P3 severity framework</li><li>Same-day fixes via daily RCA</li></ul>
+        </div>
+        <div class="deck-card">
+          <div class="stat-cell"><span class="deck-label">Customer rating</span><div class="deck-num" data-from="4.5" data-to="4.8" data-dec="1" data-pre="4.5 → ">4.5 → 4.8</div><div class="deck-cap">Meijer's customer feedback rating after the communications revamp I owned QA for</div></div>
+          <ul class="deck-details"><li>End-to-end QA ownership</li><li>More positive customer interactions post-release</li></ul>
+        </div>
+        <div class="deck-card">
+          <div class="stat-cell"><span class="deck-label">Leaner regression</span><div class="deck-num" data-from="1100" data-to="180" data-pre="1,100 → ">1,100 → 180</div><div class="deck-cap">test cases in Amazon's core regression suite, now a one-day cycle</div></div>
+          <ul class="deck-details"><li>~$15K saved a year</li><li>40% more efficient</li></ul>
+        </div>
+        <div class="deck-card">
+          <div class="stat-cell"><span class="deck-label">Global launch</span><div class="deck-num" data-to="18">18</div><div class="deck-cap">locales Alexa Identity shipped to, with zero launch-blocking defects</div></div>
+          <ul class="deck-details"><li>20+ device types</li><li>Voice &amp; face recognition</li><li>Founding QA member</li></ul>
         </div>
       </div>
-      <div class="deck-progress" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+      <div class="deck-progress" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
     </div>
   </div>
 </section>
@@ -540,10 +646,10 @@
 <ul>
 <li>Established <b>0-to-1 QA governance</b>, taking release cadence from daily hotfixes to predictable bi-weekly deployments and cutting app crash rates <b>85%</b> in the process — team ownership, SDLC engagement points, P0-P3 severity frameworks, signed release gates.</li>
 <li>Held a standing seat on the <b>executive release-priority panel</b> and owned company-wide PRD review, catching contradictory logic before development (conflicting capacity-check rules, an ETA-routing gating conflict) and authoring a 74-case suite for a third-party delivery integration.</li>
-<li>Pushed back hard on the <b>WIW improvements release</b> when its requirements missed cases that would have hurt the user experience — the feedback was significant enough that product rewrote the entire PRD around it, and that version has run without issues since.</li>
-<li>Made QA the company's genuine last line of defense: nothing ships without a signed QA signoff, and I run a full internal UAT pass myself, holding the line on what's ready, before anything moves to external UAT.</li>
+<li>Took ownership of <b>WIW improvements</b> in my second month: wrote the complete requirements and every expected case myself, defining the system that has since scaled with the business without a single issue.</li>
+<li>Established QA as the company's <b>final quality gate</b>: every release carries a signed QA signoff, and I run a full internal UAT pass myself so everything reaching external UAT is already customer-ready.</li>
 <li>Cut new-task ramp-up friction by pre-validating PRDs a week ahead during sprint planning — test approach, test cases, and acceptance criteria signed off before the sprint even started.</li>
-<li>Cut <b>SOS escalations from 4–6 a week to 3–4 a month</b> by authoring and enforcing a company-wide incident-severity framework, with same-day fixes via daily RCA and an in-app customer feedback flow I pushed engineering to ship.</li>
+<li>Cut <b>SOS escalations from 4–6 a week to 3–4 a month</b> by authoring and enforcing a company-wide incident-severity framework, with same-day fixes via daily RCA and an in-app customer feedback flow I championed with engineering.</li>
 </ul>
 </div>
 <div class="tl-group">
@@ -552,15 +658,15 @@
 <li>Owned quality for <b>one-hour delivery, payments, marketplace expansion, WIW, Matcher, dynamic ETA</b>, the DoorDash and Uber integrations, and the phone-masking and TalkJS communication backbone.</li>
 <li>Owned quality for a real-time checkpoint-tracking system feeding a three-tab admin console (run, shopper, driver), Onfleet-based route and van optimization, Branch-based 1099 payment integration, in-app shift acceptance, and geofencing for attendance.</li>
 <li>Led QA for a <b>3-store Grand Rapids launch with Meijer</b>, contributing to scaling Buncha's fulfillment network to 9 total stores generating ~350–380 orders and $4,900–$5,300+ in daily revenue.</li>
-<li>Owned QA for a <b>customer communications revamp</b> that lifted app store ratings from 4.5–4.6 to 4.8 stars.</li>
+<li>Owned QA for a <b>customer communications revamp</b> that lifted Meijer's customer feedback rating from 4.5–4.6 to 4.8 stars.</li>
 </ul>
 </div>
 <div class="tl-group">
 <h4>team &amp; leadership</h4>
 <ul>
-<li>Directed a <b>3-person QA team</b> through an unbacked headcount reduction without missing a release — hiring, onboarding, individual KPIs, performance reviews, growth plans, sprint retrospectives.</li>
+<li>Led a lean <b>3-person QA team</b> through a headcount reduction without missing a release, owning hiring, onboarding, individual KPIs, performance reviews, growth plans, and sprint retrospectives.</li>
 <li>Served as company-wide first point of contact for production issues and onboarded every new operations and engineering hire.</li>
-<li>Stayed a <b>brick wall on business alignment</b> — pushed back on tasks that didn't meet the actual business need rather than shipping them to hit a date, and kept the team from being spread across too many streams at once.</li>
+<li>Anchored every feature to the <b>customer outcome from the planning phase onward</b>, aligning product and engineering on the right expectations up front so releases shipped doing exactly what customers needed, and focusing the team on the work with the most impact.</li>
 <li>Mentored the team on structured, individual growth plans and hands-on strategy for edge cases, and built relationships across product, engineering, dispatch, operations, support, and SRE that let me catch problems early, before they spilled into other workstreams.</li>
 </ul>
 </div>
@@ -669,7 +775,7 @@
   <div class="wrap">
     <div class="sec-head reveal">
 <h2>Built</h2>
-<div class="sub">When engineering didn't have the bandwidth, or a process had no owner, I built it myself.</div>
+<div class="sub">Wherever a process had no owner, I took it on and built the tool that solved it.</div>
 </div>
     <div class="bt-list">
       <div class="bt-slot"><article class="bt-card"><span class="bt-no">01</span><div class="bt-head"><h3>Bytecast</h3>
@@ -741,32 +847,53 @@
 <section id="cover-letter">
   <div class="wrap">
     <div class="sec-head reveal">
-      <h2>Cover letter</h2>
-      <div class="sub">The template I was given had brackets still in it, so here's a real one
-        instead, built from what's actually on this site. One paragraph is deliberately
-        left for you to fill in per role, that part genuinely shouldn't be generic.</div>
+      <h2>A letter from me</h2>
+      <div class="sub">The résumé covers what I've done. This is how I think, how I work, and who I'm working to become.</div>
     </div>
     <div class="letter-card reveal">
-      <p>Dear Hiring Manager,</p>
-      <p>I'm writing about the Quality Assurance Leader role at your company. Over the
-        past several years I've built a QA function from zero at a Series A startup,
-        run APAC-wide quality independently for a global streaming platform, and been
-        a founding QA member on one of Amazon's flagship authentication systems. The
-        instinct that's carried across all three has stayed the same: find the gap
-        nobody's been assigned, and close it.</p>
-      <p>At Buncha, I walked into ad-hoc, hotfix-driven releases and built the
-        governance, tooling, and process that turned them into a predictable,
-        bi-weekly cadence, work that also cut app crash rates 85% and reclaimed 1,300+ engineering hours a year, largely by building my own tools rather than waiting
-        on engineering bandwidth I didn't have. At Brightcove, I was the sole QA owner
-        for the entire APAC region, and cut recurring defects over half by building a
-        root-cause process from scratch. At Amazon, I was a founding member of the
-        team that built Alexa's user-recognition system across 18 locales, with zero
-        launch-blocking defects.</p>
-      <p class="letter-blank">[ what draws me to this company specifically, and to this role in particular, goes here — worth writing fresh each time rather than reusing a stock line ]</p>
-      <p>I'd welcome the chance to talk through how that same approach, building the
-        process and the tools before they're asked for, could apply to your team.</p>
-      <p>Thank you for your time and consideration.</p>
-      <p>Aravind Natarajan</p>
+      <p>To the team reading this,</p>
+      <p>I started in 2017, straight out of an Electronics and Communication degree, testing the Alexa app
+        on a weekly release cycle. Close to ten years later I've been a founding QA member at Amazon, the only
+        QA owner for an entire region at Brightcove, and the person who built QA from nothing at a Series A
+        startup. The companies changed. The way I approach the work hasn't.</p>
+
+      <span class="letter-h">What I do best</span>
+      <p>I find the gap nobody has been assigned yet, and I close it. Sometimes that's a process that only ever
+        lived in someone's head, so I write it down and turn it into a standard. Sometimes it's a dependency that
+        keeps slowing everyone down, so I build the tool that removes it. I'd rather fix something at the root
+        once than patch it every week, and I stay optimistic about hard problems. In my experience, the stubborn
+        ones are usually just the ones nobody has owned yet.</p>
+
+      <span class="letter-h">How I work</span>
+      <p>I get involved long before work reaches QA and stay with it until it's safely in production. I read
+        requirements the way a customer will live them, and I think through every realistic edge case, both for
+        the end user and for the people running the operation behind them. Before my team picks up a task, they
+        already have the test approach, the priorities, and the likely failure points, so their time goes into
+        finding what nobody expected. And I test production every day, because good judgment comes from knowing
+        how a system actually behaves, not how it's supposed to.</p>
+
+      <span class="letter-h">Small things and big things</span>
+      <p>The small things get the same care as the big ones: a clear bug report, an honest estimate, a recorded
+        demo, a new hire walked through every workflow on their first day. On the big things, I'm clear about what's
+        right for the customer, and I make that case early, in planning, with evidence, so the decision is made
+        together and the feature ships with the right expectations instead of a late surprise. I measure success by
+        what the customer never has to deal with.</p>
+
+      <span class="letter-h">The leader I'm becoming</span>
+      <p>I lead the way I'd want to be led: clear standards, honest and specific feedback, and real investment in
+        each person's growth. I sit with people on their first pass at a hard problem until they can do it without
+        me, and I'm proudest when someone on my team no longer needs my help with something they used to. Beyond
+        my own team, I build relationships across product, engineering, operations, support and SRE, because
+        quality isn't a department. It's a habit a whole company shares.</p>
+
+      <span class="letter-h">What I'm looking for</span>
+      <p>A business moving fast enough that quality is genuinely at stake, and a role where QA sits beside product,
+        shaping what ships around how people really use it rather than checking it at the end. I want to grow the
+        function, and the people in it, at the pace the company grows, and to keep using AI to build tools the whole
+        team benefits from, not just ways to test faster.</p>
+
+      <p>If that sounds like what your team needs, I'd love to talk.</p>
+      <p class="letter-sign">Aravind Natarajan</p>
     </div>
   </div>
 </section>
@@ -851,83 +978,137 @@
     });
   }
 
-  /* Statement flip stack: auto-advances, prev/next buttons, dots, arrow keys,
-     swipe. Cards are a normal readable list until this adds .flip-ready. */
+  /* "How I work": app-switcher carousel. Centre card in full view, its
+     neighbours peeking in at each side. Auto-advances; clicking the centre card (or the pause
+     button) pauses it and resumes where it left off; arrows, dots,
+     clicking a side card, arrow keys and swipe all work. Cards stay a plain
+     readable list until this adds .sw-ready. */
   (function(){
     var wrap = document.querySelector('.flip-wrap'); if (!wrap) return;
     var cards = Array.prototype.slice.call(wrap.querySelectorAll('.flip-card')), n = cards.length;
     if (n < 2) return;
     var dotsBox = wrap.querySelector('.flip-dots'), bar = wrap.querySelector('.flip-timer i');
-    var cur = 0, busy = false, timer = 0, paused = false, inView = true, DUR = 5200;
+    var cur = 0, DUR = 3800, timer = 0, startAt = 0, remaining = DUR, running = false, hover = false, visible = true;
+    function offset(i){ var o = (i - cur + n) % n; if (o > n / 2) o -= n; return o; }
     var dotEls = cards.map(function(c, i){
       var b = document.createElement('button'); b.type = 'button'; b.className = 'flip-dot';
       b.setAttribute('aria-label', 'Show card ' + (i + 1));
-      b.addEventListener('click', function(){ goTo(i); });
+      b.addEventListener('click', function(){ if (i === cur) return; var d = (i - cur + n) % n; move(d <= n / 2 ? 1 : -1, i); });
       dotsBox.appendChild(b); return b;
     });
-    function layout(){
-      cards.forEach(function(c, i){ var pos = (i - cur + n) % n; c.setAttribute('data-pos', Math.min(pos, 3)); c.setAttribute('aria-hidden', pos === 0 ? 'false' : 'true'); });
-      dotEls.forEach(function(d, i){ if (i === cur) d.classList.add('on'); else d.classList.remove('on'); });
+    function paintDots(){ dotEls.forEach(function(d, i){ if (i === cur) d.classList.add('on'); else d.classList.remove('on'); }); }
+    function freeze(){
+      if (!running) return; running = false; clearTimeout(timer);
+      remaining = Math.max(0, remaining - (Date.now() - startAt));
+      if (bar){ var pw = bar.parentNode.getBoundingClientRect().width || 1; var w = bar.getBoundingClientRect().width / pw * 100; bar.style.transition = 'none'; bar.style.width = w + '%'; }
     }
-    function settle(el, cls){ setTimeout(function(){ el.classList.remove(cls); busy = false; }, 720); }
-    function restart(){
+    function run(ms){
       clearTimeout(timer); if (reduce) return;
-      var run = !paused && inView;
-      if (bar){ bar.style.transition = 'none'; bar.style.width = '0%'; void bar.offsetWidth; if (run){ bar.style.transition = 'width ' + DUR + 'ms linear'; bar.style.width = '100%'; } }
-      if (run) timer = setTimeout(next, DUR);
+      running = true; startAt = Date.now(); remaining = ms;
+      if (bar){ bar.style.transition = 'none'; bar.style.width = (100 * (1 - ms / DUR)) + '%'; void bar.offsetWidth; bar.style.transition = 'width ' + ms + 'ms linear'; bar.style.width = '100%'; }
+      timer = setTimeout(function(){ running = false; move(1); }, ms);
     }
-    function next(){
-      if (busy) return;
-      var out = cards[cur]; cur = (cur + 1) % n;
-      if (reduce){ layout(); return; }
-      busy = true; out.classList.add('flip-out'); layout(); settle(out, 'flip-out'); restart();
+    function sync(){ var should = !hover && visible; if (should && !running) run(remaining > 60 ? remaining : DUR); else if (!should && running) freeze(); }
+    function move(dir, target){
+      var old = cards.map(function(c){ return c._o; });
+      cur = (target !== undefined) ? target : (cur + dir + n) % n;
+      var tg = cards.map(function(c, i){ return offset(i); }), pre = [];
+      cards.forEach(function(c, i){
+        var o = old[i];
+        if (Math.abs(tg[i]) <= 1 && Math.abs(o) === 2){           /* coming back from hidden: start on the side it enters from */
+          var p = tg[i] === 0 ? (dir > 0 ? 2 : -2) : (tg[i] > 0 ? 2 : -2);
+          if (p !== o){ c.classList.add('no-anim'); c.setAttribute('data-o', p); pre.push(c); }
+        }
+        if (Math.abs(tg[i]) === 2){ tg[i] = Math.abs(o) === 2 ? o : (o < 0 ? -2 : o > 0 ? 2 : (dir > 0 ? -2 : 2)); } /* exit on its own side */
+      });
+      if (pre.length){ void wrap.offsetWidth; pre.forEach(function(c){ c.classList.remove('no-anim'); }); }
+      cards.forEach(function(c, i){ c._o = tg[i]; c.setAttribute('data-o', tg[i]); c.setAttribute('aria-hidden', tg[i] === 0 ? 'false' : 'true'); });
+      paintDots();
+      clearTimeout(timer); running = false; remaining = DUR;
+      if (bar){ bar.style.transition = 'none'; bar.style.width = '0%'; }
+      sync();
     }
-    function goTo(t){
-      if (busy || t === cur) return;
-      if (t === (cur + 1) % n){ next(); return; }
-      cur = t; var inn = cards[t];
-      if (reduce){ layout(); return; }
-      busy = true; layout(); inn.classList.add('flip-in'); settle(inn, 'flip-in'); restart();
-    }
-    function prev(){ goTo((cur - 1 + n) % n); }
-    wrap.querySelector('.flip-next').addEventListener('click', next);
-    wrap.querySelector('.flip-prev').addEventListener('click', prev);
-    wrap.addEventListener('keydown', function(e){
-      if (e.key === 'ArrowRight'){ next(); e.preventDefault(); } else if (e.key === 'ArrowLeft'){ prev(); e.preventDefault(); }
+    cards.forEach(function(c, i){
+      c._o = offset(i); c.setAttribute('data-o', c._o); c.setAttribute('aria-hidden', c._o === 0 ? 'false' : 'true');
+      c.addEventListener('click', function(){ if (c._o === 1) move(1); else if (c._o === -1) move(-1); else if (c._o === 0) togglePause(); });
     });
-    wrap.addEventListener('mouseenter', function(){ paused = true; restart(); });
-    wrap.addEventListener('mouseleave', function(){ paused = false; restart(); });
+    paintDots();
+    wrap.querySelector('.flip-next').addEventListener('click', function(){ move(1); });
+    wrap.querySelector('.flip-prev').addEventListener('click', function(){ move(-1); });
+    wrap.addEventListener('keydown', function(e){
+      if (e.key === 'ArrowRight'){ move(1); e.preventDefault(); } else if (e.key === 'ArrowLeft'){ move(-1); e.preventDefault(); }
+    });
+    /* Hover no longer pauses anything. Only a deliberate click on the centre
+       card, or the pause button, stops the countdown; clicking again resumes
+       from where it left off. */
+    var pauseBtn = wrap.querySelector('.flip-pause');
+    function togglePause(){
+      hover = !hover;
+      if (hover) wrap.classList.add('sw-paused'); else wrap.classList.remove('sw-paused');
+      if (pauseBtn){ pauseBtn.setAttribute('aria-pressed', hover ? 'true' : 'false'); pauseBtn.setAttribute('aria-label', hover ? 'Resume' : 'Pause'); }
+      sync();
+    }
+    if (pauseBtn) pauseBtn.addEventListener('click', togglePause);
     var sx = null;
     wrap.addEventListener('pointerdown', function(e){ sx = e.clientX; });
-    wrap.addEventListener('pointerup', function(e){ if (sx === null) return; var dx = e.clientX - sx; sx = null; if (Math.abs(dx) > 45){ if (dx < 0) next(); else prev(); } });
+    wrap.addEventListener('pointerup', function(e){ if (sx === null) return; var dx = e.clientX - sx; sx = null; if (Math.abs(dx) > 45) move(dx < 0 ? 1 : -1); });
     if ('IntersectionObserver' in window){
-      new IntersectionObserver(function(en){ inView = en[0].isIntersecting; restart(); }, { threshold: 0.35 }).observe(wrap);
+      new IntersectionObserver(function(en){ visible = en[0].isIntersecting; sync(); }, { threshold: 0.35 }).observe(wrap);
     }
-    wrap.classList.add('flip-ready'); layout(); restart();
+    wrap.classList.add('sw-ready'); sync();
   })();
 
-  /* Built cards: each tilts independently toward wherever the cursor is on it
-     (top-left pointer -> top-left corner dips away), with a moving glare. */
-  if (fine && !reduce){
+  /* Built cards: each tilts independently toward wherever the cursor is on
+     it, with a moving glare. The first time each card scrolls into view it
+     demonstrates this on its own, as if a cursor circled once around it,
+     then settles flat. Real hover always takes over immediately. */
+  (function(){
+    if (reduce) return;
+    var lastY = window.pageYOffset, scrollingDown = true;
+    window.addEventListener('scroll', function(){ var y = window.pageYOffset; if (y !== lastY){ scrollingDown = y > lastY; lastY = y; } }, { passive: true });
     each(document.querySelectorAll('.bt-card'), function(card){
-      var MAX = 9, raf = 0, px = 0.5, py = 0.5;
+      var MAX = 9, boost = 1, raf = 0, px = 0.5, py = 0.5, hovering = false, demoDone = false, demoRaf = 0;
       function apply(){
         raf = 0;
-        card.style.setProperty('--rx', ((0.5 - py) * 2 * MAX).toFixed(2) + 'deg');
-        card.style.setProperty('--ry', ((px - 0.5) * 2 * MAX).toFixed(2) + 'deg');
+        card.style.setProperty('--rx', ((0.5 - py) * 2 * MAX * boost).toFixed(2) + 'deg');
+        card.style.setProperty('--ry', ((px - 0.5) * 2 * MAX * boost).toFixed(2) + 'deg');
         card.style.setProperty('--mx', (px * 100).toFixed(1) + '%');
         card.style.setProperty('--my', (py * 100).toFixed(1) + '%');
       }
-      card.addEventListener('mousemove', function(e){
-        var r = card.getBoundingClientRect();
-        px = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
-        py = Math.min(1, Math.max(0, (e.clientY - r.top) / r.height));
-        if (!raf) raf = requestAnimationFrame(apply);
-      });
-      card.addEventListener('mouseenter', function(){ card.classList.add('is-hover'); });
-      card.addEventListener('mouseleave', function(){ card.classList.remove('is-hover'); px = 0.5; py = 0.5; if (raf){ cancelAnimationFrame(raf); raf = 0; } apply(); });
+      function settle(){ card.classList.remove('is-hover'); boost = 1; px = 0.5; py = 0.5; apply(); }
+      if (fine){
+        card.addEventListener('mousemove', function(e){
+          var r = card.getBoundingClientRect();
+          px = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
+          py = Math.min(1, Math.max(0, (e.clientY - r.top) / r.height));
+          if (!raf) raf = requestAnimationFrame(apply);
+        });
+        card.addEventListener('mouseenter', function(){ hovering = true; boost = 1; if (demoRaf){ cancelAnimationFrame(demoRaf); demoRaf = 0; } card.classList.add('is-hover'); });
+        card.addEventListener('mouseleave', function(){ hovering = false; if (raf){ cancelAnimationFrame(raf); raf = 0; } settle(); });
+      }
+      function demo(){
+        if (demoDone || hovering) return; demoDone = true;
+        card.classList.add('is-hover'); boost = 1.35;
+        var t0 = 0, D = 2400;
+        function step(now){
+          if (hovering){ demoRaf = 0; return; }
+          if (!t0) t0 = now;
+          var t = Math.min(1, (now - t0) / D), ang = t * Math.PI * 2 - Math.PI / 2, rad = 0.46 * Math.sin(Math.PI * t);
+          px = 0.5 + rad * Math.cos(ang); py = 0.5 + rad * Math.sin(ang); apply();
+          if (t < 1) demoRaf = requestAnimationFrame(step); else { demoRaf = 0; settle(); }
+        }
+        demoRaf = requestAnimationFrame(step);
+      }
+      if ('IntersectionObserver' in window){
+        /* "highlighted" = the card reaches the middle band of the screen while
+           the visitor is scrolling down; plays once per card per visit */
+        var io = new IntersectionObserver(function(en){
+          if (en[0].isIntersecting && scrollingDown){ io.disconnect(); setTimeout(demo, 250); }
+        }, { rootMargin: '-38% 0px -38% 0px' });
+        io.observe(card);
+      }
     });
-  }
+  })();
 
   /* Page trace: one smooth Catmull-Rom curve (no corners, so no "bounce")
      threaded through anchor points on each section and each Built card, with
@@ -949,12 +1130,18 @@
     dot.setAttribute('r', '5'); halo.setAttribute('r', '6');
     document.body.appendChild(svg);
 
-    var pts = [], anch = [], cum = [], marks = [], total = 1, curL = 0, tL = 0, raf = 0;
+    var pts = [], anch = [], cum = [], marks = [], total = 1, curL = 0, tL = 0, raf = 0, endPill = null, wasDone = null;
     function f(v){ return v.toFixed(1); }
     /* offset-based position: ignores CSS transforms, so cards mid-animation or
        mid-tilt don't pull the curve out of place */
-    function R(el){ var t = 0, l = 0, e = el; while (e){ t += e.offsetTop || 0; l += e.offsetLeft || 0; e = e.offsetParent; }
-      var w = el.offsetWidth, h = el.offsetHeight; return { top: t, bottom: t + h, h: h, w: w, cx: l + w / 2, cy: t + h / 2 }; }
+    function R(el){
+      var b = el.getBoundingClientRect(), sy = window.pageYOffset || document.documentElement.scrollTop || 0, sx = window.pageXOffset || 0;
+      var t = 0, l = 0, e = el; while (e){ t += e.offsetTop || 0; l += e.offsetLeft || 0; e = e.offsetParent; }
+      var w = el.offsetWidth || b.width, hh = el.offsetHeight || b.height;
+      /* offsets ignore animation transforms (good), but aren't reliable for every
+         element; if they disagree with the real on-screen box, trust the box */
+      if (Math.abs(t - (b.top + sy)) > 150 || Math.abs(l - (b.left + sx)) > 150 || !w){ t = b.top + sy; l = b.left + sx; w = b.width; hh = b.height; }
+      return { top: t, bottom: t + hh, h: hh, w: w, cx: l + w / 2, cy: t + hh / 2 }; }
     function Q(s){ return document.querySelector(s); }
 
     function build(){
@@ -989,8 +1176,9 @@
       if ((el = Q('#skills'))){ r = R(el); A(W * 0.06, r.top + r.h * 0.25); A(W * 0.94, r.top + r.h * 0.72); }
       if ((el = Q('#cover-letter'))){ r = R(el); A(W * 0.42, r.top + r.h * 0.5); loop(54, 1); }
       if ((el = Q('#education'))){ r = R(el); A(W * 0.9, r.top + r.h * 0.5); }
-      if ((el = Q('footer'))){ r = R(el); A(W * 0.2, r.top + r.h * 0.35); }
-      A(W * 0.5, pageH - 40);
+      endPill = Q('footer .icon-link[href*="linkedin"]');
+      if ((el = Q('footer h2'))){ r = R(el); A(W * 0.72, r.top + r.h * 0.5); }
+      if (endPill){ r = R(endPill); A(r.cx + r.w / 2 + 16, r.cy); } else { A(W * 0.5, pageH - 40); }
 
       var segs = []; cum = [0];
       for (var i = 0; i < pts.length - 1; i++){
@@ -1026,6 +1214,12 @@
       var p; try { p = path.getPointAtLength(Math.max(0, Math.min(total, curL))); } catch (e) { return; }
       dot.setAttribute('cx', p.x.toFixed(1)); dot.setAttribute('cy', p.y.toFixed(1));
       halo.setAttribute('cx', p.x.toFixed(1)); halo.setAttribute('cy', p.y.toFixed(1));
+      var done = curL >= total - 3;
+      if (done !== wasDone){
+        wasDone = done;
+        svg.setAttribute('class', done ? 'trace-done' : '');
+        if (endPill){ if (done) endPill.classList.add('is-called'); else endPill.classList.remove('is-called'); }
+      }
     }
     function tick(){ raf = 0; curL += (tL - curL) * 0.14; if (Math.abs(tL - curL) < 0.5) curL = tL; draw(); if (curL !== tL) raf = requestAnimationFrame(tick); }
     function kick(){ if (reduce) return; target(); if (!raf) raf = requestAnimationFrame(tick); }
@@ -1033,7 +1227,8 @@
     var tmo = 0; function rebuild(){ clearTimeout(tmo); tmo = setTimeout(build, 140); }
     window.__rebuildTrace = rebuild;
     window.addEventListener('resize', rebuild);
-    window.addEventListener('load', rebuild);
+    window.addEventListener('load', function(){ rebuild(); setTimeout(rebuild, 1200); });
+    setTimeout(rebuild, 1200);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(rebuild);
     if ('ResizeObserver' in window) new ResizeObserver(rebuild).observe(document.body);
     build();
@@ -1254,7 +1449,7 @@
     };
     setDeck(0);
     ScrollTrigger.create({
-      trigger: stage, start: 'top top', end: '+=' + (n * 70) + '%', pin: true, anticipatePin: 1,
+      trigger: stage, start: 'top top', end: '+=' + (n * 55) + '%', pin: true, anticipatePin: 1,
       snap: { snapTo: function(v){ if (v < 0.06) return 0; if (v > 0.94) return 1; var k = Math.max(0, Math.min(n - 1, Math.round(v * n - 0.5))); return (k + 0.5) / n; },
               duration: { min: 0.2, max: 0.5 }, delay: 0.12, ease: 'power1.inOut' },
       onUpdate: function(self){ setDeck(Math.max(0, Math.min(n - 1, Math.floor(self.progress * n)))); }
