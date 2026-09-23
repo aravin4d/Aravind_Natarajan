@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aravind Natarajan — Quality Assurance Leader</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧭</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root, [data-theme="nebula"]{
+    --blue:#4F7CFF; --violet:#8B5CF6; --cyan:#22D3EE; --gold:#FFB020;
+    --bg:#070B18; --bg2:#0C1330; --panel:#101838;
+    --text:#F3F6FC; --muted:#A6B0CC; --muted2:#6B7690;
+    --hair:#1E2748;
+    --glass-bg:rgba(16,24,56,.4); --glass-border:rgba(255,255,255,.08);
+    --header-bg:rgba(7,11,24,.72); --header-hair:rgba(255,255,255,.06);
+    --glow:rgba(34,211,238,.5); --sel-fg:#fff;
+  }
+  [data-theme="ember"]{
+    --blue:#FF6B5B; --violet:#D6409F; --cyan:#FFB020; --gold:#FF8A5B;
+    --bg:#170D0A; --bg2:#20130E; --panel:#2A1811;
+    --text:#FBF3EC; --muted:#D8B9A8; --muted2:#8A6B5C;
+    --hair:#3A241A;
+    --glass-bg:rgba(42,24,17,.5); --glass-border:rgba(255,255,255,.10);
+    --header-bg:rgba(23,13,10,.75); --header-hair:rgba(255,255,255,.08);
+    --glow:rgba(255,176,32,.45); --sel-fg:#1A0E09;
+  }
+  [data-theme="daybreak"]{
+    --blue:#2454E8; --violet:#7C3AED; --cyan:#0891B2; --gold:#B8790A;
+    --bg:#F2F0EB; --bg2:#E9E6DE; --panel:#FFFFFF;
+    --text:#14181F; --muted:#4B5468; --muted2:#8890A0;
+    --hair:#D8D4C9;
+    --glass-bg:rgba(255,255,255,.55); --glass-border:rgba(20,24,31,.09);
+    --header-bg:rgba(242,240,235,.75); --header-hair:rgba(20,24,31,.08);
+    --glow:rgba(8,145,178,.35); --sel-fg:#fff;
+  }
+
+  :root{
+    --grad: linear-gradient(100deg, var(--blue), var(--violet) 55%, var(--cyan));
+    --sans:'IBM Plex Sans',system-ui,sans-serif;
+    --display:'Space Grotesk',var(--sans);
+    --mono:'IBM Plex Mono',ui-monospace,monospace;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  *{box-sizing:inherit;}
+  html{scroll-behavior:smooth; scroll-padding-top:70px; background:var(--bg); transition:background .5s ease;}
+  body{
+    margin:0; background:transparent; color:var(--text);
+    font-family:var(--sans); line-height:1.6; font-size:16px;
+    -webkit-font-smoothing:antialiased; overflow-x:hidden;
+    transition:color .5s ease;
+  }
+  #bgCanvas{ position:fixed; inset:0; z-index:-2; pointer-events:none; display:block; }
+  #pageTrace{ position:absolute; top:0; left:16px; z-index:-1; pointer-events:none; overflow:visible; }
+  @media (max-width:760px){ #pageTrace{ left:4px; } }
+  ::selection{background:var(--violet); color:var(--sel-fg);}
+  a{color:var(--cyan); text-decoration:none; border-bottom:1px solid transparent; transition:border-color .2s, color .3s;}
+  a:hover, a:focus-visible{border-bottom-color:var(--cyan);}
+  a:focus-visible, button:focus-visible{outline:2px solid var(--cyan); outline-offset:3px;}
+
+  .wrap{max-width:1000px; margin:0 auto; padding:0 28px;}
+  section{padding:130px 0;}
+  @media (max-width:640px){ section{padding:80px 0;} .wrap{padding:0 20px;} }
+
+  h1,h2,h3{font-family:var(--display); font-weight:600; margin:0; letter-spacing:-0.01em;}
+  p{max-width:60ch; color:var(--muted);}
+  .lede{color:var(--text); max-width:52ch;}
+  .kicker{font-family:var(--mono); font-size:13px; color:var(--cyan); letter-spacing:.03em;}
+
+  .gradient-text{
+    background:var(--grad); -webkit-background-clip:text; background-clip:text;
+    color:transparent; -webkit-text-fill-color:transparent; transition:background .4s;
+  }
+
+  /* ---------- top bar ---------- */
+  header{
+    position:fixed; top:0; left:0; right:0; z-index:50;
+    background:var(--header-bg); backdrop-filter:blur(16px);
+    border-bottom:1px solid var(--header-hair);
+    padding-top:env(safe-area-inset-top,0px);
+    transition:background .4s, border-color .4s;
+  }
+  header .wrap{display:flex; align-items:center; justify-content:space-between; height:60px; max-width:1120px;}
+  .brand{font-family:var(--display); font-size:16px; font-weight:600;}
+  .head-right{display:flex; align-items:center; gap:30px;}
+  nav{display:flex; font-size:13px;}
+  nav a{color:var(--muted); border-bottom:none; margin-left:26px;}
+  nav a:hover{color:var(--text);}
+  .theme-picker{display:flex; gap:8px;}
+  .theme-dot{
+    width:16px; height:16px; border-radius:50%; border:2px solid transparent; cursor:pointer;
+    padding:0; background:var(--sw); transition:transform .2s, border-color .2s;
+  }
+  .theme-dot[data-t="nebula"]{ --sw: linear-gradient(135deg,#070B18,#4F7CFF); background:var(--sw); }
+  .theme-dot[data-t="ember"]{ --sw: linear-gradient(135deg,#170D0A,#FF6B5B); background:var(--sw); }
+  .theme-dot[data-t="daybreak"]{ --sw: linear-gradient(135deg,#F2F0EB,#2454E8); background:var(--sw); }
+  .theme-dot:hover{transform:scale(1.2);}
+  .theme-dot.active{border-color:#fff;}
+  @media (max-width:640px){ nav a{margin-left:14px; font-size:12px;} .head-right{gap:16px;} }
+  body{padding-top:60px;}
+
+  /* ================= HERO ================= */
+  .hero{
+    min-height:100vh; display:flex; flex-direction:column; justify-content:center;
+    padding:80px 0 60px; position:relative; overflow:hidden;
+  }
+  .orb{ position:absolute; z-index:0; border-radius:50%; filter:blur(70px); opacity:.5; background:var(--grad); transition:background .4s; }
+  .orb-a{ width:620px; height:620px; top:-220px; right:-160px; }
+  .orb-b{ width:420px; height:420px; bottom:-160px; left:-140px; opacity:.3; }
+  @media (max-width:700px){ .orb-a{width:380px;height:380px;} .orb-b{display:none;} }
+
+  .hero .wrap{position:relative; z-index:2;}
+  .eyebrow{ font-family:var(--mono); font-size:13px; color:var(--cyan); margin-bottom:24px; display:flex; align-items:center; gap:10px; }
+  .eyebrow .dot{width:7px; height:7px; border-radius:50%; background:var(--cyan); box-shadow:0 0 12px var(--cyan);}
+  .hero h1{ font-size:clamp(40px,8vw,104px); line-height:1.02; letter-spacing:-0.02em; min-height:2.1em; }
+  .hero h1 .cursor{display:inline-block; width:.06em; margin-left:2px; background:var(--cyan); animation:blink 1s step-end infinite;}
+  @keyframes blink{ 50%{opacity:0;} }
+  .hero p.lede{font-size:clamp(17px,1.7vw,20px); margin-top:30px;}
+
+  .link-row{display:flex; margin-top:36px; gap:14px; flex-wrap:wrap;}
+  .icon-link{
+    display:inline-flex; align-items:center; gap:9px; font-family:var(--mono); font-size:14px;
+    border:1px solid var(--hair); border-radius:999px; padding:10px 18px 10px 14px;
+    color:var(--text); background:rgba(255,255,255,.02); border-bottom:1px solid var(--hair);
+    transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease, background .25s ease;
+  }
+  .icon-link svg{width:16px; height:16px; flex:0 0 auto; color:var(--cyan);}
+  .icon-link:hover{
+    transform:translateY(-3px) scale(1.03); border-color:var(--cyan);
+    box-shadow:0 10px 28px -8px var(--glow); background:rgba(255,255,255,.04);
+    border-bottom-color:var(--cyan);
+  }
+
+  .scrolldown{ position:absolute; bottom:30px; left:28px; font-family:var(--mono); font-size:11px; color:var(--muted2); display:flex; align-items:center; gap:10px; z-index:2; }
+  .scrolldown .ln{width:22px; height:1px; background:var(--muted2);}
+
+  /* ================= STATEMENT MARQUEE ================= */
+  .statement{ padding:80px 0; border-top:1px solid var(--hair); border-bottom:1px solid var(--hair); background:var(--bg2); overflow:hidden; transition:background .4s ease, border-color .4s ease; }
+  .marquee-track{ display:flex; width:max-content; animation:marquee 38s linear infinite; }
+  .marquee-track:hover{ animation-play-state:paused; }
+  @media (prefers-reduced-motion: reduce){ .marquee-track{ animation:none; } }
+  @keyframes marquee{ from{transform:translateX(0);} to{transform:translateX(-50%);} }
+  .stmt{
+    font-family:var(--display); font-size:clamp(24px,4vw,44px); color:var(--text);
+    line-height:1.25; font-weight:500; letter-spacing:-0.01em; white-space:normal;
+    width:min(760px,80vw); flex:0 0 min(760px,80vw); padding:0 56px; border-right:1px solid var(--hair);
+  }
+  .stmt .hl{color:var(--cyan);}
+  .stmt b{font-weight:600;}
+
+  /* ================= PAIRED STAT CAROUSEL ================= */
+  .stat-pin-outer{ padding:0; }
+  .stat-pin-inner{ min-height:60vh; display:flex; align-items:center; position:relative; }
+  .stat-static{ display:grid; grid-template-columns:1fr 1fr; gap:40px; width:100%; }
+  @media (max-width:700px){ .stat-static{grid-template-columns:1fr; gap:0;} }
+  .stat-cell{ padding:32px; border-radius:18px; background:var(--glass-bg); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); border:1px solid var(--glass-border); transition:background .4s, border-color .4s; }
+  .stat-cell .num{font-family:var(--display); font-size:clamp(34px,5.5vw,52px); color:var(--gold); font-weight:600;}
+  .stat-cell .cap{font-size:16px; color:var(--muted); margin-top:10px;}
+
+  .cinematic .stat-pin-outer{ height:280vh; }
+  .cinematic .stat-pin-inner{ height:100vh; overflow:hidden; }
+  .cinematic .stat-reel{ display:flex; width:200%; height:100%; }
+  .cinematic .stat-page{
+    width:50%; flex:0 0 50%; height:100%; display:flex; align-items:center;
+    padding:0 max(28px,(100vw - 1000px)/2);
+  }
+  .cinematic .stat-static{ display:none; }
+  .cinematic .stat-page .stat-static{ display:grid; }
+  .cinematic .stat-cell{ padding:36px; }
+  .cinematic .stat-cell .num{font-size:clamp(56px,10vw,120px);}
+  .cinematic .stat-cell .cap{font-size:20px; margin-top:18px;}
+  .cinematic .stat-page:nth-child(1) .stat-cell:nth-child(1),
+  .cinematic .stat-page:nth-child(2) .stat-cell:nth-child(1){ margin-right:12px; }
+  /* left/right glass cards now separated by margin (below) rather than a hairline border */
+
+  /* ================= SECTION HEADS ================= */
+  .sec-head{margin-bottom:52px;}
+  .sec-head h2{font-size:clamp(28px,3.8vw,42px);}
+  .sec-head .sub{color:var(--muted2); font-size:15px; margin-top:12px; max-width:56ch;}
+  .reveal{opacity:1; transform:none;}
+  .cinematic .reveal{opacity:0; transform:translateY(32px);}
+
+  /* ================= EXPERIENCE ================= */
+  .tl{position:relative; padding-left:28px; border-left:1px solid var(--hair);}
+  .tl-fill{position:absolute; left:-1px; top:0; width:1px; height:0; background:var(--cyan); box-shadow:0 0 8px var(--cyan); transition:height .1s linear;}
+  .tl-item{position:relative; padding-bottom:64px; perspective:1200px; transform-style:preserve-3d; will-change:transform; transition:transform .05s linear;}
+  .tl-item:last-child{padding-bottom:0;}
+  .tl-item::before{
+    content:''; position:absolute; left:-33px; top:6px; width:10px; height:10px; border-radius:50%;
+    background:var(--bg); border:2px solid var(--hair); transition:border-color .3s, box-shadow .3s, transform .3s;
+  }
+  .tl-item.active::before{ border-color:var(--cyan); box-shadow:0 0 12px var(--glow); transform:scale(1.3); }
+  .tl-item:not(.active) .tl-role{ opacity:.55; transition:opacity .4s ease; }
+  .tl-date{font-family:var(--mono); font-size:13px; color:var(--muted2);}
+  .tl-role{font-family:var(--display); font-size:23px; font-weight:600; margin-top:8px;}
+  .tl-role span{color:var(--muted); font-weight:400; font-size:16px; font-family:var(--sans);}
+  .tl-group{margin-top:22px;}
+  .tl-group h4{font-family:var(--mono); font-size:12.5px; color:var(--cyan); font-weight:400; letter-spacing:.02em; margin:0 0 8px;}
+  .tl ul{margin:0; padding:0; list-style:none;}
+  .tl li{position:relative; padding-left:20px; margin-top:9px; color:var(--muted); max-width:62ch; font-size:15.5px;}
+  .cinematic .tl li{ clip-path:inset(0 100% 0 0); transition:clip-path .45s cubic-bezier(.2,.8,.2,1); }
+  .cinematic .tl li.unfolded{ clip-path:inset(0 0 0 0); }
+  .tl li::before{content:'—'; position:absolute; left:0; color:var(--muted2);}
+  .tl li b{color:var(--text); font-weight:600;}
+
+  /* ================= BUILT ================= */
+  .built-list{display:flex; flex-direction:column; perspective:1400px;}
+  .built-item{ transform-style:preserve-3d; will-change:transform; transition:transform .05s linear; }
+  .built-item{padding:44px 0; border-top:1px solid var(--hair); display:grid; grid-template-columns:1fr 2fr; gap:32px;}
+  .built-list .built-item:last-child{border-bottom:1px solid var(--hair);}
+  @media (max-width:700px){ .built-item{grid-template-columns:1fr;} }
+  .built-item h3{font-size:24px;}
+  .built-item .tag{font-family:var(--mono); font-size:12px; color:var(--cyan); margin-top:10px; display:block;}
+  .built-item p{margin-top:14px; font-size:15.5px;}
+  .built-item ul{margin:14px 0 0; padding:0 0 0 18px; color:var(--muted); font-size:15px;}
+  .built-item li{margin-top:6px;}
+
+  /* ================= SKILLS ================= */
+  .skill-block{padding:36px 0; border-top:1px solid var(--hair);}
+  .skill-list .skill-block:last-child{border-bottom:1px solid var(--hair);}
+  .skill-block h3{font-family:var(--mono); font-size:13px; color:var(--cyan); font-weight:400; letter-spacing:.02em;}
+  .skill-block p{margin-top:14px; font-size:clamp(17px,2.2vw,23px); color:var(--text); line-height:1.4; max-width:46ch; font-family:var(--display); font-weight:500;}
+
+  /* ================= EDUCATION ================= */
+  .edu-row{display:flex; justify-content:space-between; gap:20px; padding:18px 0; border-top:1px solid var(--hair); flex-wrap:wrap;}
+  .edu-row:last-child{border-bottom:1px solid var(--hair);}
+  .edu-name{font-weight:600; font-size:16px;}
+  .edu-meta{color:var(--muted2); font-size:14px; font-family:var(--mono);}
+
+  /* ================= FOOTER ================= */
+  footer{padding:130px 0 80px; text-align:left;}
+  footer h2{font-size:clamp(30px,4.6vw,50px); max-width:14ch;}
+  .fine{margin-top:80px; font-size:13px; color:var(--muted2); font-family:var(--mono);}
+
+  @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto;} .hero h1 .cursor{animation:none;} }
+</style>
+</head>
+<body>
+<canvas id="bgCanvas" aria-hidden="true"></canvas>
+
+<header>
+  <div class="wrap">
+    <div class="brand">Aravind Natarajan</div>
+    <div class="head-right">
+      <nav>
+        <a href="#experience">Experience</a>
+        <a href="#built">Built</a>
+        <a href="#skills">Skills</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <div class="theme-picker" role="group" aria-label="Color theme">
+        <button class="theme-dot active" data-t="nebula" aria-label="Nebula theme (dark, cool)"></button>
+        <button class="theme-dot" data-t="ember" aria-label="Ember theme (dark, warm)"></button>
+        <button class="theme-dot" data-t="daybreak" aria-label="Daybreak theme (light)"></button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="orb orb-a"></div>
+  <div class="orb orb-b"></div>
+  <div class="wrap">
+    <div class="eyebrow"><span class="dot"></span>Quality Assurance Leader</div>
+    <h1 id="typedHead" aria-label="I make quality something a business can plan around."></h1>
+    <p class="lede">Close to 10 years across Amazon, Brightcove, and a 0-to-1 mandate for
+      a Series A grocery delivery platform that raised $11M+. I turn ambiguous,
+      early-stage QA problems into governed, AI-accelerated processes, and I build the
+      tools myself when engineering doesn't have the bandwidth to.</p>
+    <div class="link-row">
+      <a class="icon-link" href="mailto:Aravin4d@gmail.com">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18v12H3z"/><path d="M3 7l9 6 9-6"/></svg>
+        Aravin4d@gmail.com
+      </a>
+      <a class="icon-link" href="https://www.linkedin.com/in/natarajan-aravind" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.94 5a2 2 0 11-4-.02 2 2 0 014 .02zM7 8.48H3V21h4zm6.32 0H9.34V21h3.94v-6.57c0-3.66 4.77-4 4.77 0V21H22v-7.93c0-6.17-7.06-5.94-8.68-2.91z"/></svg>
+        LinkedIn
+      </a>
+    </div>
+  </div>
+  <div class="scrolldown"><span class="ln"></span>scroll</div>
+</section>
+
+<section class="statement">
+  <div class="marquee-track" id="marquee">
+    <!-- set A -->
+    <div class="stmt">Daily hotfixes became <span class="hl">predictable bi-weekly releases</span>. That's not luck — <b>that's the system I build.</b></div>
+    <div class="stmt">$220 spent building my own tools. <span class="hl">$69,450 saved</span> across three employers. <b>I don't wait on engineering bandwidth.</b></div>
+    <div class="stmt">Sole QA owner for an entire region. Founding member of Alexa Identity. <b>I don't wait for a team to be built around me</b> — <span class="hl">I build it.</span></div>
+    <div class="stmt">Every process I've run on measures success the same way: <span class="hl">by what the customer never has to deal with.</span></div>
+    <!-- set B (duplicate for seamless loop) -->
+    <div class="stmt">Daily hotfixes became <span class="hl">predictable bi-weekly releases</span>. That's not luck — <b>that's the system I build.</b></div>
+    <div class="stmt">$220 spent building my own tools. <span class="hl">$69,450 saved</span> across three employers. <b>I don't wait on engineering bandwidth.</b></div>
+    <div class="stmt">Sole QA owner for an entire region. Founding member of Alexa Identity. <b>I don't wait for a team to be built around me</b> — <span class="hl">I build it.</span></div>
+    <div class="stmt">Every process I've run on measures success the same way: <span class="hl">by what the customer never has to deal with.</span></div>
+  </div>
+</section>
+
+<section class="stat-pin-outer">
+  <div class="stat-pin-inner" id="statPinInner">
+    <div class="wrap stat-outer-wrap">
+
+      <!-- safe default: both pages shown normally, stacked, always fully visible -->
+      <div class="stat-static">
+        <div class="stat-cell"><div class="num">$69,450</div><div class="cap">saved across three employers — no added headcount</div></div>
+        <div class="stat-cell"><div class="num">1,300+</div><div class="cap">engineering hours reclaimed a year</div></div>
+        <div class="stat-cell"><div class="num">85%</div><div class="cap">cut in app crash rates at Buncha</div></div>
+        <div class="stat-cell"><div class="num">18</div><div class="cap">locales shipped for Alexa Identity</div></div>
+      </div>
+
+      <!-- cinematic-only: two pages, paired left/right, sliding horizontally, snap-to-page -->
+      <div class="stat-reel" id="statReel">
+        <div class="stat-page">
+          <div class="stat-static">
+            <div class="stat-cell"><div class="num">$69,450</div><div class="cap">saved across three employers — no added headcount</div></div>
+            <div class="stat-cell"><div class="num">1,300+</div><div class="cap">engineering hours reclaimed a year</div></div>
+          </div>
+        </div>
+        <div class="stat-page">
+          <div class="stat-static">
+            <div class="stat-cell"><div class="num">85%</div><div class="cap">cut in app crash rates at Buncha</div></div>
+            <div class="stat-cell"><div class="num">18</div><div class="cap">locales shipped for Alexa Identity</div></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section id="experience">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2>Experience</h2>
+      <div class="sub">Four roles, one pattern: walk into reactive, underbuilt QA, leave behind
+        something the business can run on. This is the fuller version — the résumé version
+        is deliberately shorter.</div>
+    </div>
+    <div class="tl reveal" id="expTimeline">
+      <div class="tl-fill" id="tlFill"></div>
+      <div class="tl-item">
+        <div class="tl-date">May 2025 – Sept 2026</div>
+        <div class="tl-role">Buncha <span>· Quality Assurance Manager / Product</span></div>
+
+        <div class="tl-group">
+          <h4>governance &amp; process</h4>
+          <ul>
+            <li>Established <b>0-to-1 QA governance</b>, taking release cadence from daily hotfixes to predictable bi-weekly deployments — team ownership, SDLC engagement points, P0-P3 severity frameworks, signed release gates.</li>
+            <li>Held a standing seat on the <b>executive release-priority panel</b> and owned company-wide PRD review, catching contradictory logic before development (conflicting capacity-check rules, an ETA-routing gating conflict) and authoring a 74-case suite for a third-party delivery integration.</li>
+            <li>Cut new-task ramp-up friction by pre-validating PRDs a week ahead during sprint planning — test approach, test cases, and acceptance criteria signed off before the sprint even started.</li>
+            <li>Cut <b>SOS escalations from 4–6 a week to 3–4 a month</b> by authoring and enforcing a company-wide incident-severity framework, with same-day fixes via daily RCA and an in-app customer feedback flow I pushed engineering to ship.</li>
+          </ul>
+        </div>
+
+        <div class="tl-group">
+          <h4>major releases &amp; integrations</h4>
+          <ul>
+            <li>Owned quality for <b>one-hour delivery, payments, marketplace expansion, WIW, Matcher, dynamic ETA</b>, the DoorDash and Uber integrations, and the phone-masking and TalkJS communication backbone.</li>
+            <li>Owned quality for a real-time checkpoint-tracking system feeding a three-tab admin console (run, shopper, driver), Onfleet-based route and van optimization, Branch-based 1099 payment integration, in-app shift acceptance, and geofencing for attendance.</li>
+            <li>Led QA for a <b>3-store Grand Rapids launch with Meijer</b>, contributing to scaling Buncha's fulfillment network to 9 total stores generating ~350–380 orders and $4,900–$5,300+ in daily revenue.</li>
+            <li>Owned QA for a <b>customer communications revamp</b> that lifted app store ratings from 4.5–4.6 to 4.8 stars.</li>
+          </ul>
+        </div>
+
+        <div class="tl-group">
+          <h4>team &amp; leadership</h4>
+          <ul>
+            <li>Directed a <b>3-person QA team</b> through an unbacked headcount reduction without missing a release — hiring, onboarding, individual KPIs, performance reviews, growth plans, sprint retrospectives.</li>
+            <li>Served as company-wide first point of contact for production issues and onboarded every new operations and engineering hire.</li>
+          </ul>
+        </div>
+
+        <div class="tl-group">
+          <h4>tools I built — <a href="#built">see below</a></h4>
+          <ul>
+            <li>Bytecast, Forgeflow, a live-data order creation admin tool, and a Meijer self-serve ordering feature — <b>1,300+ hours and $69,450 reclaimed</b> across everything I built.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-date">Dec 2021 – March 2025</div>
+        <div class="tl-role">Brightcove <span>· Quality Assurance Engineer / Lead</span></div>
+        <div class="tl-group">
+          <h4>ownership &amp; delivery</h4>
+          <ul>
+            <li>Directed regional QA strategy as <b>APAC's sole QA owner</b>, leading 2–3 rotating contractors across multiple markets and time zones.</li>
+            <li>Shipped <b>50+ projects</b>, five large-scale, saving more than <b>$40,000 a year</b> in rework and support costs through standardized pre-production test gates.</li>
+            <li>Cut regression execution time from <b>10 hours to 4</b>, reclaiming 20+ hours per release through a risk-based strategy built with product, cutting test case volume 30% without losing critical coverage.</li>
+          </ul>
+        </div>
+        <div class="tl-group">
+          <h4>process &amp; stability</h4>
+          <ul>
+            <li>Built a <b>root cause analysis and triage process</b> from scratch that cut recurring issues over half and invalid defects 40%, and set up a centralized Xray test repository saving ~4 hours per project.</li>
+            <li>Drove production rollback incidents down <b>over half</b> and lifted customer satisfaction scores <b>20%</b> through tighter test planning and earlier defect detection.</li>
+            <li>Owned end-to-end testing across web, mobile (Android and iOS), Android TV, and admin consoles — carousel, video, live content, live TV — plus data-integrity validation on every customer onboarding and offboarding migration.</li>
+          </ul>
+        </div>
+        <div class="tl-group">
+          <h4>clients &amp; recognition</h4>
+          <ul>
+            <li>Delivered QA for a global enterprise and broadcast client base including <b>Spotify, AT&amp;T, BBC, Cisco, Dell, ServiceNow, ExxonMobil, GM, Sky</b>, and Tennis Australia.</li>
+            <li>Recognized by the Director and Senior VP, and commended by multiple clients, for running critical projects independently under tight deadlines.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-date">Dec 2019 – Dec 2021</div>
+        <div class="tl-role">Amazon <span>· Sr. Associate, Quality Service</span></div>
+        <div class="tl-group">
+          <h4>alexa identity</h4>
+          <ul>
+            <li>Joined as a <b>founding QA member</b> and delivered Alexa Identity to launch across <b>18 locales, languages, and regions</b>, covering voice and face enrollment and every authentication method behind Alexa's user recognition.</li>
+            <li>Validated Identity across <b>20+ hardware devices</b> — Fire tablets, Fire TV Stick, Echo Auto, wearables, the Alexa app on Android and iOS — and third-party integrations with Bose and Sony. Zero launch-blocking defects.</li>
+          </ul>
+        </div>
+        <div class="tl-group">
+          <h4>process &amp; efficiency</h4>
+          <ul>
+            <li>Rebuilt the regression suite from <b>1,100 test cases to 180</b> for a one-day cycle, saving ~$15,000 a year and raising test efficiency 40%.</li>
+            <li>Cut personal after-hours reporting time from <b>2 hours to 20 minutes</b>, reclaiming 400+ hours a year, and separately automated bug/comment templates with a Tampermonkey script saving ~$2,000 a year and standardizing reporting across the team.</li>
+            <li>Rewrote defect reporting standards across <b>950+ critical bugs and 2,000+ test cases</b>, cutting invalid defect rates to under 1% and resolution time 20%.</li>
+          </ul>
+        </div>
+        <div class="tl-group">
+          <h4>program &amp; people</h4>
+          <ul>
+            <li>Ran <b>6 concurrent major projects and 28+ features</b>, managing a team of 10+ and partnering daily with US-based leadership, developers, TPMs, and product across a full time-zone gap.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-date">June 2017 – Dec 2019</div>
+        <div class="tl-role">Amazon <span>· Associate, Quality Service</span></div>
+        <ul>
+          <li>Tested the Alexa mobile app across Android, iOS, and Fire Tablets on a weekly build and release cycle.</li>
+          <li>Grew from owning one functional area of the Alexa app to full end-to-end Alexa Identity validation on promotion.</li>
+          <li>Earned <b>9 company awards in 2.5 years</b> and a fast-track promotion to Senior Associate, with direct recognition from the Director.</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section id="built">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2>Built</h2>
+      <div class="sub">When engineering didn't have the bandwidth, or a process had no owner, I built it myself.</div>
+    </div>
+    <div class="built-list reveal">
+
+      <div class="built-item">
+        <div>
+          <h3>Bytecast</h3>
+          <span class="tag">Chrome extension · live on the Chrome Web Store</span>
+        </div>
+        <div>
+          <p>I was retyping near-duplicate bug reports by hand. Bytecast records a web
+            page and captures everything happening on it, then turns that recording into
+            a bug in one click.</p>
+          <ul>
+            <li>Built-in lightweight video editing and custom bug templates, or manual entry when there's nothing to record</li>
+            <li>Claude-powered, and can switch models to keep bug write-ups concise every time</li>
+            <li>Files into Jira, ClickUp, and five-plus other trackers out of the box</li>
+            <li>The real trick: every recorded video, console log, network call, and inspected element gets bundled into one interactive file attached to the bug. Open that attachment and it plays back like the live page, logs synced to the exact moment they happened</li>
+            <li>Cross-checks the details a reporter typed against what the logs actually show, so a bug report isn't just a story, it's backed by evidence</li>
+          </ul>
+          <p><a href="https://chromewebstore.google.com/detail/fnikljikgfjjkalbhnbcbdgogeiaiiml" target="_blank" rel="noopener">View on the Chrome Web Store →</a></p>
+        </div>
+      </div>
+
+      <div class="built-item">
+        <div>
+          <h3>Live-Data Order Admin</h3>
+          <span class="tag">Internal admin tool</span>
+        </div>
+        <p>Every test order used to mean a real transaction and a manual API setup, per
+          order, per environment. This tool pulls live data straight from whichever
+          environment you're pointed at, production included, and creates a fully
+          detailed order in one click, no separate setup per order, no extra cost. It
+          was later extended through Greenhouse into a company-wide in-store trial
+          order automation flow.</p>
+      </div>
+
+      <div class="built-item">
+        <div>
+          <h3>Meijer Self-Serve</h3>
+          <span class="tag">In-app feature</span>
+        </div>
+        <p>Meijer could only place orders through their own system, but every one of
+          those orders still needed QA to manually shop and deliver it inside our app,
+          just to work around internal dependencies. I built a feature giving their own
+          staff direct access to assign themselves as shopper and driver and run the
+          whole flow start to finish, no one on my team involved. Saved ~4 hours of QA
+          time a week.</p>
+      </div>
+
+      <div class="built-item">
+        <div>
+          <h3>Forgeflow</h3>
+          <span class="tag">Android app · internal tool</span>
+        </div>
+        <p>Records a real session on the phone and turns it into a working test script,
+          cross-platform, no separate build per OS. What used to cost a QA engineer real
+          hours writing and maintaining automation by hand now happens in the time it
+          takes to record the flow once, freeing that time for the testing a script
+          can't do: exploring the parts of the product no one's thought to check yet.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section id="skills">
+  <div class="wrap">
+    <div class="sec-head reveal"><h2>Skills &amp; tools</h2></div>
+    <div class="skill-list reveal">
+      <div class="skill-block">
+        <h3>qa leadership &amp; strategy</h3>
+        <p>0-to-1 QA governance, release management, incident governance, hiring &amp; onboarding, performance reviews &amp; 1:1 mentoring, vendor &amp; stakeholder management.</p>
+      </div>
+      <div class="skill-block">
+        <h3>testing methodologies</h3>
+        <p>Test planning &amp; design, risk-based testing, regression, functional, compatibility, cross-platform &amp; OTT, exploratory, end-to-end, UAT, localization, root cause analysis.</p>
+      </div>
+      <div class="skill-block">
+        <h3>ai-assisted qa tooling</h3>
+        <p>Claude AI &amp; LLM prompt engineering, Chrome extension development, custom Tampermonkey scripting, SQL.</p>
+      </div>
+      <div class="skill-block">
+        <h3>observability &amp; platforms</h3>
+        <p>Datadog, New Relic, Redis, RabbitMQ, Elasticsearch, Postman, JMeter, BrowserStack, LambdaTest.</p>
+      </div>
+      <div class="skill-block">
+        <h3>reporting &amp; version control</h3>
+        <p>Jira, Xray, ClickUp, Confluence, TestRail, Git, test reports &amp; dashboards.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="education">
+  <div class="wrap">
+    <div class="sec-head reveal"><h2>Education &amp; certifications</h2></div>
+    <div class="reveal">
+      <div class="edu-row">
+        <div class="edu-name">B.E., Electronics &amp; Communication Engineering — Sri Krishna College of Engineering and Technology</div>
+        <div class="edu-meta">CGPA 8.13</div>
+      </div>
+      <div class="edu-row">
+        <div class="edu-name">Six Sigma Yellow Belt</div>
+        <div class="edu-meta">Certified</div>
+      </div>
+      <div class="edu-row">
+        <div class="edu-name">ISTQB Certification</div>
+        <div class="edu-meta">Expected Dec 2026</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer id="contact">
+  <div class="wrap">
+    <h2 class="reveal">Open to remote roles, and to relocating.</h2>
+    <p class="lede reveal">If you're hiring a QA leader who'd rather build the fix than file the
+      ticket, I'd like to hear about it.</p>
+    <div class="link-row reveal">
+      <a class="icon-link" href="mailto:Aravin4d@gmail.com">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18v12H3z"/><path d="M3 7l9 6 9-6"/></svg>
+        Aravin4d@gmail.com
+      </a>
+      <a class="icon-link" href="https://www.linkedin.com/in/natarajan-aravind" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.94 5a2 2 0 11-4-.02 2 2 0 014 .02zM7 8.48H3V21h4zm6.32 0H9.34V21h3.94v-6.57c0-3.66 4.77-4 4.77 0V21H22v-7.93c0-6.17-7.06-5.94-8.68-2.91z"/></svg>
+        LinkedIn
+      </a>
+    </div>
+    <div class="fine">Based in India · open to remote / relocation</div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Typewriter — plain JS, zero dependency, runs regardless of anything below.
+  var head = document.getElementById('typedHead');
+  var full = 'I make quality something a business can plan around.';
+  if (reduceMotion){
+    head.textContent = full;
+  } else {
+    var i = 0;
+    head.innerHTML = '<span class="gradient-text" id="typedSpan"></span><span class="cursor">&nbsp;</span>';
+    var span = document.getElementById('typedSpan');
+    (function step(){
+      if (i <= full.length){ span.textContent = full.slice(0, i); i++; setTimeout(step, 32); }
+    })();
+  }
+
+  // Color theme switcher — independent of everything else, always works.
+  var THEME_COLORS = {
+    nebula:   { blue:'79,124,255', violet:'139,92,246', cyan:'34,211,238' },
+    ember:    { blue:'255,107,91', violet:'214,64,159', cyan:'255,176,32' },
+    daybreak: { blue:'36,84,232',  violet:'124,58,237', cyan:'8,145,178'  }
+  };
+  var currentTheme = 'nebula';
+  var dots = document.querySelectorAll('.theme-dot');
+  dots.forEach(function(d){
+    d.addEventListener('click', function(){
+      currentTheme = d.dataset.t;
+      document.documentElement.setAttribute('data-theme', currentTheme);
+      dots.forEach(function(x){ x.classList.remove('active'); });
+      d.classList.add('active');
+      document.dispatchEvent(new CustomEvent('themechange', { detail: currentTheme }));
+    });
+  });
+
+  // A single SVG line that spans the full document height and "draws" itself
+  // in as you scroll (stroke-dasharray/dashoffset tied to scroll fraction),
+  // gently weaving left-right along the left gutter as it goes. Plain SVG +
+  // scroll math, no library — rebuilt on resize and once more after fonts
+  // settle, so a late layout shift can't leave it the wrong length.
+  (function(){
+    if (reduceMotion) return;
+    var NS = 'http://www.w3.org/2000/svg';
+    var svg = document.createElementNS(NS, 'svg');
+    svg.id = 'pageTrace';
+    var path = document.createElementNS(NS, 'path');
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke', 'var(--cyan)');
+    path.setAttribute('stroke-width', '2');
+    path.setAttribute('stroke-linecap', 'round');
+    path.style.opacity = '0.4';
+    svg.appendChild(path);
+    document.body.appendChild(svg);
+
+    var totalLen = 1;
+    function build(){
+      var h = document.documentElement.scrollHeight;
+      svg.setAttribute('width', 120);
+      svg.setAttribute('height', h);
+      var d = 'M 20 0 ', y = 0, side = 1, step = 460;
+      while (y < h){
+        var ny = Math.min(y + step, h);
+        var midY = (y + ny) / 2;
+        var x1 = side > 0 ? 95 : 20;
+        var x2 = side > 0 ? 20 : 95;
+        d += 'Q ' + x1 + ' ' + midY + ' ' + x2 + ' ' + ny + ' ';
+        side *= -1; y = ny;
+      }
+      path.setAttribute('d', d);
+      totalLen = path.getTotalLength() || 1;
+      path.style.strokeDasharray = totalLen;
+      updateDash();
+    }
+    function updateDash(){
+      var max = (document.documentElement.scrollHeight - window.innerHeight) || 1;
+      var frac = Math.min(Math.max(window.scrollY / max, 0), 1);
+      path.style.strokeDashoffset = totalLen * (1 - frac);
+    }
+    window.addEventListener('scroll', updateDash, { passive:true });
+    window.addEventListener('resize', build);
+    build();
+    setTimeout(build, 1200);
+    if (document.fonts && document.fonts.ready){ document.fonts.ready.then(build); }
+  })();
+
+  // Magnetic pull on the pill-style contact links only — a subtle nudge toward
+  // the cursor within a small radius, springs back on leave. No cursor
+  // replacement: the system pointer stays exactly as-is.
+  if (window.matchMedia && window.matchMedia('(hover:hover) and (pointer:fine)').matches && !reduceMotion){
+    document.querySelectorAll('.icon-link').forEach(function(el){
+      el.addEventListener('mousemove', function(e){
+        var r = el.getBoundingClientRect();
+        var dx = e.clientX - (r.left + r.width/2), dy = e.clientY - (r.top + r.height/2);
+        el.style.transform = 'translate(' + (dx*0.25) + 'px,' + (dy*0.35) + 'px)';
+      });
+      el.addEventListener('mouseleave', function(){ el.style.transform = ''; });
+    });
+  }
+
+  // Card "globe" tilt: each Built card and each Experience entry rotates in
+  // 3D perspective based on how far it sits from the vertical center of the
+  // viewport — tilted forward approaching center, level at center, tilted
+  // back leaving, as if each one sat on the inside of a sphere passing in
+  // front of the camera. Plain scroll math against each element's own
+  // bounding box, no cross-element measurement, so this can't inherit the
+  // earlier font-timing bug either.
+  var tiltCards = document.querySelectorAll('.built-item, .tl-item');
+  if (tiltCards.length && !reduceMotion){
+    var applyTilt = function(){
+      var vh = window.innerHeight;
+      tiltCards.forEach(function(card){
+        var r = card.getBoundingClientRect();
+        var cardCenter = r.top + r.height / 2;
+        var offset = (cardCenter - vh / 2) / (vh / 2); // -1 (above) .. 1 (below)
+        offset = Math.max(-1, Math.min(1, offset));
+        var deg = offset * -8;
+        card.style.transform = 'perspective(1400px) rotateX(' + deg.toFixed(2) + 'deg)';
+      });
+    };
+    var ticking = false;
+    window.addEventListener('scroll', function(){
+      if (!ticking){ requestAnimationFrame(function(){ applyTilt(); ticking = false; }); ticking = true; }
+    }, { passive: true });
+    window.addEventListener('resize', applyTilt);
+    applyTilt();
+  }
+
+  // Fast "unfold" reveal per bullet line — not a typewriter, each line starts
+  // clipped away to nothing and unfolds open left-to-right in under half a
+  // second, staggered slightly across the lines in the same role, so a
+  // whole role's bullets cascade open quickly rather than typing slowly.
+  if ('IntersectionObserver' in window){
+    var lines = document.querySelectorAll('.tl li');
+    var io3 = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting){ e.target.classList.add('unfolded'); io3.unobserve(e.target); }
+      });
+    }, { threshold: 0.3 });
+    lines.forEach(function(li, i){
+      li.style.transitionDelay = ((i % 6) * 0.05) + 's';
+      io3.observe(li);
+    });
+  } else {
+    document.querySelectorAll('.tl li').forEach(function(li){ li.classList.add('unfolded'); });
+  }
+
+  // Experience timeline: a fill line that tracks scroll progress through the
+  // section (plain percentage of its own box, no cross-element measurement,
+  // so this can't inherit the earlier font-timing bug), and the currently
+  // "active" role highlighted while the others dim. Both native APIs, both
+  // work with zero dependency on GSAP.
+  var tl = document.getElementById('expTimeline');
+  var tlFill = document.getElementById('tlFill');
+  if (tl && tlFill){
+    var onScroll = function(){
+      var r = tl.getBoundingClientRect();
+      var total = r.height;
+      var seen = Math.min(Math.max(innerHeight*0.5 - r.top, 0), total);
+      tlFill.style.height = (total ? (seen/total*100) : 0) + '%';
+    };
+    window.addEventListener('scroll', onScroll, {passive:true});
+    window.addEventListener('resize', onScroll);
+    onScroll();
+  }
+  if ('IntersectionObserver' in window){
+    var items = document.querySelectorAll('.tl-item');
+    var io2 = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ e.target.classList.toggle('active', e.isIntersecting); });
+    }, { rootMargin: '-45% 0px -45% 0px' });
+    items.forEach(function(it){ io2.observe(it); });
+  } else {
+    document.querySelectorAll('.tl-item').forEach(function(it){ it.classList.add('active'); });
+  }
+})();
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+  // Fixed WebGL particle field behind everything. Entirely optional: if
+  // Three.js fails to load, or WebGL isn't available, or anything inside
+  // this throws, we catch it and do nothing — the solid background color
+  // on <html> and the existing CSS gradient glows in the hero are already a
+  // complete, correct-looking page with no WebGL layer at all.
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (typeof THREE === 'undefined') return;
+  try {
+    var canvas = document.getElementById('bgCanvas');
+    var renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true, powerPreference:'low-power' });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(55, window.innerWidth/window.innerHeight, 0.1, 100);
+    camera.position.z = 12;
+
+    // A sparse field of points, not a dense particle sphere — kept deliberately
+    // subtle so it reads as depth and atmosphere behind the content rather
+    // than competing with it for attention.
+    var COUNT = 700;
+    var positions = new Float32Array(COUNT * 3);
+    for (var i = 0; i < COUNT; i++){
+      positions[i*3]   = (Math.random() - 0.5) * 46;
+      positions[i*3+1] = (Math.random() - 0.5) * 46;
+      positions[i*3+2] = (Math.random() - 0.5) * 30 - 6;
+    }
+    var geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    var mat = new THREE.PointsMaterial({ color: 0x5FB4A2, size: 0.05, transparent: true, opacity: 0.5, sizeAttenuation: true });
+    var field = new THREE.Points(geo, mat);
+    scene.add(field);
+
+    // A soft curved trail that follows the cursor through 3D space — a fixed
+    // number of points, each frame the newest mouse position (projected
+    // into the scene) gets pushed in and the oldest drops off, redrawn as a
+    // A soft, fluid trail that follows the cursor through 3D space — three
+    // thin offset strands with a gentle sine-based drift between them (an
+    // aurora-like ribbon rather than one hard line), driven by a single
+    // spring-physics "head" rather than a plain lerp. A spring can briefly
+    // overshoot past its target before settling, which is exactly the
+    // "moves a little past the cursor, like water" feel, and it never
+    // throws on a degenerate point the way a tube geometry can, so it's
+    // safe even before the cursor has moved at all. Colors are read live
+    // from the page's current theme and refreshed on every theme change.
+    function hexToRgb01(hex){
+      hex = (hex || '').trim().replace('#', '');
+      if (hex.length !== 6) return [0.3, 0.7, 0.9];
+      var n = parseInt(hex, 16);
+      return [ ((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255 ];
+    }
+    function readThemeColors(){
+      var cs = getComputedStyle(document.documentElement);
+      return {
+        a: hexToRgb01(cs.getPropertyValue('--cyan')),
+        b: hexToRgb01(cs.getPropertyValue('--violet'))
+      };
+    }
+    var themeRGB = readThemeColors();
+    document.addEventListener('themechange', function(){ themeRGB = readThemeColors(); });
+
+    var HIST_LEN = 34;
+    var headPos = new THREE.Vector3(0, 0, 4);
+    var headVel = new THREE.Vector3(0, 0, 0);
+    var headTarget = new THREE.Vector3(0, 0, 4);
+    var history = [];
+    for (var hi = 0; hi < HIST_LEN; hi++){ history.push(new THREE.Vector3(0, 0, 4)); }
+
+    var strands = [];
+    for (var s = 0; s < 3; s++){
+      var sPos = new Float32Array(HIST_LEN * 3);
+      var sCol = new Float32Array(HIST_LEN * 3);
+      var sGeo = new THREE.BufferGeometry();
+      sGeo.setAttribute('position', new THREE.BufferAttribute(sPos, 3));
+      sGeo.setAttribute('color', new THREE.BufferAttribute(sCol, 3));
+      var sMat = new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.28, blending: THREE.AdditiveBlending });
+      scene.add(new THREE.Line(sGeo, sMat));
+      strands.push({ geo: sGeo, pos: sPos, col: sCol, phase: s * 2.1 });
+    }
+
+    // Mouse tilts the field toward the cursor (lerped, never snaps), scroll
+    // gently pushes the camera through it. Both read-only inputs — this
+    // canvas has pointer-events:none, so it can never intercept a click,
+    // a hover, or the page's own scrolling.
+    var mouseX = 0, mouseY = 0, curX = 0, curY = 0;
+    window.addEventListener('mousemove', function(e){
+      mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+      mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+      headTarget.set(mouseX * 6, -mouseY * 4, 4);
+    }, { passive: true });
+
+    var scrollFrac = 0;
+    function updateScroll(){
+      var max = (document.documentElement.scrollHeight - window.innerHeight) || 1;
+      scrollFrac = Math.min(Math.max(window.scrollY / max, 0), 1);
+    }
+    window.addEventListener('scroll', updateScroll, { passive: true });
+    updateScroll();
+
+    window.addEventListener('resize', function(){
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    (function animate(){
+      requestAnimationFrame(animate);
+      curX += (mouseX - curX) * 0.04;
+      curY += (mouseY - curY) * 0.04;
+      field.rotation.y = curX * 0.25;
+      field.rotation.x = curY * 0.15;
+      camera.position.z = 12 - scrollFrac * 5;
+
+      // Spring the head toward the cursor target — an underdamped spring,
+      // not a lerp, so it can briefly overshoot past the target and ease
+      // back, rather than always trailing strictly behind the pointer.
+      headVel.x += (headTarget.x - headPos.x) * 0.10;
+      headVel.y += (headTarget.y - headPos.y) * 0.10;
+      headVel.z += (headTarget.z - headPos.z) * 0.10;
+      headVel.multiplyScalar(0.86);
+      headPos.add(headVel);
+
+      for (var hk = HIST_LEN - 1; hk > 0; hk--){ history[hk].lerp(history[hk-1], 0.55); }
+      history[0].copy(headPos);
+
+      var now = performance.now() * 0.001;
+      strands.forEach(function(strand){
+        for (var pi = 0; pi < HIST_LEN; pi++){
+          var base = history[pi];
+          var fade = 1 - pi / HIST_LEN;
+          var wobX = Math.sin(now * 1.3 + pi * 0.5 + strand.phase) * 0.16 * fade;
+          var wobY = Math.cos(now * 1.1 + pi * 0.4 + strand.phase) * 0.13 * fade;
+          strand.pos[pi*3]   = base.x + wobX;
+          strand.pos[pi*3+1] = base.y + wobY;
+          strand.pos[pi*3+2] = base.z;
+          strand.col[pi*3]   = (themeRGB.a[0] + themeRGB.b[0]) * 0.5 * fade;
+          strand.col[pi*3+1] = (themeRGB.a[1] + themeRGB.b[1]) * 0.5 * fade;
+          strand.col[pi*3+2] = (themeRGB.a[2] + themeRGB.b[2]) * 0.5 * fade;
+        }
+        strand.geo.attributes.position.needsUpdate = true;
+        strand.geo.attributes.color.needsUpdate = true;
+      });
+
+      renderer.render(scene, camera);
+    })();
+  } catch (e) {
+    // Silent on purpose — see comment above.
+  }
+})();
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+(function(){
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var gsapReady = (typeof gsap !== 'undefined') && (typeof ScrollTrigger !== 'undefined');
+  if (!gsapReady || reduceMotion) return; // page is already fully visible and functional as-is
+
+  document.documentElement.classList.add('cinematic');
+  gsap.registerPlugin(ScrollTrigger);
+
+  // The one pinned moment: two stats at a time, filling left and right, sliding
+  // horizontally to the next pair. Fixed 280vh height (not measured from
+  // rendered content), and the reel moves by its own xPercent, not a pixel
+  // distance computed from text width — so this never depends on font-load
+  // timing the way the earlier horizontal-scroll bug did. snap locks each
+  // scroll to a fully-shown pair rather than stopping mid-transition.
+  gsap.to('#statReel', {
+    xPercent: -50, ease: 'none',
+    scrollTrigger:{
+      trigger:'.stat-pin-outer', start:'top top', end:'bottom bottom',
+      pin:'#statPinInner', scrub:0.6,
+      snap:{ snapTo:1, duration:0.35, ease:'power1.inOut' }
+    }
+  });
+
+  gsap.utils.toArray('.reveal').forEach(function(el){
+    gsap.to(el, {
+      opacity:1, y:0, duration:0.8, ease:'power2.out',
+      scrollTrigger:{ trigger:el, start:'top 85%', toggleActions:'play none none reverse' }
+    });
+  });
+
+  if (document.fonts && document.fonts.ready){
+    document.fonts.ready.then(function(){ ScrollTrigger.refresh(); });
+  }
+})();
+</script>
+</body>
+</html>
