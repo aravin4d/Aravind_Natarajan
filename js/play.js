@@ -56,14 +56,14 @@
     function complete(){
       active = false; track('game_level', { level: lv + 1 });
       if (lv < LEVELS.length - 1){ var nx = LEVELS[lv + 1]; show('Level ' + (lv + 1) + ' complete', 'On to ' + nx.year, 'Next chapter: ' + nx.role + '. More bugs, harder to spot.', 'Next level', function(){ lv++; intro(); }); }
-      else { track('game_complete'); show('Career complete', 'Every level was a real chapter', 'Nine years of finding what others miss. The case studies show how I turned that into a system.', 'Play again', function(){ lv = 0; intro(); }); }
+      else { track('game_complete'); show('Career complete', 'Every level was a real chapter', 'Ten years of finding what others miss. The case studies show how I turned that into a system.', 'Play again', function(){ lv = 0; intro(); }); }
     }
     sc.addEventListener('click', function(e){
       if (!active || e.target.closest('.hg-card')) return;
       var p = toSvg(e), o = offset(), tol = (e.pointerType === 'touch' || !e.pointerType) ? 34 : 28, hit = null;
       bugs.forEach(function(b){ if (!b.found && Math.hypot(b.x + o.x - p.x, b.y + o.y - p.y) < tol) hit = b; });
       if (hit){
-        hit.found = true; hit.el.setAttribute('class', 'hg-bug found'); found++;
+        hit.found = true; hit.el.setAttribute('class', 'hg-bug found'); found++; if (window.__site && window.__site.sfx) window.__site.sfx('pop');
         elFact.textContent = LEVELS[lv].facts[found - 1] || ''; elFact.classList.remove('pop'); void elFact.offsetWidth; elFact.classList.add('pop');
         hud(); if (found === bugs.length) setTimeout(complete, 1400);
       } else { rim.classList.remove('miss'); void rim.getBoundingClientRect(); rim.classList.add('miss'); elFact.textContent = 'Nothing there. Keep looking.'; }
