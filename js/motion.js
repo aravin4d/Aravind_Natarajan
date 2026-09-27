@@ -84,7 +84,7 @@
   safe(function(){
     if (reduce) return;
     var FX = [['#letter-sec .s-h', 'ink'], ['#story .story .lead', 'rise'], ['#proof .s-h', 'rise'], ['#cases .s-h', 'ink'], ['#experience .s-h', 'clear'], ['#built .s-h', 'scramble'],
-              ['#leadership .s-h', 'rise'], ['#skills .s-h', 'scramble'], ['#summit h2', 'rise'], ['#play .s-h', 'glitch'], ['#offclock .s-h', 'ink'], ['#contact .s-h', 'rise']];
+              ['#leadership .s-h', 'rise'], ['#skills .s-h', 'scramble'], ['#summit h2', 'rise'], ['#offclock .s-h', 'ink'], ['#contact .s-h', 'rise']];
     var LO = 'abcdefghijklmnopqrstuvwxyz', UP = 'ABCDEFGHJKLMNOPRSTUVWXYZ', GL = '/\\|<>_-=+*#', items = [], inkN = 0;
     function srSpan(txt){ var s = document.createElement('span'); s.className = 'sr'; s.textContent = txt; return s; }
     function split(el, chars){
@@ -267,7 +267,7 @@
   safe(function(){
     var NOTES = [['letter-sec', 'Base camp. Grab the letter before we head up.'], ['story', 'Everyone starts somewhere. Mine was a buggy phone.'], ['proof', 'Every number here has a story. Tap one.'],
                  ['cases', 'This is where the thinking is.'], ['experience', 'Same pattern, every company.'], ['built', 'Built these on the way up.'],
-                 ['leadership', 'Roped in. Nobody summits alone.'], ['skills', 'Gear check.'], ['play', 'Downhill now. Time to play.'],
+                 ['leadership', 'Roped in. Nobody summits alone.'], ['skills', 'Gear check.'], 
                  ['offclock', 'Boots off. The fun stuff.'], ['contact', 'Camp’s set. The fire’s on.']];
     var defs = document.createElementNS(NS, 'svg'); defs.setAttribute('width', '0'); defs.setAttribute('height', '0'); defs.setAttribute('aria-hidden', 'true'); defs.style.position = 'absolute';
     defs.innerHTML = '<filter id="anShake1"><feTurbulence type="fractalNoise" baseFrequency=".06" numOctaves="2" seed="3"/><feDisplacementMap in="SourceGraphic" scale="1.8"/></filter><filter id="anShake2"><feTurbulence type="fractalNoise" baseFrequency=".09" numOctaves="2" seed="8"/><feDisplacementMap in="SourceGraphic" scale="3.2"/></filter>';

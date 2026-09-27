@@ -180,6 +180,24 @@
   }
   if (btn){ btn.hidden = false; label(want);
     btn.addEventListener('click', function(){ setOn(btn.getAttribute('aria-pressed') !== 'true', true); }); }
+  /* W4: a first visit gets one quiet note under the sound button. On: you can turn it off here. Off: the climb sounds better on. */
+  (function(){
+    if (!btn) return; try { if (localStorage.getItem('av-snd-tip') === '1') return; } catch (e){ return; }
+    var tip = null, tm = 0, shown = false;
+    function place(){ if (!tip) return; var r = btn.getBoundingClientRect(), w = tip.offsetWidth, x = Math.max(10, Math.min(window.innerWidth - w - 10, r.left + r.width / 2 - w / 2));
+      tip.style.left = x.toFixed(0) + 'px'; tip.style.top = (r.bottom + 12).toFixed(0) + 'px'; tip.style.setProperty('--ax', (r.left + r.width / 2 - x).toFixed(0) + 'px'); }
+    function close(){ clearTimeout(tm); try { localStorage.setItem('av-snd-tip', '1'); } catch (e){} if (!tip) return; var t = tip; tip = null; t.classList.remove('in');
+      window.removeEventListener('resize', place); setTimeout(function(){ if (t.parentNode) t.parentNode.removeChild(t); }, 450); }
+    function open(){ if (shown || btn.hidden || document.hidden) return; shown = true; var isOn = btn.getAttribute('aria-pressed') === 'true';
+      tip = document.createElement('div'); tip.className = 'snd-tip'; tip.setAttribute('role', 'status');
+      tip.innerHTML = '<p>' + (isOn ? 'Sound is on for the full climb. You can turn it off here, any time.' : 'The climb sounds better with sound on. Turn it on here, and off again any time.') + '</p><button class="snd-tip-x" type="button" aria-label="Dismiss">×</button>';
+      document.body.appendChild(tip); place(); window.addEventListener('resize', place);
+      tip.querySelector('.snd-tip-x').addEventListener('click', close);
+      requestAnimationFrame(function(){ if (tip) tip.classList.add('in'); });
+      tm = setTimeout(close, 9000); }
+    btn.addEventListener('click', close);
+    setTimeout(open, 4200);
+  })();
   /* it was on last time: pick up again at the first touch or key press, since browsers only allow audio after one */
   if (want){ var first = function(e){ if (btn && e && btn.contains(e.target)) return; ['pointerup', 'keydown', 'touchend'].forEach(function(n){ document.removeEventListener(n, first, true); });
       if (!btn || btn.getAttribute('aria-pressed') === 'true') setOn(true, false); };

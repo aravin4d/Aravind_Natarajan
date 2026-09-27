@@ -10,78 +10,6 @@
   function whenVisible(el, cb){ if (!('IntersectionObserver' in window)){ cb(true); return; } new IntersectionObserver(function(es){ cb(es[0].isIntersecting); }, { threshold: 0.05 }).observe(el); }
   function onceVisible(el, cb, th){ if (!('IntersectionObserver' in window)){ cb(); return; } var io = new IntersectionObserver(function(es){ if (es[0].isIntersecting){ io.disconnect(); cb(); } }, { threshold: th || 0.4 }); io.observe(el); }
 
-  /* ---------- Play my career: four levels, one per chapter ---------- */
-  safe(function(){
-    var sc = $('.pl-scene'); if (!sc) return;
-    var svg = $('svg', sc), layers = $$('[data-depth]', sc), lens = $('#hsLensCircle', sc), rim = $('.hs-rim', sc), layer = $('.hs-bugs', sc);
-    var elLevel = $('.hg-level', sc), elCount = $('.hg-count', sc), elFact = $('.hg-fact', sc), card = $('.hg-card', sc), cardK = $('.hg-card-k', sc), cardT = $('.hg-card h3', sc), cardP = $('.hg-card p', sc), cardB = $('.hg-go', sc);
-    var VW = 640, VH = 520, lx = 430, ly = 300, tx = lx, ty = ly, px = 0, py = 0, tpx = 0, tpy = 0, user = false, running = false, t0 = performance.now();
-    function toSvg(e){ var r = svg.getBoundingClientRect(); return { x: (e.clientX - r.left) / r.width * VW, y: (e.clientY - r.top) / r.height * VH, nx: (e.clientX - r.left) / r.width - 0.5, ny: (e.clientY - r.top) / r.height - 0.5 }; }
-    function aim(e){ var p = toSvg(e); tx = clamp(p.x, 70, VW - 70); ty = clamp(p.y, 70, VH - 70); tpx = clamp(p.nx, -0.8, 0.8); tpy = clamp(p.ny, -0.8, 0.8); user = true; }
-    sc.addEventListener('pointermove', aim); sc.addEventListener('pointerdown', aim);
-    sc.addEventListener('pointerleave', function(){ user = false; tpx = 0; tpy = 0; });
-    var LEVELS = [
-      { year: '2017', role: 'Amazon, the Alexa app', labels: ['crash on update', 'typo', 'broken link'],
-        facts: ['I tested the Alexa app on Android, iOS and Fire tablets, every single week.', 'Nine company awards in two and a half years, then a fast-track promotion.', 'A clear bug report saves a developer an hour. I learned that in my first week.'] },
-      { year: '2019', role: 'Amazon, Alexa Identity', labels: ['locale mismatch', 'voice timeout', 'enrolment fail', 'device crash'],
-        facts: ['Zero launch-blocking defects across 18 locales.', 'Tested on 20+ device types, from Fire TV to Echo Auto.', 'I redesigned the regression suite from 1,100 test cases to 180.', 'Invalid defects brought under 1% across 950+ critical bugs.'] },
-      { year: '2021', role: 'Brightcove, all of APAC', labels: ['buffering', 'caption drift', 'DRM error', 'login loop', 'CDN timeout'],
-        facts: ['I led APAC QA with four contractors across ten enterprise accounts.', 'Regression time went from 10 hours to 4.', 'A root cause process I built cut recurring issues by over half.', 'Pre-production test gates saved more than $40,000 a year.', 'Production rollbacks fell by over half, and CSAT rose 20%.'] },
-      { year: '2025', role: 'Buncha, QA from zero', labels: ['race condition', 'double charge', 'wrong ETA', 'clock out bug', '404', 'P0 outage'],
-        facts: ['Hotfixes went from several a day to one planned release window a week.', 'SOS escalations went from 4 to 6 a week to 3 to 4 a month.', 'About 100K redundant daily service calls, gone.', 'Test orders went from 18 minutes to under one.', 'Bytecast and Forgeflow gave back 1,300+ engineering hours a year.', 'The Meijer launch shipped on schedule, about 370 orders a day.'] }
-    ];
-    var lv = 0, bugs = [], found = 0, active = false;
-    function rects(){ return $$('g[clip-path] g[data-depth="26"] > g rect', sc).map(function(r){ return { x: +r.getAttribute('x'), y: +r.getAttribute('y'), w: +r.getAttribute('width'), h: +r.getAttribute('height') }; }).filter(function(r){ return r.x > 40 && r.x + r.w < 610 && r.w > 20 && r.y < 360; }); }
-    function offset(){ var m = /translate\(([-\d.]+)[ ,]+([-\d.]+)\)/.exec(layer.parentNode.getAttribute('transform') || ''); return m ? { x: +m[1], y: +m[2] } : { x: 0, y: 0 }; }
-    function place(){
-      layer.innerHTML = ''; bugs = []; found = 0;
-      var L = LEVELS[lv], rs = rects(), tries = 0;
-      while (bugs.length < L.labels.length && tries++ < 400){
-        var r = rs[(Math.random() * rs.length) | 0]; if (!r) break;
-        var x = r.x + 8 + Math.random() * (r.w - 16), y = Math.max(r.y + 14, Math.min(420, r.y + 14 + Math.random() * Math.min(120, r.h - 24)));
-        if (bugs.some(function(b){ return Math.hypot(b.x - x, b.y - y) < 70; })) continue;
-        var g = document.createElementNS(NS, 'g'); g.setAttribute('class', 'hg-bug'); g.setAttribute('transform', 'translate(' + x.toFixed(1) + ' ' + y.toFixed(1) + ')');
-        g.innerHTML = '<circle class="hg-ring" r="10"/><circle class="hg-dot" r="3.4"/><text x="14" y="4">' + L.labels[bugs.length] + '</text>';
-        layer.appendChild(g); bugs.push({ x: x, y: y, el: g, found: false });
-      }
-      hud();
-    }
-    function hud(){ var L = LEVELS[lv]; elLevel.textContent = 'Level ' + (lv + 1) + ' of 4 · ' + L.year + ' · ' + L.role; elCount.textContent = 'Bugs found ' + found + ' of ' + bugs.length; }
-    function show(k, t, p, b, fn){ cardK.textContent = k; cardT.textContent = t; cardP.textContent = p; cardB.textContent = b; cardB.onclick = fn; card.hidden = false; }
-    function intro(){
-      active = false; var L = LEVELS[lv]; place();
-      show('Level ' + (lv + 1) + ' of 4 · ' + L.year, L.role, 'Bugs are hiding in the city, and only the lens can see them. Move it around and tap a bug when you spot it. The lens glows when you are close.', 'Start level ' + (lv + 1),
-        function(){ card.hidden = true; active = true; elFact.textContent = ''; if (lv === 0) track('game_start'); });
-    }
-    function complete(){
-      active = false; track('game_level', { level: lv + 1 });
-      if (lv < LEVELS.length - 1){ var nx = LEVELS[lv + 1]; show('Level ' + (lv + 1) + ' complete', 'On to ' + nx.year, 'Next chapter: ' + nx.role + '. More bugs, harder to spot.', 'Next level', function(){ lv++; intro(); }); }
-      else { track('game_complete'); show('Career complete', 'Every level was a real chapter', 'Since 2017, I’ve been finding what others miss. The case studies show how I turned that into a system.', 'Play again', function(){ lv = 0; intro(); }); }
-    }
-    sc.addEventListener('click', function(e){
-      if (!active || e.target.closest('.hg-card')) return;
-      var p = toSvg(e), o = offset(), tol = (e.pointerType === 'touch' || !e.pointerType) ? 34 : 28, hit = null;
-      bugs.forEach(function(b){ if (!b.found && Math.hypot(b.x + o.x - p.x, b.y + o.y - p.y) < tol) hit = b; });
-      if (hit){
-        hit.found = true; hit.el.setAttribute('class', 'hg-bug found'); found++; if (window.__site && window.__site.sfx) window.__site.sfx('pop');
-        elFact.textContent = LEVELS[lv].facts[found - 1] || ''; elFact.classList.remove('pop'); void elFact.offsetWidth; elFact.classList.add('pop');
-        hud(); if (found === bugs.length) setTimeout(complete, 1400);
-      } else { rim.classList.remove('miss'); void rim.getBoundingClientRect(); rim.classList.add('miss'); elFact.textContent = 'Nothing there. Keep looking.'; }
-    });
-    function loop(now){
-      if (!running) return;
-      if (!user && !reduce){ var t = (now - t0) / 1000; tx = 400 + Math.cos(t * 0.45) * 150; ty = 290 + Math.sin(t * 0.8) * 70; }
-      lx += (tx - lx) * 0.14; ly += (ty - ly) * 0.14; px += (tpx - px) * 0.08; py += (tpy - py) * 0.08;
-      lens.setAttribute('cx', lx.toFixed(1)); lens.setAttribute('cy', ly.toFixed(1));
-      rim.setAttribute('transform', 'translate(' + lx.toFixed(1) + ' ' + ly.toFixed(1) + ')');
-      if (!reduce) layers.forEach(function(l){ var d = +l.getAttribute('data-depth'); l.setAttribute('transform', 'translate(' + (-px * d).toFixed(1) + ' ' + (-py * d * 0.6).toFixed(1) + ')'); });
-      if (active){ var o = offset(), near = false; bugs.forEach(function(b){ if (!b.found && Math.hypot(b.x + o.x - lx, b.y + o.y - ly) < 95) near = true; }); if (near) rim.classList.add('hot'); else rim.classList.remove('hot'); }
-      requestAnimationFrame(loop);
-    }
-    whenVisible(sc, function(v){ if (v && !running){ running = true; requestAnimationFrame(loop); } else if (!v) running = false; });
-    intro();
-  });
-
   /* ---------- fruit catch: shake a fruit loose, catch it in the basket ---------- */
   safe(function(){
     var box = $('.fc'); if (!box) return;
@@ -135,8 +63,10 @@
   safe(function(){
     var box = $('.serve'), btn = $('.serve-btn', box), count = $('.serve-count', box), court = $('.court', box); if (!btn || !court) return;
     var sh = $('.ct-sh', court), shd = $('.ct-shd', court), you = $('.ct-you .ct-arm', court), me = $('.ct-me .ct-arm', court);
-    var RY = { x: 80, y: 50 }, RM = { x: 320, y: 50 }, st = 'idle', fl = null, rally = 0, raf = 0, best = 0, early = false, WIN = 0.64, GRACE = 0.16;
+    var RY = { x: 80, y: 50 }, RM = { x: 320, y: 50 }, st = 'idle', fl = null, rally = 0, raf = 0, best = 0, early = false, ready = false, WIN = 0.64, GRACE = 0.16;
     function say(t){ count.textContent = t; }
+    /* whose shot it is, on the court and on the button, so nobody ends up playing both sides */
+    function turn(w){ court.classList.toggle('t-me', w === 'me'); court.classList.toggle('t-you', w === 'you'); }
     function swing(arm){ if (!arm) return; arm.classList.remove('sw'); void arm.getBoundingClientRect(); arm.classList.add('sw'); }
     function place(x, y, ang){ sh.setAttribute('transform', 'translate(' + x.toFixed(1) + ' ' + y.toFixed(1) + ') rotate(' + ang.toFixed(0) + ')');
       var hgt = Math.max(0, 100 - y), k = Math.max(0.35, 1 - hgt / 110); shd.setAttribute('cx', x.toFixed(1)); shd.setAttribute('rx', (5.5 * k + 1).toFixed(2)); shd.style.opacity = (0.25 + 0.6 * k).toFixed(2); }
@@ -145,19 +75,20 @@
     /* the hit window is judged by the clock, not by frames, so a slow phone never skips it */
     function step(now){ raf = 0; if (!fl) return; var u0 = prog(now), u = Math.min(1, u0), x = fl.a.x + (fl.b.x - fl.a.x) * u, y = fl.a.y + (fl.b.y - fl.a.y) * u - 4 * fl.h * u * (1 - u);
       var dx = fl.b.x - fl.a.x, dy = (fl.b.y - fl.a.y) - 4 * fl.h * (1 - 2 * u), ang = Math.atan2(dy, dx) * 180 / Math.PI; place(x, y, ang);
-      if (st === 'toYou') court.classList.toggle('win', u0 > WIN && !early);
+      if (st === 'toYou'){ var wn = u0 > WIN && !early; court.classList.toggle('win', wn); if (wn && !ready){ ready = true; btn.textContent = 'Hit it now!'; } }
       var g = st === 'toYou' ? GRACE : 0; if (u0 >= 1 + g){ var f = fl.then, endT = fl.t0 + fl.d * (1 + g); fl = null; if (f) f(endT); return; } raf = requestAnimationFrame(step); }
     function speed(){ return Math.max(620, 1150 - rally * 55); }
-    function toMe(){ st = 'toMe'; court.classList.remove('win'); fly(RY, RM, speed(), rally % 3 === 2 ? 22 : 40, function(at){
+    function toMe(){ st = 'toMe'; court.classList.remove('win'); turn('me'); btn.textContent = 'My shot…'; fly(RY, RM, speed(), rally % 3 === 2 ? 22 : 40, function(at){
       var miss = rally >= 7 && Math.random() < Math.min(0.5, (rally - 6) * 0.09);
       if (miss){ drop(RM, 1, function(){ end(true); }, at); return; }
       swing(me); toYou(at); }); }
-    function toYou(at){ st = 'toYou'; early = false; fly(RM, RY, speed(), rally % 4 === 3 ? 20 : 40, function(at2){ if (st === 'toYou') drop({ x: RY.x - 8, y: RY.y + 6 }, -1, function(){ end(false); }, at2); }, at); }
-    function drop(p, dir, then, at){ st = 'drop'; court.classList.remove('win'); fly(p, { x: p.x - dir * 40, y: 99 }, 520, 6, then, at); }
-    function end(won){ st = 'idle'; best = Math.max(best, rally); btn.textContent = 'Serve again';
+    function toYou(at){ st = 'toYou'; early = false; ready = false; turn('you'); btn.textContent = 'Your shot…'; say('Rally: ' + rally + '. Your shot.'); fly(RM, RY, speed(), rally % 4 === 3 ? 20 : 40, function(at2){ if (st === 'toYou') drop({ x: RY.x - 8, y: RY.y + 6 }, -1, function(){ end(false); }, at2); }, at); }
+    function drop(p, dir, then, at){ st = 'drop'; court.classList.remove('win'); turn(null); fly(p, { x: p.x - dir * 40, y: 99 }, 520, 6, then, at); }
+    function end(won){ st = 'idle'; turn(null); best = Math.max(best, rally); btn.textContent = 'Serve again';
       say(won ? 'Point to you. That was a ' + rally + ' shot rally.' : early ? 'Too early. You swung at air after ' + rally + (rally === 1 ? ' shot.' : ' shots.') : rally ? 'It dropped. A ' + rally + ' shot rally' + (rally === best && rally > 2 ? ', your best yet.' : '.') : 'It dropped. Wait for it to come to you, then hit.'); }
     function hit(){
       if (st === 'idle'){ rally = 0; early = false; place(RY.x, RY.y, 0); swing(you); say('Nice serve.'); btn.textContent = 'Wait for it'; rally = 1; toMe(); return; }
+      if (st === 'toMe'){ say('That one’s mine. Wait for it to come back to your side.'); return; }
       if (st !== 'toYou' || early) return;
       var u = prog(performance.now());
       if (u < WIN){ early = true; swing(you); court.classList.remove('win'); btn.textContent = 'Too early'; return; }
@@ -165,6 +96,27 @@
     }
     btn.addEventListener('click', hit); court.addEventListener('click', hit);
     place(RY.x, RY.y, 0);
+  });
+  /* W4: the divergence meter. One small change shifts the world line; keep trying and it can land on the one where everything holds */
+  safe(function(){
+    var box = $('.af-dm'); if (!box) return;
+    var ds = $$('.dm-d', box), say = $('.dm-say', box), HOME = '1.048596', busy = false, spins = 0;
+    var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function show(v){ for (var i = 0; i < ds.length; i++) ds[i].textContent = v.charAt(i); }
+    function pick(){ var v = (Math.random() < 0.5 ? '0' : '1') + '.'; for (var i = 0; i < 6; i++) v += Math.floor(Math.random() * 10); return v === HOME ? '0.337187' : v; }
+    box.addEventListener('click', function(){
+      if (busy) return; busy = true; spins++;
+      var goal = spins >= 3 && Math.random() < 0.34 ? HOME : pick(), home = goal === HOME;
+      function done(){ show(goal); busy = false; box.classList.remove('spin'); box.classList.toggle('home', home);
+        say.textContent = home ? 'Steins;Gate. The world line where every test passes.' : 'A different world line. Tap again.';
+        box.setAttribute('aria-label', 'Divergence meter, reading ' + goal + '. Press to shift the world line.');
+        if (window.__site && window.__site.sfx) window.__site.sfx('pop'); track('toy', { name: 'divergence', home: home }); }
+      if (still){ done(); return; }
+      box.classList.add('spin'); var t0 = performance.now(), D = 950;
+      (function tick(now){ var u = (now - t0) / D; if (u >= 1){ done(); return; }
+        var v = ''; for (var i = 0; i < ds.length; i++) v += i === 1 ? '.' : (u > 0.3 + i * 0.08 ? goal.charAt(i) : String(Math.floor(Math.random() * 10)));
+        show(v); requestAnimationFrame(tick); })(t0);
+    });
   });
   safe(function(){ var g = $('.gopuram'); if (g) onceVisible(g, function(){ g.classList.add('drawn'); }, 0.5); });
 })();
