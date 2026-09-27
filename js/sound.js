@@ -2,7 +2,7 @@
    files to load. The ambience follows the theme and where you are on the mountain (wind that picks
    up near the summit and when you scroll fast, crickets and a far-off owl at night, cowbells in the
    morning, a sand hiss and a camel bell at dusk, the camp fire at basecamp). One-shots follow the page:
-   paper folding, the knife, the doors, the bell, a pen signing the letter, the lantern catching.
+   paper folding, the mist, frost or sand clearing off a chapter, the bell, a pen signing the letter, the lantern catching.
    Your choice is remembered, sound pauses while the tab is hidden, and nothing ever plays until you
    have touched the page. */
 (function(){
@@ -78,14 +78,17 @@
     unfold: function(t, o){ var n = o.n || 3, at = Math.max(0, (o.at || 200) / 1000), st = (o.st || 110) / 1000, u = (o.u || 300) / 1000, g = o.letter ? 0.14 : 0.18;
       if (n < 2) paper(t, 0.25, g, 0); for (var k = 1; k < n; k++) paper(t + at + (k - 1) * st, u * 0.75, g, k % 2 ? -0.25 : 0.25); },
     fold: function(t, o){ var n = o.n || 3, st = (o.st || 75) / 1000, u = (o.u || 220) / 1000; for (var k = 1; k < n; k++) paper(t + (k - 1) * st, u * 0.6, 0.12, k % 2 ? 0.2 : -0.2); thud(t + Math.max(0, n - 1) * st + u * 0.5, 0.05, 160); },
-    cut: function(t, o){ var d = (o.dur || 420) / 1000, p = (o.k || 0) % 2 ? 0.3 : -0.3;
-      noise(t + d * 0.05, { d: d * 0.55, a: d * 0.4, g: 0.2, type: 'bandpass', f: 700, f2: 5600, q: 1.3, pan: p, wet: 0.15 });
-      ring(t + d * 0.5, [3150, 4720, 6230, 8120], 0.045, 0.9, -p, 0.25);
-      noise(t + d * 0.5, { d: 0.06, a: 0.002, g: 0.16, type: 'highpass', f: 2500, q: 0.7, pan: -p }); },
+    /* W4: a chapter or a card clearing: mist lifting with a far shimmer, frost ticking and a drip or two, sand hissing across on the wind */
+    clear: function(t, o){ var th = o.k || theme(), s = o.small ? 0.55 : 1, p = pan01(o.x) * 0.6, i;
+      if (th === 'night'){ noise(t, { d: 1.6 * s, a: 0.7 * s, g: 0.07 * s, type: 'bandpass', f: 320, f2: 900, q: 0.6, brown: true, pan: p, wet: 0.5 });
+        if (!o.small) [1568, 2093, 2637].forEach(function(f, n){ tone(t + 0.6 + n * 0.22, { f: f, d: 0.5, a: 0.02, g: 0.012, wet: 0.7, pan: R(-0.5, 0.5) }); }); }
+      else if (th === 'morning'){ for (i = 0; i < (o.small ? 5 : 11); i++) noise(t + R(0, 0.9 * s), { d: R(0.01, 0.03), a: 0.002, g: R(0.02, 0.05) * s, type: 'highpass', f: R(4500, 8000), q: 0.8, pan: R(-0.6, 0.6), wet: 0.3 });
+        for (i = 0; i < (o.small ? 1 : 3); i++) tone(t + 0.4 + i * R(0.25, 0.4), { f: R(1400, 2000), f2: R(700, 900), d: 0.08, a: 0.002, g: 0.03 * s, wet: 0.5, pan: R(-0.4, 0.4) }); }
+      else { [-0.6, 0, 0.6].forEach(function(pp, n){ noise(t + n * 0.28 * s, { d: 0.5 * s, a: 0.25 * s, g: 0.06 * s, type: 'highpass', f: 2600, q: 0.5, pan: pp * (o.small ? 0.5 : 1), wet: 0.25 }); });
+        noise(t, { d: 1.1 * s, a: 0.5 * s, g: 0.05 * s, type: 'bandpass', f: 500, f2: 1400, q: 0.7, brown: true, wet: 0.3 }); } },
     whoosh: function(t, o){ var d = o.d || 0.9; noise(t, { d: d * 0.6, a: d * 0.4, g: 0.16, type: 'bandpass', f: 280, f2: 1700, q: 0.8, wet: 0.3 }); },
     plane: function(t, o){ var F = o.fold || [0, 170, 320, 460]; for (var i = 1; i < F.length; i++) paper(t + Math.max(0, F[i] / 1000 - 0.08), 0.14, 0.1, 0);
       var at = (o.at || 520) / 1000, fly = (o.fly || 700) / 1000; noise(t + at, { d: fly * 0.7, a: fly * 0.3, g: 0.14, type: 'bandpass', f: 500, f2: 2600, q: 1.1, pan: pan01(o.x), wet: 0.25 }); },
-    doors: function(t, o){ var n = Math.min(o.n || 4, 6), gap = (o.gap || 115) / 1000; for (var i = 0; i < n; i++){ var p = i / Math.max(1, n - 1) * 1.2 - 0.6; creak(t + i * gap, 0.5, 0.03, p); thud(t + i * gap + 0.52, 0.07, 95); } },
     jingle: function(t, o){ var p = pan01(o.x) * 0.8, r = R(0.94, 1.08); for (var i = 0; i < 3; i++) ring(t + i * 0.06 + R(0, 0.02), [2150 * r, 3390 * r, 5240 * r, 6900 * r], 0.022, 0.4, p, 0.2); },
     bell: function(t){ bell(t, 392, 0.09, 0.55); },
     run: function(t, o){ if (o.on) startSteps(); else stopSteps(); },
@@ -97,7 +100,11 @@
       ch.forEach(function(f, i){ tone(t + 0.25 + i * 0.09, { f: f, d: 1.4, a: 0.01, g: 0.035, wet: 0.6, type: 'triangle' }); }); },
     summit: function(t){ [262, 330, 392, 523, 659].forEach(function(f, i){ tone(t + i * 0.12, { f: f, d: 2.4 - i * 0.2, a: 0.25, g: 0.03, wet: 0.7, type: 'triangle' }); });
       noise(t, { d: 2, a: 0.8, g: 0.08, type: 'lowpass', f: 700, q: 0.5, brown: true, wet: 0.3 }); },
-    lantern: function(t){ noise(t, { d: 0.09, a: 0.002, g: 0.18, type: 'highpass', f: 2600, q: 0.8 }); noise(t + 0.05, { d: 0.6, a: 0.12, g: 0.1, type: 'lowpass', f: 300, f2: 1400, q: 0.6, brown: true }); },
+    /* W4: at camp a second pair of footsteps comes in to meet yours, then a warm two-note hello */
+    meet: function(t){ var th = theme(), f = th === 'morning' ? { type: 'highpass', f: 1800, q: 0.7 } : th === 'dusk' ? { type: 'bandpass', f: 900, q: 0.8 } : { type: 'lowpass', f: 420, q: 0.7 };
+      for (var i = 0; i < 4; i++) noise(t + i * 0.16, { d: 0.07, a: 0.004, g: 0.05 * (0.7 + i * 0.1), type: f.type, f: f.f, q: f.q, pan: 0.4 - i * 0.1 });
+      var ch = th === 'night' ? [392, 587] : th === 'morning' ? [523, 784] : [440, 659]; ch.forEach(function(fr, i){ tone(t + 0.78 + i * 0.16, { f: fr, d: 1.5, a: 0.02, g: 0.03, wet: 0.6, type: 'triangle' }); }); },
+    lantern: function(t){ SND.meet(t); },
     wink: function(t){ tone(t, { f: 1760, f2: 2640, d: 0.22, a: 0.004, g: 0.05, wet: 0.5 }); tone(t + 0.1, { f: 2640, f2: 3520, d: 0.3, a: 0.004, g: 0.035, wet: 0.6 }); },
     konami: function(t){ [523, 659, 784, 1047, 784, 1047, 1319].forEach(function(f, i){ tone(t + i * 0.075, { f: f, d: 0.09, a: 0.003, g: 0.03, type: 'square', lp: 3000 }); }); },
     egg: function(t){ tone(t, { f: 1318, d: 0.5, a: 0.004, g: 0.04, wet: 0.5, type: 'triangle' }); tone(t + 0.12, { f: 1976, d: 0.7, a: 0.004, g: 0.035, wet: 0.6, type: 'triangle' }); },
@@ -184,7 +191,7 @@
   document.addEventListener('env:crack', function(){ play('crack'); });
   document.addEventListener('timechange', function(){ play('time'); });
   document.addEventListener('summit:reached', function(){ play('summit'); });
-  if (window.MutationObserver){ var wasLit = root.classList.contains('trail-done'); new MutationObserver(function(){ var lit = root.classList.contains('trail-done'); if (lit && !wasLit) play('lantern'); wasLit = lit; }).observe(root, { attributes: true, attributeFilter: ['class'] }); }
+  if (window.MutationObserver){ var wasLit = root.classList.contains('trail-done'); new MutationObserver(function(){ var lit = root.classList.contains('trail-done'); if (lit && !wasLit) play('meet'); wasLit = lit; }).observe(root, { attributes: true, attributeFilter: ['class'] }); }
 
   window.__sound = { play: play, on: function(){ return on; }, set: function(v){ setOn(!!v, true); }, names: Object.keys(SND), state: function(){ return ctx ? ctx.state : 'none'; },
     peak: function(){ if (!an) return 0; var a = new Float32Array(an.fftSize), m = 0; an.getFloatTimeDomainData(a); for (var i = 0; i < a.length; i++){ var v = Math.abs(a[i]); if (v > m) m = v; } return m; } };

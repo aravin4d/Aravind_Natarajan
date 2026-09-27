@@ -362,7 +362,7 @@
      case studies on paper too, and nothing that only makes sense on a screen. With a dialog open, just that page. ---------- */
   safe(function(){
     var built = false;
-    function clean(node){ $$('.dlg-x, .cs-next, .wb, button, .fold-ghost, .plane, .pl-trail, .door, mask', node).forEach(function(x){ if (x.parentNode) x.parentNode.removeChild(x); });
+    function clean(node){ $$('.dlg-x, .cs-next, .wb, button, .fold-ghost, .plane, .pl-trail, .lt-souv, mask', node).forEach(function(x){ if (x.parentNode) x.parentNode.removeChild(x); });
       $$('[id]', node).forEach(function(x){ x.removeAttribute('id'); }); $$('.sig-ink', node).forEach(function(p){ p.removeAttribute('mask'); }); return node; }
     function copy(from, cls){ var d = document.createElement('div'); d.className = cls; var c = clean(from.cloneNode(true)); while (c.firstChild) d.appendChild(c.firstChild); return d; }
     function build(){ if (built) return; built = true;
@@ -388,7 +388,7 @@
     if (!/[?&]fps\b/.test(location.search)) return;
     var box = document.createElement('div'); box.className = 'fps'; box.setAttribute('role', 'region'); box.setAttribute('aria-label', 'Frame rate meter');
     box.innerHTML = '<div><b class="fv">--</b> fps <span class="fq"></span></div><canvas width="368" height="72"></canvas><div class="fm">frame -- ms · worst --</div>' +
-      '<div><button type="button" data-k="halo" aria-pressed="true">halo</button><button type="button" data-k="float" aria-pressed="true">float</button><button type="button" data-k="3d" aria-pressed="true">3D</button><button type="button" data-k="fx" aria-pressed="true">lean + grain</button></div>';
+      '<div><button type="button" data-k="halo" aria-pressed="true">steps</button><button type="button" data-k="float" aria-pressed="true">float</button><button type="button" data-k="3d" aria-pressed="true">3D</button><button type="button" data-k="fx" aria-pressed="true">lean + grain</button></div>';
     document.body.appendChild(box);
     var fv = $('.fv', box), fq = $('.fq', box), fm = $('.fm', box), cv = $('canvas', box), g = cv.getContext('2d'), hist = [], last = 0, acc = 0, n = 0, worst = 0, t0 = performance.now();
     function draw(){ g.clearRect(0, 0, 368, 72); g.strokeStyle = 'rgba(255,255,255,.2)'; g.lineWidth = 1; g.beginPath(); [16.7, 33.3].forEach(function(v){ var y = 72 - v / 50 * 72; g.moveTo(0, y); g.lineTo(368, y); }); g.stroke();

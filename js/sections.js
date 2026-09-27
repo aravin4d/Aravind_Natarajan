@@ -1,5 +1,5 @@
 /* Wave 2 sections: each block gets its own personality.
-   Proof numbers roll like an odometer, case rows are dealt like cards, moment cards open like doors,
+   Proof numbers roll like an odometer, case rows are dealt like cards, moment cards clear with their world (reveal.js),
    the built devices float in space and land, the three leadership stories grow their own paths,
    skills hang from a rope like climbing gear, the summit gets a flag, and contact gets a lantern. */
 (function(){
@@ -84,24 +84,7 @@
       a.addEventListener('pointerleave', function(){ a.style.transform = ''; a.classList.remove('tilting'); }); });
   });
 
-  /* ---------- W2-06: moment cards are doors that swing open, then the number behind rolls ---------- */
-  safe(function(){
-    if (reduce) return;
-    $$('.xs-grid').forEach(function(g){
-      var cards = $$('.xs-m', g), open = false;
-      cards.forEach(function(m){ var d = document.createElement('span'); d.className = 'door'; d.setAttribute('aria-hidden', 'true'); d.innerHTML = '<span class="door-p"></span><span class="door-p"></span><i class="door-k"></i>'; m.appendChild(d); m.__door = d; });
-      function numbers(){ cards.forEach(function(m){ if (!m.__o){ var n = $('.xs-n', m); if (n && /[0-9]/.test(n.textContent)) m.__o = odo(n); } }); }
-      function openAll(){ numbers(); S.sfx && S.sfx('doors', { n: cards.length, gap: 115 }); cards.forEach(function(m, i){ var d = m.__door, del = i * 115; if (d.__a) d.__a.cancel(); d.style.visibility = '';
-        d.__a = d.animate([{ transform: 'perspective(1000px) rotateY(0deg)', filter: 'brightness(1)', opacity: 1 }, { transform: 'perspective(1000px) rotateY(-118deg)', filter: 'brightness(.6)', opacity: 1, offset: 0.62 },
-          { transform: 'perspective(1000px) rotateY(-96deg)', opacity: 1, offset: 0.78 }, { transform: 'perspective(1000px) rotateY(-107deg)', opacity: 1, offset: 0.9 }, { transform: 'perspective(1000px) rotateY(-104deg)', filter: 'brightness(.6)', opacity: 0 }],
-          { duration: 1050, delay: del, easing: 'cubic-bezier(.45,.05,.35,1)', fill: 'both' });
-        var me = d.__a; me.onfinish = function(){ if (d.__a === me) d.style.visibility = 'hidden'; };
-        if (m.__o) roll(m.__o, del + 360); }); }
-      function closeAll(){ cards.forEach(function(m){ var d = m.__door; if (d.__a){ d.__a.cancel(); d.__a = null; } d.style.visibility = ''; if (m.__o) zero(m.__o); }); }
-      function check(){ if (!open && inView(g, 0.8, 0.12)){ open = true; openAll(); } else if (open && gone(g)){ open = false; closeAll(); } }
-      S.onScroll(check); window.addEventListener('resize', check); setTimeout(check, 120);
-    });
-  });
+  /* ---------- moment cards clear with their chapter's world, and their numbers roll then (reveal.js, Wave 4) ---------- */
 
   /* ---------- the "where it landed" numbers in each case study roll when you reach them ---------- */
   safe(function(){

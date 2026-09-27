@@ -111,7 +111,7 @@
       add(!dead.length, 'every nav link has a target', (ln.length - dead.length) + '/' + ln.length);
       add(!!root.getAttribute('lang'), 'page language is set', 'lang="' + (root.getAttribute('lang') || '') + '"');
       var md = $('meta[name="description"]'); add(!!md && md.content.length >= 50 && md.content.length <= 170, 'meta description fits a search result', md ? md.content.length + ' characters' : 'missing');
-      var T = window.__trail, n = T && T.size ? T.size() : 0; add(n > 10, 'the trail runs from my name to LinkedIn', n + ' points');
+      var T = window.__trail, n = T && T.size ? T.size() : 0; add(n > 10, 'the footprints lead from base to camp', n + ' steps');
       var three = root.classList.contains('has-3d'), Wd = window.__world;
       add(three || root.classList.contains('no-3d'), three ? '3D world is running' : 'painted fallback stands in for 3D', three && Wd && Wd.quality ? 'pixel ratio ' + Wd.quality().pr.toFixed(2) : 'no WebGL here');
       var fr = 0, f0 = performance.now();

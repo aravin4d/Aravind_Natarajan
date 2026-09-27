@@ -79,11 +79,11 @@
 
   /* ---------- W2-02: section headings arrive in their own way, and replay cleanly either way you scroll ----------
      rise: each word rises out of a mask (or drops in, coming from above) · scramble: letters decode into place
-     ink: a brush stroke paints itself under the last line · slice: the two halves of a cut meet and weld
+     ink: a brush stroke paints itself under the last line · clear: it comes out of the world's weather, like the chapters
      glitch: it flickers in like a bug being found · every section marker ticks in, one character at a time */
   safe(function(){
     if (reduce) return;
-    var FX = [['#letter-sec .s-h', 'ink'], ['#story .story .lead', 'rise'], ['#proof .s-h', 'rise'], ['#cases .s-h', 'ink'], ['#experience .s-h', 'slice'], ['#built .s-h', 'scramble'],
+    var FX = [['#letter-sec .s-h', 'ink'], ['#story .story .lead', 'rise'], ['#proof .s-h', 'rise'], ['#cases .s-h', 'ink'], ['#experience .s-h', 'clear'], ['#built .s-h', 'scramble'],
               ['#leadership .s-h', 'rise'], ['#skills .s-h', 'scramble'], ['#summit h2', 'rise'], ['#play .s-h', 'glitch'], ['#offclock .s-h', 'ink'], ['#contact .s-h', 'rise']];
     var LO = 'abcdefghijklmnopqrstuvwxyz', UP = 'ABCDEFGHJKLMNOPRSTUVWXYZ', GL = '/\\|<>_-=+*#', items = [], inkN = 0;
     function srSpan(txt){ var s = document.createElement('span'); s.className = 'sr'; s.textContent = txt; return s; }
@@ -157,19 +157,11 @@
       geom();
       return { play: function(){ el.classList.remove('fx-go'); geom(); void el.offsetWidth; el.classList.add('fx-go'); }, reset: function(){ el.classList.remove('fx-go'); } };
     }
-    function mkSlice(el){
-      var a = overlay(el, 'hx-a'), b = overlay(el, 'hx-b'), st = document.createElement('span'), an = [], t = 0;
-      st.className = 'hx-st'; st.setAttribute('aria-hidden', 'true'); el.appendChild(st); el.classList.add('fx-slice');
-      function stop(){ an.forEach(function(x){ x.cancel(); }); an = []; clearTimeout(t); }
-      return { play: function(dir){
-                 stop(); el.classList.remove('hx-wait'); el.classList.add('hx-on');
-                 var W = el.offsetWidth, H = el.offsetHeight, ang = Math.atan2(-0.32 * H, W) * 180 / Math.PI, len = Math.sqrt(W * W + 0.1 * H * H), sd = dir < 0 ? -1 : 1;
-                 st.style.width = len.toFixed(0) + 'px'; st.style.top = (H * 0.68).toFixed(0) + 'px';
-                 an.push(a.animate([{ transform: 'translate(' + (-26 * sd) + 'px,-12px) rotate(-1.5deg)', opacity: 0 }, { opacity: 1, offset: 0.3 }, { transform: 'translate(' + (2 * sd) + 'px,1px)', offset: 0.7 }, { transform: 'none', opacity: 1 }], { duration: 640, easing: 'cubic-bezier(.2,.8,.3,1)', fill: 'both' }));
-                 an.push(b.animate([{ transform: 'translate(' + (26 * sd) + 'px,12px) rotate(1.5deg)', opacity: 0 }, { opacity: 1, offset: 0.3 }, { transform: 'translate(' + (-2 * sd) + 'px,-1px)', offset: 0.7 }, { transform: 'none', opacity: 1 }], { duration: 640, easing: 'cubic-bezier(.2,.8,.3,1)', fill: 'both' }));
-                 an.push(st.animate([{ transform: 'rotate(' + ang.toFixed(2) + 'deg) scaleX(0)', opacity: 0 }, { transform: 'rotate(' + ang.toFixed(2) + 'deg) scaleX(0)', opacity: 1, offset: 0.55 }, { transform: 'rotate(' + ang.toFixed(2) + 'deg) scaleX(1)', opacity: 1, offset: 0.78 }, { transform: 'rotate(' + ang.toFixed(2) + 'deg) scaleX(1)', opacity: 0 }], { duration: 820, easing: 'ease-out', fill: 'both' }));
-                 t = setTimeout(function(){ el.classList.remove('hx-on'); }, 700); },
-               reset: function(){ stop(); el.classList.remove('hx-on'); el.classList.add('hx-wait'); } };
+    function mkClear(el){
+      var W = split(el, false), t = 0; el.classList.add('fx-clear');
+      return { play: function(dir){ clearTimeout(t); el.classList.remove('fx-go', 'fx-done'); el.classList.toggle('fx-dn', dir < 0); void el.offsetWidth; el.classList.add('fx-go');
+                 t = setTimeout(function(){ el.classList.add('fx-done'); }, 1150 + W.words.length * 80); },
+               reset: function(){ clearTimeout(t); el.classList.remove('fx-go', 'fx-done'); } };
     }
     function mkGlitch(el){
       var a = overlay(el, 'hg-a'), b = overlay(el, 'hg-b'), timer = 0; el.classList.add('fx-glitch');
@@ -194,7 +186,7 @@
                  tm.push(setTimeout(function(){ last.classList.add('blink'); }, end)); tm.push(setTimeout(function(){ last.classList.remove('cur', 'blink'); }, end + 1000)); },
                reset: function(){ clear(); el.classList.add('fx-off'); } };
     }
-    var MK = { rise: mkRise, scramble: mkScramble, ink: mkInk, slice: mkSlice, glitch: mkGlitch };
+    var MK = { rise: mkRise, scramble: mkScramble, ink: mkInk, clear: mkClear, glitch: mkGlitch };
     FX.forEach(function(f){ var el = $(f[0]); if (!el) return; var m = MK[f[1]](el); m.el = el; m.on = false; m.reset(); items.push(m); });
     $$('main .s-k, #summit .alt-big').forEach(function(el){ var m = mkTick(el); m.el = el; m.on = false; items.push(m); });
     function check(){ var vh = window.innerHeight;
@@ -273,9 +265,9 @@
 
   /* ---------- W2-11: altitude notes, scribbled in the margin; the handwriting changes as the air thins ---------- */
   safe(function(){
-    var NOTES = [['letter-sec', 'Base camp. Grab the letter before we head up.'], ['story', 'Everyone starts somewhere. Mine was a buggy phone.'], ['proof', 'Pace yourself. The numbers get steep.'],
-                 ['cases', 'Air’s thinner up here. Worth the detour.'], ['experience', 'Thin air. Shorter sentences.'], ['built', 'Built these. On the way up.'],
-                 ['leadership', 'Roped in. Nobody summits alone.'], ['skills', 'Gear check. Almost…'], ['play', 'Downhill now. Time to play.'],
+    var NOTES = [['letter-sec', 'Base camp. Grab the letter before we head up.'], ['story', 'Everyone starts somewhere. Mine was a buggy phone.'], ['proof', 'Every number here has a story. Tap one.'],
+                 ['cases', 'This is where the thinking is.'], ['experience', 'Same pattern, every company.'], ['built', 'Built these on the way up.'],
+                 ['leadership', 'Roped in. Nobody summits alone.'], ['skills', 'Gear check.'], ['play', 'Downhill now. Time to play.'],
                  ['offclock', 'Boots off. The fun stuff.'], ['contact', 'Camp’s set. The fire’s on.']];
     var defs = document.createElementNS(NS, 'svg'); defs.setAttribute('width', '0'); defs.setAttribute('height', '0'); defs.setAttribute('aria-hidden', 'true'); defs.style.position = 'absolute';
     defs.innerHTML = '<filter id="anShake1"><feTurbulence type="fractalNoise" baseFrequency=".06" numOctaves="2" seed="3"/><feDisplacementMap in="SourceGraphic" scale="1.8"/></filter><filter id="anShake2"><feTurbulence type="fractalNoise" baseFrequency=".09" numOctaves="2" seed="8"/><feDisplacementMap in="SourceGraphic" scale="3.2"/></filter>';

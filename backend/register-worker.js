@@ -1,4 +1,5 @@
-/* Summit register backend: a Cloudflare Worker with a KV namespace. Free tier is plenty.
+/* Summit register backend: a Cloudflare Worker with a KV namespace. Free tier is plenty. Private by design (Wave 4):
+ * a plain GET answers { ok: true } only. Names come back only with your ADMIN_TOKEN, so only you can read them.
  *
  * Setup (full notes in README.md):
  *   npm create cloudflare@latest register   (choose "Hello World" Worker), replace src/index.js with this file
@@ -7,9 +8,10 @@
  *   npx wrangler deploy   → copy the workers.dev URL into data-endpoint on <div id="reg"> in index.html
  *
  * Vars: ALLOW_ORIGIN (default https://aravin4d.github.io), SALT (any string, for hashing IPs).
- * Hide an entry: curl -X DELETE -H "Authorization: Bearer $ADMIN_TOKEN" "https://…/?id=ENTRY_ID"
+ * Read the names: curl -H "Authorization: Bearer $ADMIN_TOKEN" "https://…/?limit=100"
+ * Hide an entry:  curl -X DELETE -H "Authorization: Bearer $ADMIN_TOKEN" "https://…/?id=ENTRY_ID"
  */
-const LIMIT = 30, MAX = { name: 40, from: 40, note: 120 }, MIN_MS = 2500;
+const LIMIT = 100, MAX = { name: 40, from: 40, note: 140 }, MIN_MS = 2500;
 
 export default {
   async fetch(req, env){
@@ -18,20 +20,22 @@ export default {
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
     const url = new URL(req.url), KV = env.REGISTER;
 
+    const admin = !!env.ADMIN_TOKEN && req.headers.get('Authorization') === 'Bearer ' + env.ADMIN_TOKEN;
     if (req.method === 'GET'){
+      if (!admin) return json({ ok: true });   // nothing personal leaves the store without your token
       const lim = Math.min(LIMIT, Math.max(1, parseInt(url.searchParams.get('limit') || LIMIT, 10) || LIMIT));
       const list = await KV.list({ prefix: 'e:', limit: Math.min(1000, lim * 2) }), entries = [];
       for (const k of list.keys){
         if (entries.length >= lim) break;
         const v = await KV.get(k.name, 'json');
-        if (v && !v.hidden) entries.push({ id: k.name.slice(2), ts: v.ts, name: v.name, from: v.from, note: v.note });
+        if (v && !v.hidden) entries.push({ id: k.name.slice(2), ...v });
       }
       return json({ ok: true, entries, count: parseInt(await KV.get('count') || '0', 10) });
     }
 
     if (req.method === 'POST'){
       let b; try { b = JSON.parse(await req.text()); } catch (e){ return json({ ok: false, error: 'bad_json' }, 400); }
-      if (b.website) return json({ ok: true, entry: null });
+      if (b.website) return json({ ok: true });
       if (!(Number(b.t) >= MIN_MS)) return json({ ok: false, error: 'too_fast' }, 400);
       const name = clean(b.name, MAX.name), from = clean(b.from, MAX.from), note = clean(b.note, MAX.note);
       if (!name) return json({ ok: false, error: 'name' }, 400);
@@ -39,14 +43,15 @@ export default {
       const rk = 'rl:' + await hash((req.headers.get('CF-Connecting-IP') || 'unknown') + (env.SALT || 'summit'));
       if (await KV.get(rk)) return json({ ok: false, error: 'rate' }, 429);
       await KV.put(rk, '1', { expirationTtl: 60 });
-      const ts = new Date().toISOString(), id = String(9e15 - Date.now()).padStart(16, '0') + Math.random().toString(36).slice(2, 6), entry = { ts, name, from, note };
+      const theme = /^(night|morning|dusk)$/.test(String(b.theme)) ? String(b.theme) : '', secrets = Math.max(0, Math.min(9, parseInt(b.secrets, 10) || 0));
+      const ts = new Date().toISOString(), id = String(9e15 - Date.now()).padStart(16, '0') + Math.random().toString(36).slice(2, 6), entry = { ts, name, from, note, theme, secrets };
       await KV.put('e:' + id, JSON.stringify(entry));   // reverse timestamps: KV lists keys in order, so the newest come first
       const count = parseInt(await KV.get('count') || '0', 10) + 1; await KV.put('count', String(count));
-      return json({ ok: true, entry: { id, ...entry }, count });
+      return json({ ok: true });
     }
 
     if (req.method === 'DELETE'){
-      if (!env.ADMIN_TOKEN || req.headers.get('Authorization') !== 'Bearer ' + env.ADMIN_TOKEN) return json({ ok: false, error: 'auth' }, 401);
+      if (!admin) return json({ ok: false, error: 'auth' }, 401);
       const id = url.searchParams.get('id'); if (!id) return json({ ok: false, error: 'id' }, 400);
       const v = await KV.get('e:' + id, 'json'); if (!v) return json({ ok: false, error: 'missing' }, 404);
       if (!v.hidden){ v.hidden = true; await KV.put('e:' + id, JSON.stringify(v)); const c = Math.max(0, parseInt(await KV.get('count') || '1', 10) - 1); await KV.put('count', String(c)); }

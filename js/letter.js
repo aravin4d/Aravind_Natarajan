@@ -1,5 +1,5 @@
 /* The letter: a theme seal that splits and scatters wax when it breaks, a signature that writes
-   itself stroke by stroke, and a reply that folds into a paper plane and flies off. The paper
+   itself stroke by stroke, and a reply that folds into a paper plane and flies off. Wave 4: its own paper and light in each world, deckled edges, and what falls out of the folds. The paper
    itself (theme colours, moonlit sheen, crisp white or sun-bleached sepia) lives in the CSS. */
 (function(){
   'use strict';
@@ -96,5 +96,65 @@
       setTimeout(function(){ [pl, tr].forEach(function(x){ if (x.parentNode) x.parentNode.removeChild(x); }); }, F[3] + FLY + 900);
     }
     $$('.wb-b', dlg).forEach(function(a){ a.addEventListener('click', function(e){ if (reduce) return; e.preventDefault(); go(a); }); });
+  });
+
+  /* ---------- W4-02: the letter belongs to its world ----------
+     Its own paper for each world (fibres and mottling, laid lines in the Alps, sand in the grain at dusk), deckled
+     edges, and something from the world in the folds: sand at dusk, a firefly at night, frost in the morning. */
+  safe(function(){
+    var inner = $('.dlg-in', dlg); if (!inner) return;
+    function th(){ var t = root.getAttribute('data-time'); return t === 'night' || t === 'morning' ? t : 'dusk'; }
+    function rnd(seed){ var s = seed >>> 0; return function(){ s = (s + 0x6D2B79F5) >>> 0; var t = Math.imul(s ^ (s >>> 15), 1 | s); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+    var TEX = {};
+    function tex(t){
+      if (TEX[t]) return TEX[t]; var n = 420, c = document.createElement('canvas'); c.width = c.height = n; var x = c.getContext('2d'); if (!x) return ''; var R = rnd(t.length * 71 + 3), i, k;
+      function wrap(fn){ for (var ox = -n; ox <= n; ox += n) for (var oy = -n; oy <= n; oy += n) fn(ox, oy); }
+      for (i = 0; i < 46; i++){ (function(cx, cy, rr, dark, al){ wrap(function(ox, oy){ var g = x.createRadialGradient(cx + ox, cy + oy, 0, cx + ox, cy + oy, rr);
+        g.addColorStop(0, dark ? 'rgba(90,70,40,' + al.toFixed(3) + ')' : 'rgba(255,255,255,' + (al * 1.6).toFixed(3) + ')'); g.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g; x.fillRect(cx + ox - rr, cy + oy - rr, rr * 2, rr * 2); }); })(R() * n, R() * n, 30 + R() * 90, R() < 0.5, 0.018 + R() * 0.03); }
+      x.lineCap = 'round';
+      for (i = 0; i < (t === 'night' ? 900 : 620); i++){ (function(sx, sy, a, L, b, dark, al, lw){ wrap(function(ox, oy){ x.strokeStyle = dark ? 'rgba(80,60,36,' + al.toFixed(3) + ')' : 'rgba(255,255,255,' + (al * 1.4).toFixed(3) + ')'; x.lineWidth = lw;
+        x.beginPath(); x.moveTo(sx + ox, sy + oy); x.quadraticCurveTo(sx + ox + Math.cos(a + b) * L * 0.6, sy + oy + Math.sin(a + b) * L * 0.6, sx + ox + Math.cos(a) * L, sy + oy + Math.sin(a) * L); x.stroke(); }); })(R() * n, R() * n, R() * Math.PI * 2, 3 + R() * 11, (R() - 0.5) * 0.8, R() < 0.6, 0.05 + R() * 0.09, 0.5 + R() * 0.5); }
+      if (t === 'morning'){ x.fillStyle = 'rgba(60,80,110,.022)'; for (k = 0; k < n; k += 2) x.fillRect(0, k, n, 1); x.fillStyle = 'rgba(60,80,110,.05)'; for (k = 14; k < n; k += 28) x.fillRect(k, 0, 1, n); }
+      if (t === 'dusk') for (i = 0; i < 420; i++){ var sz = 0.6 + R() * 1.2; x.fillStyle = R() < 0.6 ? 'rgba(120,70,30,.28)' : 'rgba(255,236,200,.4)'; x.fillRect(R() * n, R() * n, sz, sz); }
+      try { TEX[t] = c.toDataURL('image/png'); } catch (e){ TEX[t] = ''; } return TEX[t];
+    }
+    var texOn = false;
+    function applyTex(){ var u = tex(th()); if (u) root.style.setProperty('--lt-tex', 'url(' + u + ')'); }
+    function ensure(){ if (texOn) return; texOn = true; applyTex(); }
+    if (env) ['pointerenter', 'focus', 'touchstart'].forEach(function(ev){ env.addEventListener(ev, ensure, { passive: true }); });
+    setTimeout(ensure, 2500); document.addEventListener('timechange', function(){ if (texOn) applyTex(); });
+    /* deckled edges: a torn sheet sliced nine ways, so the corners tear like the sides and the sides repeat seamlessly */
+    var R2 = rnd(99), J = [], k2;
+    for (k2 = 0; k2 < 32; k2++) J.push(R2());
+    function w(t){ t = ((t % 64) + 64) % 64; var f = t / 2, i0 = Math.floor(f) % 32, i1 = (i0 + 1) % 32, u = f - Math.floor(f);
+      return 4.4 + Math.sin(t / 64 * Math.PI * 4 + 1) * 1.1 + Math.sin(t / 64 * Math.PI * 10 + 2) * 0.7 + (J[i0] + (J[i1] - J[i0]) * u - 0.5) * 2.2; }
+    var pts = [], q;
+    for (q = 2; q <= 94; q += 2) pts.push([q, w(q - 16)]);
+    for (q = 2; q <= 94; q += 2) pts.push([96 - w(q - 16 + 23), q]);
+    for (q = 94; q >= 2; q -= 2) pts.push([q, 96 - w(q - 16 + 41)]);
+    for (q = 94; q >= 2; q -= 2) pts.push([w(q - 16 + 7), q]);
+    var d = 'M' + pts.map(function(p){ return p[0].toFixed(2) + ' ' + p[1].toFixed(2); }).join(' L') + ' Z';
+    dlg.style.setProperty('--dk', 'url("data:image/svg+xml,' + encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'><path d='" + d + "'/></svg>") + '")');
+    inner.classList.add('dk');
+    /* the folds open, and the world spills out of them */
+    var layer = null;
+    function spill(y, x0, w, at){
+      var t = th(), n = t === 'dusk' ? 16 : t === 'night' ? 1 : 7;
+      if (!layer){ layer = document.createElement('div'); layer.className = 'lt-souv'; layer.setAttribute('aria-hidden', 'true'); dlg.appendChild(layer); }
+      for (var i = 0; i < n; i++){ (function(i){ var el = document.createElement('i'), sx = x0 + w * (0.12 + Math.random() * 0.76), kf = [], dur, s, u;
+        if (t === 'dusk'){ el.className = 'ls-sand'; var fall = 60 + Math.random() * 170, drift = 10 + Math.random() * 40; dur = 700 + Math.random() * 600;
+          kf = [{ transform: 'translate(' + sx.toFixed(0) + 'px,' + y.toFixed(0) + 'px)', opacity: 0 }, { opacity: 1, offset: 0.08 }, { opacity: 0.9, offset: 0.7 }, { transform: 'translate(' + (sx + drift).toFixed(0) + 'px,' + (y + fall).toFixed(0) + 'px)', opacity: 0 }]; }
+        else if (t === 'night'){ el.className = 'ls-fly'; dur = 3600 + Math.random() * 1200; var dir = Math.random() < 0.5 ? -1 : 1;
+          for (s = 0; s <= 8; s++){ u = s / 8; kf.push({ transform: 'translate(' + (sx + Math.sin(u * 5 + i) * 26 + u * 70 * dir).toFixed(0) + 'px,' + (y - u * 190 - Math.sin(u * 7) * 10).toFixed(0) + 'px)', opacity: s === 0 || s === 8 ? 0 : s % 3 === 1 ? 0.35 : 1 }); } }
+        else { el.className = 'ls-ice'; dur = 1400 + Math.random() * 900; var dx = (Math.random() - 0.5) * 40, dy = 50 + Math.random() * 90;
+          kf = [{ transform: 'translate(' + sx.toFixed(0) + 'px,' + y.toFixed(0) + 'px) rotate(0deg) scale(.4)', opacity: 0 }, { transform: 'translate(' + (sx + dx * 0.3).toFixed(0) + 'px,' + (y + dy * 0.25).toFixed(0) + 'px) rotate(40deg) scale(1)', opacity: 1, offset: 0.25 },
+            { transform: 'translate(' + (sx + dx).toFixed(0) + 'px,' + (y + dy).toFixed(0) + 'px) rotate(140deg) scale(.6)', opacity: 0 }]; }
+        layer.appendChild(el); if (!el.animate){ el.parentNode.removeChild(el); return; }
+        var an = el.animate(kf, { duration: dur, delay: at + Math.random() * (t === 'dusk' ? 260 : 120), easing: t === 'dusk' ? 'cubic-bezier(.45,0,.9,.6)' : 'ease-in-out', fill: 'both' });
+        an.onfinish = function(){ if (el.parentNode) el.parentNode.removeChild(el); }; })(i); }
+    }
+    document.addEventListener('dlg:folds', function(e){ var q = e.detail; if (!q || q.id !== 'letter' || reduce) return; for (var k = 1; k < q.n; k++) spill(q.top + k * q.ph, q.x, q.w, q.a - 70 + (k - 1) * q.st + q.u * 0.55); });
+    dlg.addEventListener('close', function(){ if (layer) layer.innerHTML = ''; });
+    window.__letterFX = { tex: function(){ return !!TEX[th()]; }, spilled: function(){ return layer ? layer.children.length : 0; } };
   });
 })();

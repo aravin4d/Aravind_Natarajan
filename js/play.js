@@ -22,13 +22,13 @@
     sc.addEventListener('pointerleave', function(){ user = false; tpx = 0; tpy = 0; });
     var LEVELS = [
       { year: '2017', role: 'Amazon, the Alexa app', labels: ['crash on update', 'typo', 'broken link'],
-        facts: ['I tested the Alexa app on Android, iOS and Fire tablets, every single week.', 'Nine company awards in two and a half years, then a fast track promotion.', 'A clear bug report saves a developer an hour. I learned that in my first week.'] },
+        facts: ['I tested the Alexa app on Android, iOS and Fire tablets, every single week.', 'Nine company awards in two and a half years, then a fast-track promotion.', 'A clear bug report saves a developer an hour. I learned that in my first week.'] },
       { year: '2019', role: 'Amazon, Alexa Identity', labels: ['locale mismatch', 'voice timeout', 'enrolment fail', 'device crash'],
-        facts: ['Zero launch blocking defects across 18 locales.', 'Tested on 20+ device types, from Fire TV to Echo Auto.', 'I redesigned the regression suite from 1,100 test cases to 180.', 'Invalid defects brought under 1% across 950+ critical bugs.'] },
+        facts: ['Zero launch-blocking defects across 18 locales.', 'Tested on 20+ device types, from Fire TV to Echo Auto.', 'I redesigned the regression suite from 1,100 test cases to 180.', 'Invalid defects brought under 1% across 950+ critical bugs.'] },
       { year: '2021', role: 'Brightcove, all of APAC', labels: ['buffering', 'caption drift', 'DRM error', 'login loop', 'CDN timeout'],
-        facts: ['I led APAC QA with three contractors across ten enterprise accounts.', 'Regression time went from 10 hours to 4.', 'A root cause process I built cut recurring issues by over half.', 'Preproduction test gates saved more than $40,000 a year.', 'Production rollbacks fell by over half, and CSAT rose 20%.'] },
+        facts: ['I led APAC QA with four contractors across ten enterprise accounts.', 'Regression time went from 10 hours to 4.', 'A root cause process I built cut recurring issues by over half.', 'Pre-production test gates saved more than $40,000 a year.', 'Production rollbacks fell by over half, and CSAT rose 20%.'] },
       { year: '2025', role: 'Buncha, QA from zero', labels: ['race condition', 'double charge', 'wrong ETA', 'clock out bug', '404', 'P0 outage'],
-        facts: ['Daily hotfixes became releases every two weeks.', 'SOS escalations went from 4 to 6 a week to 3 to 4 a month.', 'About 100K redundant daily service calls, gone.', 'Test orders went from 18 minutes to under one.', 'Bytecast and Forgeflow gave back 1,300+ engineering hours a year.', 'The Meijer launch shipped on schedule, about 370 orders a day.'] }
+        facts: ['Hotfixes went from several a day to one planned release window a week.', 'SOS escalations went from 4 to 6 a week to 3 to 4 a month.', 'About 100K redundant daily service calls, gone.', 'Test orders went from 18 minutes to under one.', 'Bytecast and Forgeflow gave back 1,300+ engineering hours a year.', 'The Meijer launch shipped on schedule, about 370 orders a day.'] }
     ];
     var lv = 0, bugs = [], found = 0, active = false;
     function rects(){ return $$('g[clip-path] g[data-depth="26"] > g rect', sc).map(function(r){ return { x: +r.getAttribute('x'), y: +r.getAttribute('y'), w: +r.getAttribute('width'), h: +r.getAttribute('height') }; }).filter(function(r){ return r.x > 40 && r.x + r.w < 610 && r.w > 20 && r.y < 360; }); }
@@ -56,7 +56,7 @@
     function complete(){
       active = false; track('game_level', { level: lv + 1 });
       if (lv < LEVELS.length - 1){ var nx = LEVELS[lv + 1]; show('Level ' + (lv + 1) + ' complete', 'On to ' + nx.year, 'Next chapter: ' + nx.role + '. More bugs, harder to spot.', 'Next level', function(){ lv++; intro(); }); }
-      else { track('game_complete'); show('Career complete', 'Every level was a real chapter', 'Ten years of finding what others miss. The case studies show how I turned that into a system.', 'Play again', function(){ lv = 0; intro(); }); }
+      else { track('game_complete'); show('Career complete', 'Every level was a real chapter', 'Since 2017, I’ve been finding what others miss. The case studies show how I turned that into a system.', 'Play again', function(){ lv = 0; intro(); }); }
     }
     sc.addEventListener('click', function(e){
       if (!active || e.target.closest('.hg-card')) return;
@@ -130,15 +130,41 @@
 
   /* ---------- anime cards flip; badminton serve; the temple draws itself ---------- */
   safe(function(){ $$('.af-card').forEach(function(c){ c.addEventListener('click', function(){ var on = c.classList.toggle('flip'); c.setAttribute('aria-pressed', on ? 'true' : 'false'); }); }); });
+  /* W4: badminton, a real little rally. You serve, I return, and you hit it back when it reaches your side.
+     Too early and you swing at air; too late and it drops. I miss now and then once a rally gets long. */
   safe(function(){
-    var btn = $('.serve-btn'), court = $('.serve-court'), count = $('.serve-count'); if (!btn || !court) return;
-    var n = 0, lastT = 0, s = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 3 L14 8.5 L8.5 14 Z" fill="#FFFFFF" stroke="#9AA6C4" stroke-width="1"/><circle cx="14.6" cy="14.6" r="3.1" fill="#E9B872"/></svg>';
-    btn.addEventListener('click', function(){
-      var now = Date.now(); n = (now - lastT < 1400) ? n + 1 : 1; lastT = now; count.textContent = n > 1 ? 'Rally: ' + n : 'Nice serve';
-      court.style.setProperty('--cw', (court.clientWidth * 0.8) + 'px');
-      var el = document.createElement('span'); el.className = 'shuttle' + (n % 2 ? '' : ' back'); el.innerHTML = s; court.appendChild(el);
-      setTimeout(function(){ if (el.parentNode) el.parentNode.removeChild(el); }, 1200);
-    });
+    var box = $('.serve'), btn = $('.serve-btn', box), count = $('.serve-count', box), court = $('.court', box); if (!btn || !court) return;
+    var sh = $('.ct-sh', court), shd = $('.ct-shd', court), you = $('.ct-you .ct-arm', court), me = $('.ct-me .ct-arm', court);
+    var RY = { x: 80, y: 50 }, RM = { x: 320, y: 50 }, st = 'idle', fl = null, rally = 0, raf = 0, best = 0, early = false, WIN = 0.64, GRACE = 0.16;
+    function say(t){ count.textContent = t; }
+    function swing(arm){ if (!arm) return; arm.classList.remove('sw'); void arm.getBoundingClientRect(); arm.classList.add('sw'); }
+    function place(x, y, ang){ sh.setAttribute('transform', 'translate(' + x.toFixed(1) + ' ' + y.toFixed(1) + ') rotate(' + ang.toFixed(0) + ')');
+      var hgt = Math.max(0, 100 - y), k = Math.max(0.35, 1 - hgt / 110); shd.setAttribute('cx', x.toFixed(1)); shd.setAttribute('rx', (5.5 * k + 1).toFixed(2)); shd.style.opacity = (0.25 + 0.6 * k).toFixed(2); }
+    function fly(from, to, dur, h, then, t0){ fl = { a: from, b: to, d: dur, h: h, t0: t0 || performance.now(), then: then }; if (!raf) raf = requestAnimationFrame(step); }
+    function prog(now){ return fl ? (now - fl.t0) / fl.d : 0; }
+    /* the hit window is judged by the clock, not by frames, so a slow phone never skips it */
+    function step(now){ raf = 0; if (!fl) return; var u0 = prog(now), u = Math.min(1, u0), x = fl.a.x + (fl.b.x - fl.a.x) * u, y = fl.a.y + (fl.b.y - fl.a.y) * u - 4 * fl.h * u * (1 - u);
+      var dx = fl.b.x - fl.a.x, dy = (fl.b.y - fl.a.y) - 4 * fl.h * (1 - 2 * u), ang = Math.atan2(dy, dx) * 180 / Math.PI; place(x, y, ang);
+      if (st === 'toYou') court.classList.toggle('win', u0 > WIN && !early);
+      var g = st === 'toYou' ? GRACE : 0; if (u0 >= 1 + g){ var f = fl.then, endT = fl.t0 + fl.d * (1 + g); fl = null; if (f) f(endT); return; } raf = requestAnimationFrame(step); }
+    function speed(){ return Math.max(620, 1150 - rally * 55); }
+    function toMe(){ st = 'toMe'; court.classList.remove('win'); fly(RY, RM, speed(), rally % 3 === 2 ? 22 : 40, function(at){
+      var miss = rally >= 7 && Math.random() < Math.min(0.5, (rally - 6) * 0.09);
+      if (miss){ drop(RM, 1, function(){ end(true); }, at); return; }
+      swing(me); toYou(at); }); }
+    function toYou(at){ st = 'toYou'; early = false; fly(RM, RY, speed(), rally % 4 === 3 ? 20 : 40, function(at2){ if (st === 'toYou') drop({ x: RY.x - 8, y: RY.y + 6 }, -1, function(){ end(false); }, at2); }, at); }
+    function drop(p, dir, then, at){ st = 'drop'; court.classList.remove('win'); fly(p, { x: p.x - dir * 40, y: 99 }, 520, 6, then, at); }
+    function end(won){ st = 'idle'; best = Math.max(best, rally); btn.textContent = 'Serve again';
+      say(won ? 'Point to you. That was a ' + rally + ' shot rally.' : early ? 'Too early. You swung at air after ' + rally + (rally === 1 ? ' shot.' : ' shots.') : rally ? 'It dropped. A ' + rally + ' shot rally' + (rally === best && rally > 2 ? ', your best yet.' : '.') : 'It dropped. Wait for it to come to you, then hit.'); }
+    function hit(){
+      if (st === 'idle'){ rally = 0; early = false; place(RY.x, RY.y, 0); swing(you); say('Nice serve.'); btn.textContent = 'Wait for it'; rally = 1; toMe(); return; }
+      if (st !== 'toYou' || early) return;
+      var u = prog(performance.now());
+      if (u < WIN){ early = true; swing(you); court.classList.remove('win'); btn.textContent = 'Too early'; return; }
+      fl = null; court.classList.remove('win'); swing(you); rally++; say('Rally: ' + rally); btn.textContent = 'Wait for it'; toMe();
+    }
+    btn.addEventListener('click', hit); court.addEventListener('click', hit);
+    place(RY.x, RY.y, 0);
   });
   safe(function(){ var g = $('.gopuram'); if (g) onceVisible(g, function(){ g.classList.add('drawn'); }, 0.5); });
 })();

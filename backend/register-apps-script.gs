@@ -1,70 +1,80 @@
 /**
- * Summit register backend: Google Apps Script + a Google Sheet. Free, and you can moderate from the Sheet.
+ * Summit register backend: Google Apps Script + a Google Sheet. Private by design.
  *
- * Setup (about five minutes, full notes in README.md):
- *   1. Create a Google Sheet. Extensions → Apps Script. Replace the code with this file. Save.
- *   2. Run setup() once from the editor and allow access. It creates the "Register" tab.
- *   3. Deploy → New deployment → Web app. Execute as: Me. Who has access: Anyone. Deploy.
- *   4. Copy the web app URL (it ends in /exec) into data-endpoint on <div id="reg"> in index.html.
+ * What changed in Wave 4: the register is no longer a public guestbook. Visitors write their name at the
+ * summit and it comes to this Sheet only. doGet() returns nothing but { ok: true }, so nobody can read
+ * the names back out through the web app URL, and doPost() never echoes a name or a count.
  *
- * Moderation: every signature is a row. Untick "show" (or delete the row) to hide one.
- * Set AUTO_APPROVE to false if you'd rather approve each signature by ticking "show" yourself.
+ * Setup, or updating an existing deployment (full notes in README.md):
+ *   1. Open your Sheet → Extensions → Apps Script. Replace all the code with this file. Save.
+ *   2. Run setup() once from the editor (pick it in the function menu, press Run, allow access).
+ *      It creates the "Register" tab if needed, moves it to the front, and logs the Sheet's link.
+ *   3. Run testWrite() once. A test row appears on the Register tab. Delete it afterwards.
+ *   4. Deploy → Manage deployments → pencil icon (Edit) → Version: New version → Deploy.
+ *      Editing the existing deployment keeps the same /exec URL. "New deployment" would give you a new URL.
+ *
+ * Working from a standalone script (script.google.com) instead of one opened from the Sheet?
+ *   Paste the Sheet's ID (the long part of its URL between /d/ and /edit) into SHEET_ID below.
  */
+var SHEET_ID = '';            // leave empty when the script was opened from the Sheet itself
 var SHEET = 'Register';
-var AUTO_APPROVE = true;
-var LIMIT = 30, MAX_NAME = 40, MAX_FROM = 40, MAX_NOTE = 120, MIN_MS = 2500, PER_MINUTE = 12;
+var MAX_NAME = 40, MAX_FROM = 40, MAX_NOTE = 140, MIN_MS = 2500, PER_MINUTE = 20;
+var HEAD = ['when', 'name', 'from', 'note', 'theme', 'secrets found', 'page'];
+
+function book_(){
+  var ss = SHEET_ID ? SpreadsheetApp.openById(SHEET_ID) : SpreadsheetApp.getActiveSpreadsheet();
+  if (!ss) throw new Error('No spreadsheet. Open this script from the Sheet (Extensions → Apps Script), or set SHEET_ID.');
+  return ss;
+}
+function sheet_(){
+  var ss = book_(), sh = ss.getSheetByName(SHEET);
+  if (!sh){ sh = ss.insertSheet(SHEET, 0); }
+  if (sh.getLastRow() === 0){ sh.appendRow(HEAD); sh.setFrozenRows(1); sh.getRange(1, 1, 1, HEAD.length).setFontWeight('bold'); }
+  return sh;
+}
 
 function setup(){
-  var ss = SpreadsheetApp.getActiveSpreadsheet(), sh = ss.getSheetByName(SHEET) || ss.insertSheet(SHEET);
-  if (sh.getLastRow() === 0) sh.appendRow(['when', 'name', 'from', 'note', 'show']);
-  sh.setFrozenRows(1);
-  sh.getRange('E2:E').insertCheckboxes();
+  var ss = book_(), sh = sheet_();
+  ss.setActiveSheet(sh); ss.moveActiveSheet(1);
+  Logger.log('Signatures go to the "%s" tab (now the first tab) of %s', SHEET, ss.getUrl());
 }
 
-function doGet(e){
-  var lim = Math.min(LIMIT, Math.max(1, parseInt((e && e.parameter && e.parameter.limit) || LIMIT, 10) || LIMIT));
-  var cache = CacheService.getScriptCache(), hit = cache.get('list'), data = hit ? JSON.parse(hit) : null;
-  if (!data){ data = read(); cache.put('list', JSON.stringify(data), 60); }
-  return json({ ok: true, entries: data.entries.slice(0, lim), count: data.count });
+/* run this from the editor to check that rows really land, then delete the test row */
+function testWrite(){
+  var sh = sheet_();
+  sh.appendRow([new Date(), 'Test from the editor', '', 'Delete me', '', '', '']);
+  Logger.log('Wrote a test row to "%s" in %s. Delete it when you have seen it.', SHEET, book_().getUrl());
 }
 
-function read(){
-  var sh = sheet(), n = sh.getLastRow() - 1, out = [], count = 0;
-  if (n > 0){
-    var rows = sh.getRange(2, 1, n, 5).getValues();
-    for (var i = rows.length - 1; i >= 0; i--){
-      var r = rows[i]; if (!(r[4] === true || String(r[4]).toUpperCase() === 'TRUE')) continue;
-      count++;
-      if (out.length < LIMIT) out.push({ ts: new Date(r[0]).toISOString(), name: String(r[1]), from: String(r[2] || ''), note: String(r[3] || '') });
-    }
-  }
-  return { entries: out, count: count };
-}
+/* nothing personal ever leaves the Sheet */
+function doGet(){ return json_({ ok: true }); }
 
 function doPost(e){
-  var b;
-  try { b = JSON.parse((e && e.postData && e.postData.contents) || '{}'); } catch (x){ return json({ ok: false, error: 'bad_json' }); }
-  if (b.website) return json({ ok: true, entry: null });            // the honeypot: bots get a polite nothing
-  if (!(Number(b.t) >= MIN_MS)) return json({ ok: false, error: 'too_fast' });
-  var name = clean(b.name, MAX_NAME), from = clean(b.from, MAX_FROM), note = clean(b.note, MAX_NOTE);
-  if (!name) return json({ ok: false, error: 'name' });
-  if (/(https?:|www\.|\.[a-z]{2,}\/)/i.test(name + ' ' + from + ' ' + note)) return json({ ok: false, error: 'links' });
-  var cache = CacheService.getScriptCache(), k = 'rl' + Math.floor(Date.now() / 60000), c = parseInt(cache.get(k) || '0', 10);
-  if (c >= PER_MINUTE) return json({ ok: false, error: 'rate' });
-  cache.put(k, String(c + 1), 120);
-  var lock = LockService.getScriptLock();
-  if (!lock.tryLock(5000)) return json({ ok: false, error: 'busy' });
   try {
-    var now = new Date();
-    sheet().appendRow([now, cell(name), cell(from), cell(note), AUTO_APPROVE]);
-    cache.remove('list');
-    var total = read().count;
-    return json({ ok: true, pending: !AUTO_APPROVE, count: total, entry: AUTO_APPROVE ? { ts: now.toISOString(), name: name, from: from, note: note } : null });
-  } finally { lock.releaseLock(); }
+    var b;
+    try { b = JSON.parse((e && e.postData && e.postData.contents) || '{}'); } catch (x){ return json_({ ok: false, error: 'bad_json' }); }
+    if (b.website) return json_({ ok: true });                  // the honeypot: bots get a polite nothing
+    if (!(Number(b.t) >= MIN_MS)) return json_({ ok: false, error: 'too_fast' });
+    var name = clean_(b.name, MAX_NAME), from = clean_(b.from, MAX_FROM), note = clean_(b.note, MAX_NOTE);
+    if (!name) return json_({ ok: false, error: 'name' });
+    if (/(https?:|www\.|\.[a-z]{2,}\/)/i.test(name + ' ' + from + ' ' + note)) return json_({ ok: false, error: 'links' });
+    var theme = /^(night|morning|dusk)$/.test(String(b.theme)) ? String(b.theme) : '';
+    var secrets = Math.max(0, Math.min(9, parseInt(b.secrets, 10) || 0)), page = clean_(b.page, 80);
+    var cache = CacheService.getScriptCache(), k = 'rl' + Math.floor(Date.now() / 60000), c = parseInt(cache.get(k) || '0', 10);
+    if (c >= PER_MINUTE) return json_({ ok: false, error: 'rate' });
+    cache.put(k, String(c + 1), 120);
+    var lock = LockService.getScriptLock();
+    if (!lock.tryLock(5000)) return json_({ ok: false, error: 'busy' });
+    try { sheet_().appendRow([new Date(), cell_(name), cell_(from), cell_(note), theme, secrets, cell_(page)]); }
+    finally { lock.releaseLock(); }
+    return json_({ ok: true });
+  } catch (err){
+    console.error(err);
+    return json_({ ok: false, error: 'server' });
+  }
 }
 
-function clean(s, n){ return String(s == null ? '' : s).replace(/[\u0000-\u001F\u007F\u200B-\u200F\u2028-\u202E\u2066-\u2069]/g, '').replace(/\s+/g, ' ').trim().slice(0, n); }
+function clean_(s, n){ return String(s == null ? '' : s).replace(/[\u0000-\u001F\u007F\u200B-\u200F\u2028-\u202E\u2066-\u2069]/g, '').replace(/\s+/g, ' ').trim().slice(0, n); }
 /* a value starting with = + - or @ would run as a formula in the Sheet, so it's stored as plain text */
-function cell(s){ return /^[=+\-@]/.test(s) ? "'" + s : s; }
-function sheet(){ var ss = SpreadsheetApp.getActiveSpreadsheet(), sh = ss.getSheetByName(SHEET); if (!sh){ setup(); sh = ss.getSheetByName(SHEET); } return sh; }
-function json(o){ return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON); }
+function cell_(s){ return /^[=+\-@]/.test(s) ? "'" + s : s; }
+function json_(o){ return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON); }
