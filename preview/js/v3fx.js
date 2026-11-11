@@ -176,6 +176,15 @@
     window.addEventListener('hashchange', function(){ safe(forHash); }); safe(forHash);
   });
 
+  /* ---------- 3e · camps: each section shows its camp number, large and outlined (styling and drift are in v3.css) ---------- */
+  fx('camps', function(){
+    $$('main [data-camp]').forEach(function(s, i){
+      if (!i || s.id === 'summit' || !s.classList.contains('s')) return;
+      var w = $('.wrap', s); if (!w) return;
+      var n = document.createElement('span'); n.className = 'camp-no'; n.setAttribute('aria-hidden', 'true'); n.textContent = (i < 10 ? '0' : '') + i; w.insertBefore(n, w.firstChild);
+    });
+  });
+
   /* ---------- 4 · case studies: a progress line as you read, the spine follows, results stamp in ---------- */
   fx('log', function(){
     $$('dialog.dlg').forEach(function(d){

@@ -243,3 +243,52 @@ dialog.rp[open] .rp-in{ animation:rpIn .45s var(--e) both; }
 /* ---------- first load: the hero waits for its fonts (1.8 s at most), so the name lands once, in place ---------- */
 html.js:not(.fonts-ok) .hero > .wrap{ opacity:0; }
 html.js .hero > .wrap{ transition:opacity .45s ease; }
+
+/* ============ the big pass · 11 Nov ============ */
+/* display face: Fraunces for the name and every heading; Newsreader stays as the fallback */
+:root{ --serif:'Fraunces', 'Newsreader', Georgia, 'Times New Roman', serif; }
+.h-name{ font-weight:400; letter-spacing:-.045em; font-variation-settings:'opsz' 144; }
+.s-h{ font-variation-settings:'opsz' 120; }
+
+/* the résumé sheet: one career, so no forked paths drawn */
+.rp-svg{ display:none; } .rp-card::before{ display:none; }
+.rp-stage{ margin-top:22px; }
+
+/* opening: a ridge draws, then the page lifts like cloud. Shown once per visit, 3 s at most. */
+.open{ display:none; }
+html.js .open{ position:fixed; inset:0; z-index:200; display:grid; place-items:center; background:var(--bg); clip-path:inset(0 0 0 0); transition:clip-path .9s cubic-bezier(.76,0,.24,1); }
+html.js .open.gone{ clip-path:inset(0 0 100% 0); }
+.open-in{ width:min(560px,78vw); text-align:center; transition:opacity .4s ease, transform .9s cubic-bezier(.76,0,.24,1); }
+.open.gone .open-in{ opacity:0; transform:translateY(-40px); }
+.open-ridge{ display:block; width:100%; height:110px; overflow:visible; }
+.open-ridge path{ fill:none; stroke:var(--accent); stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; vector-effect:non-scaling-stroke; stroke-dasharray:1200; stroke-dashoffset:1200; animation:openDraw 1.5s cubic-bezier(.5,0,.2,1) .1s forwards; }
+@keyframes openDraw{ to{ stroke-dashoffset:0; } }
+.open-n{ margin:20px 0 0; font:400 clamp(26px,4vw,40px)/1.1 Georgia, 'Times New Roman', serif; letter-spacing:-.02em; color:var(--ink); }
+.open-a{ margin:8px 0 0; font:500 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; color:var(--muted); }
+
+/* a thin line across the top that fills as you climb (runs on the compositor; no script) */
+.pgl{ display:none; }
+@supports (animation-timeline: scroll()){
+  .pgl{ display:block; position:fixed; left:0; top:0; z-index:90; width:100%; height:2px; background:var(--accent); transform-origin:0 50%; transform:scaleX(0); animation:pgl linear both; animation-timeline:scroll(root); pointer-events:none; }
+  @keyframes pgl{ to{ transform:scaleX(1); } }
+}
+
+/* the band under the hero: who the launches were for, in moving type */
+.band{ position:relative; padding:26px 0 30px; overflow:hidden; border-top:1px solid var(--line); border-bottom:1px solid var(--line); background:rgba(var(--veil),.72); }
+.band-k{ margin:0 0 8px; padding:0 24px; font:500 12.5px var(--mono); color:var(--accent); text-align:center; }
+.band-t{ display:flex; width:max-content; animation:band 46s linear infinite; }
+.band-t span{ flex:0 0 auto; padding-right:.3em; font:italic 300 clamp(38px,6.4vw,92px)/1.05 var(--serif); letter-spacing:-.03em; white-space:nowrap; color:var(--ink); }
+.band-t i{ font-style:normal; color:var(--accent); padding:0 .12em; }
+.band:hover .band-t{ animation-play-state:paused; }
+@keyframes band{ to{ transform:translate3d(-50%,0,0); } }
+
+/* camp numerals: every section carries its camp number, large and outlined, drifting as you pass */
+.s > .wrap{ position:relative; }
+.camp-no{ position:absolute; z-index:-1; right:-2%; top:-.16em; font:300 clamp(150px,24vw,380px)/.8 var(--serif); letter-spacing:-.05em; color:transparent; -webkit-text-stroke:1.5px var(--line); pointer-events:none; user-select:none; }
+@supports (animation-timeline: view()){
+  .camp-no{ animation:campNo linear both; animation-timeline:view(); }
+  @keyframes campNo{ from{ transform:translate3d(0,22%,0); } to{ transform:translate3d(0,-34%,0); } }
+}
+@media (max-width:700px){ .camp-no{ right:-6%; -webkit-text-stroke-width:1px; } }
+@media (prefers-reduced-motion: reduce){ .band-t{ animation:none; flex-wrap:wrap; width:auto; padding:0 24px; } .band-t span + span{ display:none; } .band-t span{ white-space:normal; font-size:clamp(26px,4vw,44px); } .camp-no{ animation:none; } }
+@media print{ .open, .pgl, .band, .camp-no{ display:none !important; } }
