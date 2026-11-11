@@ -247,7 +247,7 @@ html.js .hero > .wrap{ transition:opacity .45s ease; }
 /* ============ the big pass · 11 Nov ============ */
 /* display face: Fraunces for the name and every heading; Newsreader stays as the fallback */
 :root{ --serif:'Fraunces', 'Newsreader', Georgia, 'Times New Roman', serif; }
-.h-name{ font-weight:400; letter-spacing:-.045em; font-variation-settings:'opsz' 144; }
+.h-name{ font-weight:400; font-size:clamp(56px,10.4vw,160px); letter-spacing:-.045em; font-variation-settings:'opsz' 144; }
 .s-h{ font-variation-settings:'opsz' 120; }
 
 /* the résumé sheet: one career, so no forked paths drawn */
