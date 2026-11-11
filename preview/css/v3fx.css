@@ -243,3 +243,33 @@ dialog.zm img{ display:block; width:max(100%, 1400px); max-width:none; height:au
 
 @media (prefers-reduced-motion: reduce){ .mk-story.in, .ld-rail button.run i, .ld-stories.ld-x > .ld-story.on, .sk.sk-x:not(.sk-all) > div.on{ animation:none !important; } .fx-log dialog.cs-dim .cs-step{ opacity:1; transform:none; } }
 @media print{ .mk-story, .cc-top, .cc-next, .cs-nav, .cs-rail, .ld-rail, .sk-rail{ display:none !important; } .mg-x dd{ max-height:none !important; opacity:1 !important; } .ld-stories.ld-x > .ld-story, .sk.sk-x > div{ display:block !important; } .fx-log dialog.cs-dim .cs-step{ opacity:1 !important; } }
+
+/* ============ round four ============ */
+/* how I lead: tiles hold still, one panel reads out the one you point at */
+.mg-x{ display:grid !important; grid-template-columns:repeat(4, minmax(0,1fr)); gap:10px; }
+.mg-x > div{ position:relative; padding:14px 16px !important; border:1px solid var(--line) !important; border-radius:14px; background:var(--panel2); cursor:pointer; transition:transform .25s var(--e), border-color .2s ease, background .2s ease; }
+.mg-x > div::after{ display:none; }
+.mg-x > div:hover{ transform:translateY(-3px); }
+.mg-x > div.on{ border-color:var(--accent) !important; background:var(--panel); box-shadow:0 18px 36px -26px var(--glow); }
+.mg-x dt{ margin:0; } .mg-x > div.on dt{ color:var(--accent); }
+.mg-x dd{ display:none !important; }
+.mg-panel{ margin-top:12px; padding:18px 22px 20px; border-radius:16px; border:1px solid var(--accent); background:var(--panel); }
+.mg-pk{ margin:0; font:500 12.5px var(--mono); color:var(--accent); }
+.mg-pd{ margin-top:8px; font-size:16px; line-height:1.6; color:var(--ink); max-width:80ch; }
+.mg-pd.in{ animation:rtIn .35s var(--e) both; }
+@media (max-width:900px){ .mg-x{ grid-template-columns:repeat(2, minmax(0,1fr)); } }
+@media (max-width:700px){ .fx-decks main .mg.mg-x{ display:grid !important; overflow:visible; } .fx-decks main .mg.mg-x > div{ flex:none; } }
+
+/* skills: every group shows the same way, and the chips pop in */
+.sk.sk-x .rope{ display:none; }
+.sk.sk-x .chips.gear{ gap:10px; padding-top:0; }
+.sk.sk-x .gear .chip::before, .sk.sk-x .gear .chip::after{ display:none; }
+.sk.sk-x:not(.sk-all) > div.on .chip{ animation:chipIn .45s cubic-bezier(.3,1.5,.5,1) both; animation-delay:calc(var(--ci,0) * 28ms); }
+@keyframes chipIn{ from{ opacity:0; transform:translateY(10px) scale(.92); } }
+.sk.sk-x .chip{ transition:transform .2s var(--e), border-color .2s ease, background .2s ease; }
+.sk.sk-x .chip:hover{ transform:translateY(-3px); border-color:var(--accent); }
+
+/* phones: nothing loops, nothing decorates */
+.lite .cc-pin::after, .lite .ai-list a::before, .lite .cc-flow.live li, .lite .rt-camp i::before, .lite .rt-camp i::after{ animation:none !important; }
+@media (prefers-reduced-motion: reduce){ .sk.sk-x:not(.sk-all) > div.on .chip, .mg-pd.in{ animation:none !important; } }
+@media print{ .mg-panel{ display:none !important; } .mg-x dd{ display:block !important; } }

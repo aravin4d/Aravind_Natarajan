@@ -370,7 +370,8 @@
   /* ---------- command center clips: play while on screen, tap to pause ---------- */
   safe(function(){
     var vids = $$('.cc-clip'); if (!vids.length) return;
-    if (reduce || !('IntersectionObserver' in window)){ vids.forEach(function(v){ v.controls = true; }); return; }
+    var lite = !!(window.matchMedia && window.matchMedia('(max-width: 820px), (pointer: coarse)').matches);
+    if (reduce || lite || !('IntersectionObserver' in window)){ vids.forEach(function(v){ v.controls = true; }); return; }
     var io = new IntersectionObserver(function(es){
       es.forEach(function(e){ var v = e.target; if (e.isIntersecting && !v.__held){ var p = v.play(); if (p && p.catch) p.catch(function(){ v.controls = true; }); } else v.pause(); });
     }, { threshold: 0.6 });

@@ -6,14 +6,17 @@
 (function(){
   'use strict';
   var S = window.__site; if (!S) return;
-  var OFF = ['hero', 'sky'];   /* hero: the contour map read as a loading glitch over the 3D mountain. sky: full-screen layers over the 3D canvas cost frames, and the world already has its own light and weather. */
+  var OFF = ['hero', 'sky', 'story'];   /* hero: the contour map read as a loading glitch over the 3D mountain. sky: full-screen layers over the 3D canvas cost frames, and the world already has its own light and weather. */
   var root = document.documentElement, $ = S.$, $$ = S.$$, safe = S.safe, reduce = S.reduce, NS = 'http://www.w3.org/2000/svg';
   function clamp(v, a, b){ return v < a ? a : v > b ? b : v; }
   function svgEl(n, at){ var e = document.createElementNS(NS, n); for (var k in at) e.setAttribute(k, at[k]); return e; }
   var q = /[?&]fx=([^&#]*)/.exec(location.search), all = false;
   if (q){ decodeURIComponent(q[1]).split(',').forEach(function(t){ t = t.trim(); if (t === 'off') all = true; else if (t.charAt(0) === '-') OFF.push(t.slice(1)); }); }
+  /* phones get the light version: no giant numerals, no looping decoration, no autoplaying clips */
+  var LITE = !!(window.matchMedia && window.matchMedia('(max-width: 820px), (pointer: coarse)').matches), HEAVY = ['camps', 'climber', 'profile', 'flags', 'contour', 'replay', 'nudge', 'summit'];
+  if (LITE) root.classList.add('lite');
   function fx(name, fn){
-    if (all || OFF.indexOf(name) > -1) return;
+    if (all || OFF.indexOf(name) > -1 || (LITE && HEAVY.indexOf(name) > -1)) return;
     try { root.classList.add('fx-' + name); fn(); } catch (e){ root.classList.remove('fx-' + name); if (window.console) console.warn('fx ' + name + ':', e); }
   }
   function docMax(){ return Math.max(1, document.documentElement.scrollHeight - window.innerHeight); }
@@ -183,19 +186,25 @@
 
   /* ---------- 3h · lead: the long grids in How I lead answer the reader. Tiles open on hover or tap, stories take turns. ---------- */
   fx('lead', function(){
+    /* the tiles hold still: titles in a grid, and the one you point at reads out in a panel that never moves them */
     var mg = $('#leadership .mg');
     if (mg){
-      var tiles = $$(':scope > div', mg); mg.classList.add('mg-x');
+      var tiles = $$(':scope > div', mg).filter(function(t){ return $('dt', t) && $('dd', t); }), panel = document.createElement('div'), pk = document.createElement('p'), pd = document.createElement('div'), lock = -1;
+      panel.className = 'mg-panel'; panel.setAttribute('aria-live', 'polite'); pk.className = 'mg-pk'; pd.className = 'mg-pd'; panel.appendChild(pk); panel.appendChild(pd);
+      mg.classList.add('mg-x'); mg.parentNode.insertBefore(panel, mg.nextSibling);
+      function pick(i){ tiles.forEach(function(t, k){ t.classList.toggle('on', k === i); t.setAttribute('aria-pressed', k === i ? 'true' : 'false'); }); pk.textContent = $('dt', tiles[i]).textContent; pd.innerHTML = $('dd', tiles[i]).innerHTML; pd.classList.remove('in'); void pd.offsetWidth; pd.classList.add('in'); }
       tiles.forEach(function(t, i){
-        var dt = $('dt', t); if (!dt) return; t.tabIndex = 0; t.setAttribute('role', 'button'); t.setAttribute('aria-expanded', 'false');
-        function open(on){ t.classList.toggle('on', on); t.setAttribute('aria-expanded', on ? 'true' : 'false'); }
-        t.addEventListener('pointerenter', function(e){ if (e.pointerType === 'mouse') open(true); });
-        t.addEventListener('pointerleave', function(e){ if (e.pointerType === 'mouse') open(false); });
-        t.addEventListener('click', function(){ open(!t.classList.contains('on')); });
-        t.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); open(!t.classList.contains('on')); } });
-        if (!i) open(true);
+        t.tabIndex = 0; t.setAttribute('role', 'button');
+        t.addEventListener('pointerenter', function(e){ if (e.pointerType === 'mouse') pick(i); });
+        t.addEventListener('focus', function(){ pick(i); });
+        t.addEventListener('click', function(){ lock = i; pick(i); if (S.sfx) S.sfx('tap'); });
+        t.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); pick(i); } });
       });
+      if (tiles.length){ pick(0); var mh = 0; tiles.forEach(function(t, k){ pd.innerHTML = $('dd', t).innerHTML; mh = Math.max(mh, panel.offsetHeight); }); panel.style.minHeight = mh + 'px'; pick(0); }
     }
+    /* the first 90 days: the day count runs up and the bar fills as the cards arrive */
+    var nd = $('#leadership .nd');
+    if (nd){ S.onView(nd, function(){ nd.classList.add('go'); $$('.nd-day', nd).forEach(function(d, i){ setTimeout(function(){ if (window.__count) window.__count(d, 1100); }, 250 + i * 320); }); }, 0.2); }
     var st = $('#leadership .ld-stories'), stories = st ? $$(':scope > .ld-story', st) : [];
     if (stories.length > 1 && stories.every(function(x){ return $('h3, h4', x); })){
       var rail = document.createElement('div'), tabs = [], cur = 0, timer = 0, auto = !reduce, near = false; rail.className = 'ld-rail'; rail.setAttribute('role', 'tablist');
@@ -217,7 +226,8 @@
     var sk = $('#skills .sk'); if (!sk) return;
     var groups = $$(':scope > div', sk).filter(function(g){ return $('h3', g); }); if (groups.length < 3) return;
     var rail = document.createElement('div'), tabs = [], all = document.createElement('button'); rail.className = 'sk-rail'; rail.setAttribute('role', 'tablist'); rail.setAttribute('aria-label', 'Skill groups');
-    function show(i){ sk.classList.toggle('sk-all', i < 0); groups.forEach(function(g, k){ g.classList.toggle('on', k === i); }); tabs.forEach(function(b, k){ b.setAttribute('aria-selected', k === i ? 'true' : 'false'); }); all.setAttribute('aria-selected', i < 0 ? 'true' : 'false'); try { window.dispatchEvent(new Event('scroll')); } catch (e){} }
+    function show(i){ sk.classList.toggle('sk-all', i < 0); groups.forEach(function(g, k){ g.classList.toggle('on', k === i); }); tabs.forEach(function(b, k){ b.setAttribute('aria-selected', k === i ? 'true' : 'false'); }); all.setAttribute('aria-selected', i < 0 ? 'true' : 'false'); try { window.dispatchEvent(new Event('scroll')); } catch (e){}
+      if (i > -1) $$('.chip', groups[i]).forEach(function(c, n){ c.style.setProperty('--ci', n); }); }
     groups.forEach(function(g, i){ var b = document.createElement('button'); b.type = 'button'; b.setAttribute('role', 'tab'); b.innerHTML = '<span></span><small></small>'; b.firstChild.textContent = $('h3', g).textContent; b.lastChild.textContent = $$('.chip', g).length; b.addEventListener('click', function(){ show(i); if (S.sfx) S.sfx('tap'); }); rail.appendChild(b); tabs.push(b); });
     all.type = 'button'; all.setAttribute('role', 'tab'); all.className = 'sk-allb'; all.innerHTML = '<span>All skills</span><small></small>'; all.lastChild.textContent = $$('.chip', sk).length; all.addEventListener('click', function(){ show(-1); }); rail.appendChild(all);
     sk.parentNode.insertBefore(rail, sk); sk.classList.add('sk-x');
