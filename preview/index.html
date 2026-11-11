@@ -38,6 +38,9 @@ setTimeout(function(){d.classList.add('intro-done');if(!window.__mainReady)d.cla
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/v3.css">
 <link rel="stylesheet" href="css/v3fx.css">
+<script>(function(){var d=document.documentElement,done=false;function ok(){if(done)return;done=true;d.classList.add('fonts-ok');}
+try{Promise.all([document.fonts.load('500 80px Newsreader'),document.fonts.load('400 16px "IBM Plex Sans"'),document.fonts.load('600 16px "IBM Plex Sans"')]).then(ok,ok);}catch(e){ok();}
+setTimeout(ok,1800);})();</script>
 <script>(function(){var m=/[?&]lens=(quality|delivery|program)(&|$)/.exec(location.search);if(m)document.documentElement.setAttribute('data-lens',m[1]);})();</script>
 <script>
 /* Private analytics (Umami Cloud, free, no cookies). Paste your website ID

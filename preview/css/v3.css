@@ -239,3 +239,7 @@ dialog.rp[open] .rp-in{ animation:rpIn .45s var(--e) both; }
   .fd{ max-height:none !important; overflow:visible !important; }
 }
 @media (min-width:821px){ .rp-ask{ min-height:2.8em; } }
+
+/* ---------- first load: the hero waits for its fonts (1.8 s at most), so the name lands once, in place ---------- */
+html.js:not(.fonts-ok) .hero > .wrap{ opacity:0; }
+html.js .hero > .wrap{ transition:opacity .45s ease; }

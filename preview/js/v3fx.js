@@ -6,7 +6,7 @@
 (function(){
   'use strict';
   var S = window.__site; if (!S) return;
-  var OFF = ['hero'];   /* the hero contour map read as a loading glitch over the 3D mountain, so it is off */
+  var OFF = ['hero', 'sky'];   /* hero: the contour map read as a loading glitch over the 3D mountain. sky: full-screen layers over the 3D canvas cost frames, and the world already has its own light and weather. */
   var root = document.documentElement, $ = S.$, $$ = S.$$, safe = S.safe, reduce = S.reduce, NS = 'http://www.w3.org/2000/svg';
   function clamp(v, a, b){ return v < a ? a : v > b ? b : v; }
   function svgEl(n, at){ var e = document.createElementNS(NS, n); for (var k in at) e.setAttribute(k, at[k]); return e; }
@@ -135,6 +135,47 @@
     if (map && rt){ var h2 = hint(window.matchMedia && window.matchMedia('(max-width: 900px)').matches ? 'Four roles: swipe the cards' : 'Four roles: pick a camp, or keep scrolling'); h2.classList.add('nudge-rt'); map.insertBefore(h2, map.firstChild); }
   });
 
+  /* ---------- 3d · bench: the five tools as one workbench. One tool on the bench at a time, its result first,
+     the detail one tap away. It changes tool by itself until you take over. ---------- */
+  fx('bench', function(){
+    var box = $('#built .tools'), tools = $$('#built .tool'); if (!box || tools.length < 2) return;
+    var STAT = [['1 click', 'for a complete bug report, where the team retyped up to forty a day'], ['18 min to under 1', 'to create a test order, with about $30 saved on each'], ['~4 hours', 'of QA time back every week, and no more after-hours escalations'], ['Record once', 'and get pytest and Appium 2 scripts in the Page Object pattern'], ['100,000', 'redundant calls a day found and fixed, along with two runaway services']];
+    var rail = document.createElement('div'), tabs = [], cur = 0, timer = 0, auto = !reduce, seen = false, DUR = 7000;
+    rail.className = 'bench-rail'; rail.setAttribute('role', 'tablist'); rail.setAttribute('aria-label', 'Tools I built');
+    tools.forEach(function(t, i){
+      var copy = $('.tool-copy', t), h = $('h3', t), tag = $('.tool-tag', t); if (!copy || !h) return;
+      t.id = t.id || 'tool-' + (i + 1); t.setAttribute('role', 'tabpanel');
+      /* the result goes first; everything after the first paragraph folds under "How it works" */
+      var st = document.createElement('p'); st.className = 'tool-stat'; st.innerHTML = '<b></b><span></span>'; st.firstChild.textContent = (STAT[i] || ['', ''])[0]; st.lastChild.textContent = (STAT[i] || ['', ''])[1];
+      (tag || h).parentNode.insertBefore(st, (tag || h).nextSibling);
+      var rest = [], n = st.nextSibling, firstP = false;
+      while (n){ var nx = n.nextSibling; if (n.nodeType === 1){ if (n.tagName === 'P' && !firstP) firstP = true; else rest.push(n); } n = nx; }
+      if (rest.length){ var det = document.createElement('details'), sm = document.createElement('summary'); det.className = 'tool-more'; sm.textContent = 'How it works'; det.appendChild(sm); rest.forEach(function(e){ det.appendChild(e); }); copy.appendChild(det); det.addEventListener('toggle', function(){ if (det.open) hold(); }); }
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'bench-tab'; b.setAttribute('role', 'tab'); b.setAttribute('aria-controls', t.id);
+      b.innerHTML = '<small></small><b></b><i aria-hidden="true"></i>'; b.children[0].textContent = '0' + (i + 1); b.children[1].textContent = h.textContent;
+      b.addEventListener('click', function(){ hold(); show(i, true); });
+      b.addEventListener('keydown', function(e){ var j = -1; if (e.key === 'ArrowRight' || e.key === 'ArrowDown') j = (i + 1) % tools.length; else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') j = (i - 1 + tools.length) % tools.length; if (j > -1){ e.preventDefault(); hold(); show(j, true); tabs[j].focus(); } });
+      rail.appendChild(b); tabs.push(b);
+    });
+    if (tabs.length !== tools.length) return;
+    box.parentNode.insertBefore(rail, box); box.classList.add('bench'); rail.style.setProperty('--dur', DUR + 'ms');
+    function hold(){ auto = false; clearTimeout(timer); rail.classList.add('held'); }
+    function show(i, user){
+      cur = i;
+      tools.forEach(function(t, k){ t.classList.toggle('on', k === i); });
+      tabs.forEach(function(b, k){ var on = k === i; b.setAttribute('aria-selected', on ? 'true' : 'false'); b.tabIndex = on ? 0 : -1; b.classList.remove('run'); });
+      if (!reduce){ tools[i].classList.remove('bench-in'); void tools[i].offsetWidth; tools[i].classList.add('bench-in'); }
+      try { window.dispatchEvent(new Event('scroll')); } catch (e){}   /* lets the reveal and the floating device pick the new tool up */
+      if (auto && seen){ void tabs[i].offsetWidth; tabs[i].classList.add('run'); clearTimeout(timer); timer = setTimeout(function(){ show((cur + 1) % tools.length, false); }, DUR); }
+      if (user){ S.track('tool_tab', { id: tools[i].id }); if (S.sfx) S.sfx('tap'); }
+    }
+    show(0, false);
+    if ('IntersectionObserver' in window) new IntersectionObserver(function(es){ seen = es[0].isIntersecting; clearTimeout(timer); if (seen && auto) show(cur, false); else tabs.forEach(function(b){ b.classList.remove('run'); }); }, { threshold: 0.35 }).observe(box);
+    /* a link to a tool that is not on the bench puts it there */
+    function forHash(){ var id = location.hash.slice(1), k = -1; tools.forEach(function(t, n){ if (id && (t.id === id || (t.querySelector && t.querySelector('#' + (window.CSS && CSS.escape ? CSS.escape(id) : id))))) k = n; }); if (k > -1){ hold(); show(k, false); } }
+    window.addEventListener('hashchange', function(){ safe(forHash); }); safe(forHash);
+  });
+
   /* ---------- 4 · case studies: a progress line as you read, the spine follows, results stamp in ---------- */
   fx('log', function(){
     $$('dialog.dlg').forEach(function(d){
@@ -176,8 +217,9 @@
     var W = 104, H = 44, svg = svgEl('svg', { 'class': 'alt-prof', viewBox: '0 0 ' + W + ' ' + H, 'aria-hidden': 'true' }),
       fill = svgEl('path', { 'class': 'ap-fill' }), line = svgEl('path', { 'class': 'ap-line' }), done = svgEl('path', { 'class': 'ap-done' }), camps = svgEl('g', {}), you = svgEl('circle', { 'class': 'ap-you', r: 3 }), pts = [], lastH = 0;
     [fill, line, camps, done, you].forEach(function(e){ svg.appendChild(e); }); box.insertBefore(svg, box.firstChild);
+    var maxY = 1;
     function build(){
-      var max = docMax(), secs = $$('main [data-camp]'), top = sm ? clamp((window.pageYOffset + sm.getBoundingClientRect().top) / max, 0.05, 0.98) : 0.8;
+      var max = maxY = docMax(), secs = $$('main [data-camp]'), top = sm ? clamp((window.pageYOffset + sm.getBoundingClientRect().top) / max, 0.05, 0.98) : 0.8;
       lastH = document.documentElement.scrollHeight; pts = [[0, H - 3]];
       secs.forEach(function(s, i){
         var u = clamp((window.pageYOffset + s.getBoundingClientRect().top) / max, 0, 1); if (u <= 0.005) return;
@@ -192,12 +234,12 @@
     }
     function at(x){ for (var i = 1; i < pts.length; i++) if (x <= pts[i][0]){ var a = pts[i - 1], b = pts[i], t = (x - a[0]) / Math.max(0.001, b[0] - a[0]); return [x, a[1] + (b[1] - a[1]) * t, i]; } var l = pts[pts.length - 1]; return [l[0], l[1], pts.length - 1]; }
     function upd(){
-      if (Math.abs(document.documentElement.scrollHeight - lastH) > 40) build();
-      var p = at(clamp(window.pageYOffset / docMax(), 0, 1) * W);
+      var p = at(clamp(window.pageYOffset / maxY, 0, 1) * W);
       you.setAttribute('cx', p[0].toFixed(1)); you.setAttribute('cy', p[1].toFixed(1));
       done.setAttribute('d', pts.slice(0, p[2]).map(function(q, i){ return (i ? 'L' : 'M') + q[0].toFixed(1) + ' ' + q[1].toFixed(1); }).join(' ') + ' L' + p[0].toFixed(1) + ' ' + p[1].toFixed(1));
     }
-    build(); upd(); S.onScroll(upd); window.addEventListener('resize', function(){ build(); upd(); }); setTimeout(function(){ build(); upd(); }, 3000);
+    build(); upd(); S.onScroll(upd); window.addEventListener('resize', function(){ build(); upd(); });
+    setInterval(function(){ if (Math.abs(document.documentElement.scrollHeight - lastH) > 40){ build(); upd(); } }, 3000);
   });
 
   /* ---------- 7 · results: each marker plants a small flag on the ridge as it arrives ---------- */

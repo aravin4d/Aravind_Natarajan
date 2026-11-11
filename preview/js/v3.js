@@ -192,7 +192,7 @@
         var p = panels[i]; select(i, { user: true, click: true, focus: focus });
         box.scrollTo({ left: p.offsetLeft - (box.clientWidth - p.offsetWidth) / 2, behavior: reduce ? 'auto' : 'smooth' });
       } else if (pinned){
-        var r = pin.getBoundingClientRect(), total = pin.offsetHeight - window.innerHeight;
+        measure(); var r = { top: pTop - window.pageYOffset }, total = pH - window.innerHeight;
         /* jump there at once and hold the choice: a smooth scroll would pass the other camps on the way and the heading snap could pull it back */
         lock = Date.now() + 900; if (window.__snap && window.__snap.poke) window.__snap.poke();
         select(i, { user: true, click: true, focus: focus });
@@ -243,16 +243,21 @@
       if (want && rt.offsetHeight > window.innerHeight - 76){ want = false; root.classList.remove('rt-pinned'); }
       pinned = want;
     }
+    /* the pin's place on the page is measured once per layout, not on every scroll step */
+    var pTop = 0, pH = 0, wasLive = false;
+    function measure(){ pTop = window.pageYOffset + pin.getBoundingClientRect().top; pH = pin.offsetHeight; }
     function onScroll(){
-      if (!pinned){ root.classList.remove('rt-live'); return; }
-      var r = pin.getBoundingClientRect(), total = pin.offsetHeight - window.innerHeight; if (total <= 0) return;
-      var live = r.top <= 0 && r.bottom >= window.innerHeight; root.classList.toggle('rt-live', live);   /* while the route holds the screen, the résumé toast stays out of its corner */
+      if (!pinned){ if (wasLive){ wasLive = false; root.classList.remove('rt-live'); } return; }
+      var top = pTop - window.pageYOffset, total = pH - window.innerHeight; if (total <= 0) return;
+      var live = top <= 0 && top + pH >= window.innerHeight;
+      if (live !== wasLive){ wasLive = live; root.classList.toggle('rt-live', live); }   /* while the route holds the screen, the résumé toast stays out of its corner */
       if (!live || Date.now() < lock) return;
-      var i = clamp(Math.floor(clamp(-r.top / total, 0, 0.9999) * tabs.length), 0, tabs.length - 1);
+      var i = clamp(Math.floor(clamp(-top / total, 0, 0.9999) * tabs.length), 0, tabs.length - 1);
       if (i !== cur) select(i, { user: true });
     }
     S.onScroll(onScroll);
-    function layout(){ setPin(); fit(); }
+    function layout(){ setPin(); fit(); measure(); }
+    setInterval(function(){ if (pinned) measure(); }, 2500);
     window.addEventListener('resize', function(){ cancelAnimationFrame(rz); rz = requestAnimationFrame(layout); });
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(layout);
     layout();
@@ -368,8 +373,10 @@
   /* ---------- the lens switch joins the header once the hero is behind you ---------- */
   safe(function(){
     var hero = document.getElementById('top'); if (!hero) return;
-    function f(){ root.classList.toggle('past-hero', hero.getBoundingClientRect().bottom < 90); }
-    S.onScroll(f); f();
+    var end = 0, was = null;
+    function m(){ end = window.pageYOffset + hero.getBoundingClientRect().bottom - 90; f(); }
+    function f(){ var p = window.pageYOffset > end; if (p !== was){ was = p; root.classList.toggle('past-hero', p); } }
+    S.onScroll(f); window.addEventListener('resize', m); setTimeout(m, 1500); m();
   });
 
   /* ---------- phone: the longest blocks fold, and open with one tap ---------- */
