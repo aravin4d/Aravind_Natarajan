@@ -402,7 +402,7 @@
     var TH = {};
     /* v6 camp: where the fire sits in each world. All three are on dry, open ground about 85 units ahead of where the
        camera stops, so the last view is the camp itself. (The desert fire used to sit in the middle of the oasis pool.) */
-    var SEAT = { night: [14, CAMP.z + 60], morning: [-14, CAMP.z + 50], dusk: [-40, CAMP.z + 82] };
+    var SEAT = { night: [14, CAMP.z + 60], morning: [-14, CAMP.z + 50], dusk: [-26, CAMP.z + 80] };
     function buildDeco(name){
       if (TH[name]) return TH[name];
       var HA = T[name].h, fn = function(x, z){ return gridH(HA, x, z); };
