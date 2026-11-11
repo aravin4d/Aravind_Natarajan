@@ -1,5 +1,6 @@
 /* Wave 2 sections: each block gets its own personality.
-   Proof numbers roll like an odometer, case rows are dealt like cards, moment cards clear with their world (reveal.js),
+   Proof numbers roll like an odometer, the Command Center tours its views and lets you make the release call, case rows
+   are dealt like cards, The work filters down to one side of the job,
    the built devices float in space and land, the three leadership stories grow their own paths,
    skills hang from a rope like climbing gear, the summit gets a flag, and contact gets a lantern. */
 (function(){
@@ -7,8 +8,8 @@
   var S = window.__site; if (!S) return;
   var root = document.documentElement, reduce = S.reduce, fine = S.fine, $ = S.$, $$ = S.$$, safe = S.safe, NS = 'http://www.w3.org/2000/svg';
   function clamp(v, a, b){ return v < a ? a : v > b ? b : v; }
-  function inView(el, top, bot){ var r = el.getBoundingClientRect(), vh = window.innerHeight; return r.top < vh * (top || 0.8) && r.bottom > vh * (bot || 0.15); }
-  function gone(el){ var r = el.getBoundingClientRect(); return r.bottom < -20 || r.top > window.innerHeight + 20; }
+  function inView(el, top, bot){ var r = S.box ? S.box(el) : el.getBoundingClientRect(), vh = window.innerHeight; return r.top < vh * (top || 0.8) && r.bottom > vh * (bot || 0.15); }
+  function gone(el){ var r = S.box ? S.box(el) : el.getBoundingClientRect(); return r.bottom < -20 || r.top > window.innerHeight + 20; }
 
   /* ---------- odometer: every digit is a strip that rolls into place and overshoots a little ----------
      A hidden copy of the final digit keeps the width and the baseline exactly as they were. */
@@ -126,8 +127,8 @@
     var run = false, lastY = window.pageYOffset, down = true;
     function frame(now){
       if (!run) return;
-      var vh = window.innerHeight, y = window.pageYOffset; if (y !== lastY){ down = y > lastY; lastY = y; }
-      T.forEach(function(o){ var r = o.vis.getBoundingClientRect(); if (r.bottom < -120 || r.top > vh + 120){ o.lastC = 2; return; }
+      var gg = S.geo(), vh = gg.vh, y = gg.y; if (y !== lastY){ down = y > lastY; lastY = y; }
+      T.forEach(function(o){ var r = S.box ? S.box(o.vis) : o.vis.getBoundingClientRect(); if (r.bottom < -120 || r.top > vh + 120){ o.lastC = 2; return; }
         var c = (r.top + r.height / 2) / vh, L = clamp((1.02 - c) / 0.44, 0, 1); L = L * L * (3 - 2 * L); o.land += (L - o.land) * 0.16;
         if (!o.landed && o.land > 0.965 && down){ o.landed = true; thud(o); } else if (o.landed && o.land < 0.6) o.landed = false;
         if (down && o.lastC > 0.52 && c <= 0.52 && !o.on && o.orbit < 0) o.orbit = now;
@@ -139,7 +140,7 @@
         o.fl.style.transform = 'translate3d(' + drift.toFixed(2) + 'px,' + oy.toFixed(2) + 'px,0)';
         o.rig.style.setProperty('--rx', o.rx.toFixed(2) + 'deg'); o.rig.style.setProperty('--ry', o.ry.toFixed(2) + 'deg');
         var hgt = Math.max(0, sp * 48 - bob + 3);
-        o.sh.style.transform = 'scale(' + (0.84 + hgt * 0.011).toFixed(3) + ',' + (0.84 + hgt * 0.007).toFixed(3) + ')'; o.sh.style.opacity = clamp(0.62 - hgt * 0.008, 0.14, 0.62).toFixed(3); o.sh.style.filter = 'blur(' + (2.5 + hgt * 0.3).toFixed(1) + 'px)';
+        o.sh.style.transform = 'scale(' + (0.84 + hgt * 0.011).toFixed(3) + ',' + (0.84 + hgt * 0.007).toFixed(3) + ')'; o.sh.style.opacity = clamp(0.62 - hgt * 0.008, 0.14, 0.62).toFixed(3); var bl = (Math.round((2.5 + hgt * 0.3) * 2) / 2) + 'px'; if (bl !== o.bl){ o.bl = bl; o.sh.style.filter = 'blur(' + bl + ')'; }
         o.vis.style.setProperty('--space', clamp(sp * 1.15, 0, 1).toFixed(3)); });
       requestAnimationFrame(frame);
     }
@@ -215,7 +216,7 @@
   safe(function(){
     var sm = $('#summit'), rd = sm && $('.sm-made', sm); if (!rd) return; var made = false;
     function text(){ var P = S.peaks[root.getAttribute('data-time')] || S.peaks.morning; $('b', rd).textContent = 'You made it.'; $('.sm-peak', rd).textContent = P[0]; $('.sm-alt', rd).textContent = P[1].toLocaleString('en-US') + ' m'; }
-    function check(){ if (made) return; var r = sm.getBoundingClientRect(), c = (r.top + r.height / 2) / window.innerHeight; if (c > 0.22 && c < 0.74){ made = true; text(); sm.classList.add('made'); S.emit('summit:reached'); S.track('summit'); } }
+    function check(){ if (made) return; var r = S.box ? S.box(sm) : sm.getBoundingClientRect(), c = (r.top + r.height / 2) / window.innerHeight; if (c > 0.22 && c < 0.74){ made = true; text(); sm.classList.add('made'); S.emit('summit:reached'); S.track('summit'); } }
     S.onScroll(check); setTimeout(check, 400); document.addEventListener('timechange', function(){ if (made) text(); });
   });
 
@@ -251,6 +252,151 @@
     card.addEventListener('pointerenter', function(){ g.classList.add('lit'); }); card.addEventListener('pointerleave', function(){ g.classList.remove('lit'); });
     g.addEventListener('click', function(){ g.classList.add('lit'); bell.classList.remove('ring'); void bell.getBoundingClientRect(); bell.classList.add('ring'); S.sfx && S.sfx('bell'); S.track('temple_bell'); });
     if (!fine) S.onView(g, function(){ setTimeout(function(){ g.classList.add('lit'); }, 1800); }, 0.6);
+  });
+
+  /* ---------- the work: one tap narrows it to one side of the job (quality, delivery, people, tools) ----------
+     Lines carry their areas in data-f. A theme with nothing left to show steps aside, and whatever comes back
+     slides in. The counts are worked out here, so they can never disagree with the page. */
+  safe(function(){
+    var sec = $('#work'); if (!sec) return;
+    var btns = $$('.wk-filter button', sec), cards = $$('.wk-card', sec), tools = $('.wk-tools', sec), live = $('.wk-live', sec), names = {};
+    if (!btns.length) return;
+    function has(el, f){ return f === 'all' || (' ' + (el.getAttribute('data-f') || '') + ' ').indexOf(' ' + f + ' ') > -1; }
+    var lis = $$('.wk-li', sec);
+    btns.forEach(function(b){
+      var f = b.getAttribute('data-f'), n = lis.filter(function(li){ return has(li, f); }).length, sm = document.createElement('small');
+      names[f] = b.textContent.trim(); sm.textContent = n; sm.setAttribute('aria-hidden', 'true'); b.appendChild(sm);
+      b.setAttribute('aria-label', names[f] + ', ' + n + ' items');
+    });
+    function slideIn(list){
+      if (reduce) return;
+      list.forEach(function(el, i){ el.classList.remove('wk-new'); void el.offsetWidth; el.style.setProperty('--d', i); el.classList.add('wk-new'); });
+    }
+    sec.addEventListener('animationend', function(e){ if (e.target.classList && e.target.classList.contains('wk-new')) e.target.classList.remove('wk-new'); });
+    function apply(f){
+      var shown = 0, back = [];
+      btns.forEach(function(b){ b.setAttribute('aria-pressed', b.getAttribute('data-f') === f ? 'true' : 'false'); });
+      cards.forEach(function(c){
+        var wasHidden = c.hidden, any = false;
+        $$('.wk-li', c).forEach(function(li){ var on = has(li, f); if (on){ any = true; shown++; } if (li.hidden === on){ li.hidden = !on; if (on && !wasHidden) back.push(li); } });
+        c.hidden = !any; if (any && wasHidden) back.push(c);
+      });
+      if (tools){ var t = has(tools, f); if (tools.hidden === t){ tools.hidden = !t; if (t) back.push(tools); } }
+      mason(); slideIn(back);
+      if (live) live.textContent = f === 'all' ? 'Showing all ' + shown + ' items.' : 'Showing ' + shown + ' items in ' + names[f] + '.';
+    }
+    /* two columns, balanced: keep the reading order (01 to 03 left, the rest right) when the split is close,
+       otherwise pick the most even split; the first card always starts the left column */
+    var grid = $('.wk-grid', sec), GAP = 18, one = window.matchMedia ? window.matchMedia('(max-width: 900px)') : null, mt = 0;
+    function mason(){
+      if (!grid) return;
+      if (one && one.matches){ grid.classList.remove('wk-mason'); cards.forEach(function(c){ c.style.gridColumn = ''; c.style.gridRowEnd = ''; }); return; }
+      grid.classList.add('wk-mason');
+      var vis = cards.filter(function(c){ return !c.hidden; }), hs = vis.map(function(c){ return c.offsetHeight + GAP; }), n = vis.length, tot = 0, best = 1, cost = Infinity, k, m, i, L;
+      hs.forEach(function(h){ tot += h; });
+      for (k = 1, L = 0; k < n; k++){ L += hs[k - 1]; if (Math.abs(tot - 2 * L) < cost){ cost = Math.abs(tot - 2 * L); best = (1 << k) - 1; } }
+      if (cost > 140) for (m = 1; m < (1 << n); m += 2){ for (i = 0, L = 0; i < n; i++) if (m & (1 << i)) L += hs[i]; if (Math.abs(tot - 2 * L) < cost - 1){ cost = Math.abs(tot - 2 * L); best = m; } }
+      vis.forEach(function(c, j){ c.style.gridColumn = (best & (1 << j)) ? '1' : '2'; c.style.gridRowEnd = 'span ' + Math.ceil(hs[j]); });
+    }
+    function later(){ cancelAnimationFrame(mt); mt = requestAnimationFrame(mason); }
+    mason(); window.addEventListener('resize', later); if (one && one.addEventListener) one.addEventListener('change', later);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(later);
+    if ('ResizeObserver' in window){ var ro = new ResizeObserver(later); cards.forEach(function(c){ ro.observe(c); }); }
+    btns.forEach(function(b){
+      b.addEventListener('click', function(){
+        var f = b.getAttribute('data-f'); if (b.getAttribute('aria-pressed') === 'true') return;
+        apply(f); S.track('work_filter', { f: f }); if (S.sfx) S.sfx('tap');
+      });
+    });
+  });
+
+  /* ---------- the command center: the numbers roll in, the tour works like the workbook's own tabs ----------
+     Every view has its own link (…/#cc-release), so one view can be sent straight to someone. */
+  safe(function(){
+    var st = $('.cc-stats'); if (!st || reduce || !window.__odo) return;
+    var os = $$('b', st).filter(function(b){ return /[0-9]/.test(b.textContent); }).map(function(b){ var o = window.__odo.odo(b); window.__odo.zero(o); return o; });
+    S.onView(st, function(){ os.forEach(function(o, i){ window.__odo.roll(o, 150 + i * 90); }); }, 0.5);
+  });
+  safe(function(){
+    var tour = $('#cc-tour'); if (!tour) return;
+    var tabs = $$('[role="tab"]', tour), panels = $$('[role="tabpanel"]', tour), cur = 0;
+    function idx(id){ for (var i = 0; i < panels.length; i++) if (panels[i].id === id) return i; return -1; }
+    function show(i, focus, keep){
+      cur = i;
+      tabs.forEach(function(t, k){ var on = k === i; t.setAttribute('aria-selected', on ? 'true' : 'false'); t.tabIndex = on ? 0 : -1; panels[k].hidden = !on; });
+      if (focus) tabs[i].focus();
+      if (keep){ try { history.replaceState(null, '', '#' + panels[i].id); } catch (e){} }
+      var bar = tabs[i].parentNode; if (bar.scrollWidth > bar.clientWidth) bar.scrollLeft = Math.max(0, tabs[i].offsetLeft - (bar.clientWidth - tabs[i].offsetWidth) / 2);
+      S.track('cc_view', { id: panels[i].id });
+    }
+    tabs.forEach(function(t, i){
+      t.addEventListener('click', function(){ if (i !== cur){ show(i, false, true); if (S.sfx) S.sfx('tap'); } });
+      t.addEventListener('keydown', function(e){
+        var n = tabs.length, j = -1;
+        if (e.key === 'ArrowRight') j = (i + 1) % n; else if (e.key === 'ArrowLeft') j = (i - 1 + n) % n; else if (e.key === 'Home') j = 0; else if (e.key === 'End') j = n - 1;
+        if (j > -1){ e.preventDefault(); show(j, true, true); }
+      });
+    });
+    function go(i){ show(i, false, true); tour.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }); }
+    /* the week's habits and any other link into a view open that tab */
+    $$('a[href^="#cc-"]').forEach(function(a){
+      var i = idx(a.getAttribute('href').slice(1)); if (i < 0) return;
+      a.addEventListener('click', function(e){ e.preventDefault(); go(i); });
+    });
+    function fromHash(){ var i = idx(location.hash.slice(1)); if (i > -1){ show(i, false, false); setTimeout(function(){ tour.scrollIntoView({ block: 'start' }); }, 60); } }
+    window.addEventListener('hashchange', fromHash); fromHash();
+    /* copy a view's link, with a fallback for browsers that keep the clipboard closed */
+    $$('.cc-copy', tour).forEach(function(b){
+      var label = b.textContent, t = 0;
+      b.addEventListener('click', function(){
+        var url = location.origin + location.pathname + '#' + b.getAttribute('data-link');
+        function done(ok){ clearTimeout(t); b.textContent = ok ? 'Link copied' : 'Copy failed: ' + url; b.classList.add('done'); t = setTimeout(function(){ b.textContent = label; b.classList.remove('done'); }, 2600); }
+        function old(){ var ta = document.createElement('textarea'); ta.value = url; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;left:-9999px;top:0'; document.body.appendChild(ta); ta.select(); var ok = false; try { ok = document.execCommand('copy'); } catch (e){} document.body.removeChild(ta); done(ok); }
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(function(){ done(true); }, old); else old();
+        S.track('cc_link', { id: b.getAttribute('data-link') });
+      });
+    });
+  });
+
+  /* ---------- make the call: REL-13, three moves, and the score, checklist and call follow ----------
+     The four what-if results are the workbook's own (62, 69, 57, 73). The pairs come from the same sheet:
+     its six component scores for each move, combined with its own weights (30, 20, 15, 15, 10, 10).
+     Fixing bugs and slipping the date overlap almost entirely, so together they still score 69. */
+  safe(function(){
+    var rc = $('.rc'); if (!rc) return;
+    var SC = { '': 54, f: 62, s: 69, l: 57, fs: 69, fl: 65, sl: 72, fsl: 73 };
+    var SAY = {
+      '': 'No-go. Three Sev2 bugs are open, QA has half the days it needs, and three changes landed late.',
+      f: 'Not a go yet: QA still has three days of the six it needs.',
+      s: 'Not a go yet: three Sev2 bugs are still open.',
+      l: 'Still red. Pushing the late changes out on its own doesn’t get the release out of red.',
+      fs: 'Conditional go, once regression is back at 95% and the sign-offs are in. The late changes stay in, so they’re tested first.',
+      fl: 'Not a go yet: QA still has three days of the six it needs.',
+      sl: 'Not a go yet: three Sev2 bugs are still open.',
+      fsl: 'Conditional go, once regression is back at 95% and the two overdue sign-offs are in.'
+    };
+    var ins = $$('.rc-mv input', rc), num = $('#rc-n', rc), bn = $('.rc-bn', rc), vd = $('.rc-v', rc), say = $('.rc-say', rc), shown = 54, raf = 0;
+    var item = { f: $('[data-k="sev2"]', rc), s: $('[data-k="days"]', rc), l: $('[data-k="late"]', rc) };
+    function key(){ return ['f', 's', 'l'].filter(function(m){ return ins.some(function(x){ return x.getAttribute('data-m') === m && x.checked; }); }).join(''); }
+    function count(to){
+      cancelAnimationFrame(raf); if (reduce){ shown = to; num.textContent = to; return; }
+      var from = shown, t0 = performance.now(), D = 650;
+      (function step(now){ var p = Math.min(1, (now - t0) / D), e = 1 - Math.pow(1 - p, 3); shown = Math.round(from + (to - from) * e); num.textContent = shown; if (p < 1) raf = requestAnimationFrame(step); })(t0);
+    }
+    function update(user){
+      var k = key(), sc = SC[k], band = sc >= 80 ? 'green' : sc >= 60 ? 'amber' : 'red';
+      rc.setAttribute('data-band', band); rc.style.setProperty('--s', sc); count(sc);
+      bn.textContent = band.charAt(0).toUpperCase() + band.slice(1);
+      vd.textContent = sc < 60 ? 'No-go' : (k.indexOf('f') < 0 || k.indexOf('s') < 0) ? 'Not yet' : sc >= 80 ? 'Go' : 'Conditional go';
+      ['f', 's', 'l'].forEach(function(m){ var li = item[m], on = k.indexOf(m) > -1, sm = $('small', li); if (!li) return;
+        if (li.classList.contains('ok') !== on){ li.classList.toggle('ok', on); if (user && !reduce){ li.classList.remove('flip'); void li.offsetWidth; li.classList.add('flip'); } }
+        if (sm) sm.textContent = sm.getAttribute(on ? 'data-yes' : 'data-no'); });
+      say.innerHTML = '<span class="sr">Score ' + sc + ', ' + band + '. </span>' + SAY[k];
+      if (user){ S.track('release_call', { moves: k || 'none', score: sc }); if (S.sfx) S.sfx('tap'); }
+    }
+    ins.forEach(function(x){ x.addEventListener('change', function(){ update(true); }); });
+    $$('.rc-list li', rc).forEach(function(li){ li.addEventListener('animationend', function(){ li.classList.remove('flip'); }); });
+    update(false);
   });
 
   /* ---------- play: each chapter ticks off on the list as you finish its level ---------- */

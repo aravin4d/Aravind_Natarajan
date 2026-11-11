@@ -124,7 +124,7 @@
 
   /* ---------- ambience ---------- */
   var speed = 0, lastY = window.pageYOffset, lastT = performance.now();
-  window.addEventListener('scroll', function(){ var now = performance.now(), y = window.pageYOffset, v = Math.abs(y - lastY) / Math.max(8, now - lastT) * 1000; lastY = y; lastT = now; if (v < 20000) speed = Math.max(speed, v); }, { passive: true });
+  window.addEventListener('scroll', function(){ var now = performance.now(), y = S.geo ? S.geo().y : window.pageYOffset, v = Math.abs(y - lastY) / Math.max(8, now - lastT) * 1000; lastY = y; lastT = now; if (v < 20000) speed = Math.max(speed, v); }, { passive: true });
   function where(){
     var max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight), p = window.pageYOffset / max, sp = S.summitP ? S.summitP() : 0.62;
     var alt = p <= sp ? p / sp : 1 - (p - sp) / Math.max(0.01, 1 - sp), ct = document.getElementById('contact'), fire = 0;

@@ -1,9 +1,8 @@
 /* Wave 4 · Part 2: every world reveals its chapters in its own weather.
    Night: mist lifts off the Nilgiris. Morning: frost thaws off the glass. Dusk: the wind blows the sand away.
-   The four Experience chapters are open windows onto the landscape. Each starts covered, clears as you scroll
-   into it, finishes on its own once it's past halfway, and covers over again once it's well off screen, so it
-   plays again next time. The Moments cards clear the same way, smaller and quicker, and their numbers roll
-   once they're clear. Each block draws on one small canvas, from a coarse grid, and only while it changes. */
+   In The work, the four rows of the career strip are open windows onto the landscape. Each starts covered, clears
+   as you scroll into it, finishes on its own once it's past halfway, and covers over again once it's well off
+   screen, so it plays again next time. The theme cards clear the same way, smaller and quicker. Each block draws on one small canvas, from a coarse grid, and only while it changes. */
 (function(){
   'use strict';
   var S = window.__site; if (!S || S.reduce) return;
@@ -193,11 +192,12 @@
       if ((vis && (drift || V.parts.length || V.glint >= 0 || (V.lock && V.p < 1))) || (V.lock && V.p < 1)) more = true; }
     if (more) kick();
   }
-  function kick(){ if (!raf) raf = requestAnimationFrame(frame); }
+  var ledg = document.getElementById('ledger');
+  function kick(){ if (ledg && ledg.tagName === 'DIALOG' && !ledg.open) return; if (!raf) raf = requestAnimationFrame(frame); }
 
   function setup(){
-    $$('#experience .xc').forEach(function(cv, i){ add(cv, false, i); });
-    $$('#experience .xs-grid').forEach(function(g, gi){ $$('.xs-m', g).forEach(function(m, i){ add(m, true, 10 + gi * 6 + i); }); });
+    $$('#work .wk-card').forEach(function(c, i){ add(c, true, 10 + i); });
+    $$('#work .wk-row').forEach(function(r, i){ add(r, false, i); });
     if (!veils.length) return;
     root.classList.add('vl-on');
     S.onScroll(kick); window.addEventListener('resize', function(){ veils.forEach(function(V){ V.drawn = -1; }); kick(); });

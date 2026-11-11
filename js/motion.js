@@ -29,10 +29,10 @@
   window.__spring = { get: sp, wake: wake };
 
   /* ---------- W2-01: magnetic pills and buttons, press-squish, jelly on enter, a spotlight on cards ---------- */
-  var MAG = '.btn, .btn-cv, .tod button, .snd, .dlg-x, .cs-go, .chip';
-  var SQ = '.btn, .btn-cv, .tod button, .snd, .reg-tin, .dlg-x, .af-card, .cs-row a, .xs-m button, .cs-next button, .env, .h-peek, .mk-card, .trail-btn, .run-btn';
-  var JEL = '.mk-card, .xs-m, .oc-card, .ld-block, .ld-story, .cs-card, .cs-stat2, .future, .xp-end, .af-card, .rh-card';
-  var LIT = '.mk-card, .xs-m, .oc-card, .ld-block, .cs-card, .cs-stat2, .future, .xp-end, .rh-card';
+  var MAG = '.btn, .btn-cv, .tod button, .snd, .dlg-x, .cs-go, .chip, .wk-filter button';
+  var SQ = '.btn, .btn-cv, .tod button, .snd, .reg-tin, .dlg-x, .af-card, .cs-row a, .wk-go, .wk-filter button, .cc-tabs button, .cc-to, .rc-mv, .cs-next button, .env, .h-peek, .mk-card, .trail-btn, .run-btn';
+  var JEL = '.mk-card, .wk-card, .wk-tools, .cc-card, .cc-end, .oc-card, .ld-block, .ld-story, .cs-card, .cs-stat2, .future, .xp-end, .af-card, .rh-card';
+  var LIT = '.mk-card, .wk-card, .wk-tools, .cc-card, .cc-end, .oc-card, .ld-block, .cs-card, .cs-stat2, .future, .xp-end, .rh-card';
   var ptr = { x: 0, y: 0, vx: 0, vy: 0, t: 0 };
   safe(function(){
     if (reduce) return;
@@ -83,8 +83,8 @@
      glitch: it flickers in like a bug being found · every section marker ticks in, one character at a time */
   safe(function(){
     if (reduce) return;
-    var FX = [['#letter-sec .s-h', 'ink'], ['#story .story .lead', 'rise'], ['#proof .s-h', 'rise'], ['#cases .s-h', 'ink'], ['#experience .s-h', 'clear'], ['#built .s-h', 'scramble'],
-              ['#leadership .s-h', 'rise'], ['#skills .s-h', 'scramble'], ['#summit h2', 'rise'], ['#offclock .s-h', 'ink'], ['#contact .s-h', 'rise']];
+    var FX = [['#letter-sec .s-h', 'rise'], ['#story .story .lead', 'rise'], ['#proof .s-h', 'rise'], ['#command-center .s-h', 'rise'], ['#cases .s-h', 'rise'], ['#work .s-h', 'rise'], ['#built .s-h', 'rise'],
+              ['#leadership .s-h', 'rise'], ['#skills .s-h', 'rise'], ['#summit h2', 'rise'], ['#offclock .s-h', 'rise'], ['#contact .s-h', 'rise']];
     var LO = 'abcdefghijklmnopqrstuvwxyz', UP = 'ABCDEFGHJKLMNOPRSTUVWXYZ', GL = '/\\|<>_-=+*#', items = [], inkN = 0;
     function srSpan(txt){ var s = document.createElement('span'); s.className = 'sr'; s.textContent = txt; return s; }
     function split(el, chars){
@@ -189,8 +189,8 @@
     var MK = { rise: mkRise, scramble: mkScramble, ink: mkInk, clear: mkClear, glitch: mkGlitch };
     FX.forEach(function(f){ var el = $(f[0]); if (!el) return; var m = MK[f[1]](el); m.el = el; m.on = false; m.reset(); items.push(m); });
     $$('main .s-k, #summit .alt-big').forEach(function(el){ var m = mkTick(el); m.el = el; m.on = false; items.push(m); });
-    function check(){ var vh = window.innerHeight;
-      items.forEach(function(it){ var r = it.el.getBoundingClientRect();
+    function check(){ var vh = S.geo ? S.geo().vh : window.innerHeight;
+      items.forEach(function(it){ var r = S.box ? S.box(it.el) : it.el.getBoundingClientRect();
         if (r.bottom < -40 || r.top > vh + 40){ if (it.on){ it.on = false; it.reset(); } return; }
         if (!it.on && r.top < vh * 0.9 && r.bottom > vh * 0.06){ it.on = true; it.play(r.top > vh * 0.42 ? 1 : -1); } }); }
     S.onScroll(check); window.addEventListener('resize', check); setTimeout(check, 80);
@@ -214,8 +214,9 @@
       'letter-sec': 'M3 6.5h18v11H3zM3 7l9 6.5L21 7',
       story: 'M8.2 13.6c-1.7 0-2.6-2-2.6-4.3S6.7 4.5 8.2 4.5s2.4 2.7 2.4 4.9-.7 4.2-2.4 4.2zM6.8 16.3h2.9M15.8 19.5c-1.7 0-2.6-2-2.6-4.3s1.1-4.8 2.6-4.8 2.4 2.7 2.4 4.9-.7 4.2-2.4 4.2z',
       proof: 'M3 19l5-6 4 3 6-9 3 3M3 21h18',
+      'command-center': 'M4 4h7v7H4zM13 4h7v4h-7zM13 10h7v10h-7zM4 13h7v7H4z',
       cases: 'M10.5 17a6.5 6.5 0 1 0 0-13 6.5 6.5 0 0 0 0 13zM15.4 15.4L21 21',
-      experience: 'M4.5 19.5L17 7M15 5l4 4M5.8 16.2l2 2M3 21l2.5-2.5',
+      work: 'M4.5 19.5L17 7M15 5l4 4M5.8 16.2l2 2M3 21l2.5-2.5',
       built: 'M14.7 6.3a4 4 0 0 0 5 5L11 20a2.1 2.1 0 0 1-3-3l8.7-8.7a4 4 0 0 0-2-2z',
       leadership: 'M8 10.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM16 10.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM3 20c0-3 2.4-5 5-5s5 2 5 5M11 20c0-3 2.4-5 5-5s5 2 5 5M8 15h8',
       summit: 'M6 21V3.5M6.6 4H18l-2.6 4 2.6 4H6.6',
@@ -265,8 +266,8 @@
 
   /* ---------- W2-11: altitude notes, scribbled in the margin; the handwriting changes as the air thins ---------- */
   safe(function(){
-    var NOTES = [['letter-sec', 'Base camp. Grab the letter before we head up.'], ['story', 'Everyone starts somewhere. Mine was a buggy phone.'], ['proof', 'Every number here has a story. Tap one.'],
-                 ['cases', 'This is where the thinking is.'], ['experience', 'Same pattern, every company.'], ['built', 'Built these on the way up.'],
+    var NOTES = [['letter-sec', 'Base camp. Grab the letter before we head up.'], ['story', 'Everyone starts somewhere. Mine was a buggy phone.'], ['proof', 'Every number here has a story. Tap one.'], ['command-center', 'Where every go/no-go started.'],
+                 ['cases', 'This is where the thinking is.'], ['work', 'Same pattern, every company.'], ['built', 'Built these on the way up.'],
                  ['leadership', 'Roped in. Nobody summits alone.'], ['skills', 'Gear check.'], 
                  ['offclock', 'Boots off. The fun stuff.'], ['contact', 'Camp’s set. The fire’s on.']];
     var defs = document.createElementNS(NS, 'svg'); defs.setAttribute('width', '0'); defs.setAttribute('height', '0'); defs.setAttribute('aria-hidden', 'true'); defs.style.position = 'absolute';
