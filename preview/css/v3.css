@@ -292,3 +292,57 @@ html.js .open.gone{ clip-path:inset(0 0 100% 0); }
 @media (max-width:700px){ .camp-no{ right:-6%; -webkit-text-stroke-width:1px; } }
 @media (prefers-reduced-motion: reduce){ .band-t{ animation:none; flex-wrap:wrap; width:auto; padding:0 24px; } .band-t span + span{ display:none; } .band-t span{ white-space:normal; font-size:clamp(26px,4vw,44px); } .camp-no{ animation:none; } }
 @media print{ .open, .pgl, .band, .camp-no{ display:none !important; } }
+
+/* ============ round three · 11 Nov ============ */
+/* the résumé toast never sits on the route's bottom-left camp */
+html.rt-near .cvt{ opacity:0 !important; pointer-events:none !important; }
+/* short laptop screens: a tighter panel, so the route can still hold the screen and walk the camps */
+@media (max-height:780px) and (min-width:1001px){
+  .rt-map{ min-height:400px; } .rt-panel{ padding:18px 26px 20px; } .rt-panel h3{ font-size:30px; } .rt-scope{ margin-top:8px; font-size:14.5px; }
+  .rt-nums{ margin:10px 0 2px; padding-top:10px; } .rt-nums b{ font-size:26px; } .rt-lines{ margin-top:6px; } .rt-lines li{ padding:8px 0 9px; } .rt-lines p{ font-size:14.5px; }
+  .rt-lines li:nth-child(n+4){ display:none; } .rt-pinned .rt-stick{ padding-top:60px; }
+}
+/* the letter and its handwriting sit clear of the name on short screens */
+@media (max-height:860px) and (min-width:901px){ .h-peek{ top:62px; zoom:.74; } }
+
+/* built with AI: the strip under the hero */
+.ai{ position:relative; padding:clamp(34px,6vh,60px) 0 clamp(30px,5vh,52px); background:linear-gradient(180deg, rgba(var(--veil),.86), rgba(var(--veil),.7)); border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+.ai-h{ margin:10px 0 0; font:400 clamp(30px,4.4vw,58px)/1.02 var(--serif); letter-spacing:-.03em; color:var(--ink); }
+.ai-list{ display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:12px; margin:24px 0 0; padding:0; list-style:none; }
+.ai-list a{ position:relative; display:flex; flex-direction:column; gap:6px; height:100%; padding:18px 18px 20px; border-radius:16px; border:1px solid var(--line); background:var(--panel); color:var(--ink); text-decoration:none; overflow:hidden; transition:transform .3s var(--e), border-color .25s ease, box-shadow .3s ease; }
+.ai-list a::before{ content:''; position:absolute; inset:0; background:linear-gradient(110deg, rgba(255,255,255,0) 35%, var(--glow) 50%, rgba(255,255,255,0) 65%); transform:translateX(-120%); opacity:.55; pointer-events:none; }
+.ai-list li:nth-child(1) a::before{ animation:aiSweep 7s ease-in-out 1s infinite; } .ai-list li:nth-child(2) a::before{ animation:aiSweep 7s ease-in-out 1.6s infinite; }
+.ai-list li:nth-child(3) a::before{ animation:aiSweep 7s ease-in-out 2.2s infinite; } .ai-list li:nth-child(4) a::before{ animation:aiSweep 7s ease-in-out 2.8s infinite; }
+@keyframes aiSweep{ 0%{ transform:translateX(-120%); } 18%, 100%{ transform:translateX(120%); } }
+.ai-list a:hover{ transform:translateY(-5px); border-color:var(--accent); box-shadow:0 26px 50px -30px var(--glow); }
+.ai-list small{ font:500 11.5px var(--mono); color:var(--accent2); }
+.ai-list b{ font:400 26px/1.1 var(--serif); letter-spacing:-.02em; }
+.ai-list span{ font-size:14.5px; line-height:1.5; color:var(--muted); }
+.ai-sum{ margin:18px 0 0; font-size:15.5px; color:var(--muted); } .ai-sum b{ color:var(--ink); font-weight:600; } .ai-sum a{ margin-left:10px; font-weight:600; color:var(--accent); }
+@media (max-width:1000px){ .ai-list{ grid-template-columns:repeat(2, minmax(0,1fr)); } }
+@media (max-width:560px){ .ai-list{ display:flex; gap:10px; margin-left:-24px; margin-right:-24px; padding:0 24px 8px; overflow-x:auto; scroll-snap-type:x mandatory; scrollbar-width:none; } .ai-list li{ flex:0 0 80%; scroll-snap-align:start; } }
+
+/* before and after: tiles arrive one by one, lift on hover and run their change again */
+.js .ba .ba-i{ opacity:0; transform:translateY(22px) rotate(-1.2deg); transition:opacity .6s ease, transform .7s var(--e), border-color .25s ease, box-shadow .3s ease; }
+.js .ba.ba-go .ba-i{ opacity:1; transform:none; }
+.js .ba.ba-go .ba-i:nth-child(2){ transition-delay:.08s; } .js .ba.ba-go .ba-i:nth-child(3){ transition-delay:.16s; } .js .ba.ba-go .ba-i:nth-child(4){ transition-delay:.24s; } .js .ba.ba-go .ba-i:nth-child(5){ transition-delay:.32s; } .js .ba.ba-go .ba-i:nth-child(6){ transition-delay:.4s; }
+.ba-i{ position:relative; overflow:hidden; cursor:default; }
+.js .ba.ba-go .ba-i:hover{ transform:translateY(-6px); transition-delay:0s; border-color:var(--accent); box-shadow:0 26px 50px -30px var(--glow); }
+.ba-bar{ height:8px; border-radius:4px; }
+.ba-i.replay .ba-bar i{ transition:none !important; width:calc(var(--a) * 100%) !important; background:var(--faint) !important; }
+.ba-v s{ transition:opacity .3s ease; } .ba-i:hover .ba-v s{ opacity:.55; }
+
+/* command center: the system flow passes a signal along, and the week's cards answer the cursor */
+.cc-flow li{ transition:transform .3s var(--e), box-shadow .3s ease, border-color .25s ease; }
+.cc-flow.live li{ animation:flowLit 7.5s ease-in-out infinite; animation-delay:calc(var(--n,0) * .9s); }
+@keyframes flowLit{ 0%, 14%, 100%{ box-shadow:none; transform:none; } 5%{ box-shadow:0 0 0 2px var(--accent), 0 18px 36px -22px var(--glow); transform:translateY(-4px); } }
+.cc-flow li:hover{ transform:translateY(-4px); }
+.cc-rh li{ position:relative; overflow:hidden; transition:transform .3s var(--e), border-color .25s ease, box-shadow .3s ease; }
+.cc-rh li::after{ content:''; position:absolute; left:0; top:0; height:3px; width:100%; background:var(--accent); transform:scaleX(0); transform-origin:0 50%; transition:transform .45s var(--e); }
+.cc-rh li:hover{ transform:translateY(-6px) rotate(-.4deg); border-color:var(--accent); box-shadow:0 26px 50px -30px var(--glow); }
+.cc-rh li:hover::after{ transform:scaleX(1); }
+
+/* off the clock: a scrapbook, slightly off-square until you reach for a card */
+@media (min-width:701px){ .oc-card{ rotate:-.7deg; transition:transform .3s var(--e), rotate .35s var(--e); } .oc-card:nth-child(even){ rotate:.6deg; } .oc-card:nth-child(3n){ rotate:-.3deg; } .oc-card:hover, .oc-card:focus-within{ rotate:0deg; } }
+
+@media (prefers-reduced-motion: reduce){ .ai-list a::before, .cc-flow.live li{ animation:none !important; } .js .ba .ba-i{ opacity:1; transform:none; transition:none; } .oc-card{ rotate:0deg !important; } }

@@ -135,45 +135,107 @@
     if (map && rt){ var h2 = hint(window.matchMedia && window.matchMedia('(max-width: 900px)').matches ? 'Four roles: swipe the cards' : 'Four roles: pick a camp, or keep scrolling'); h2.classList.add('nudge-rt'); map.insertBefore(h2, map.firstChild); }
   });
 
-  /* ---------- 3d · bench: the five tools as one workbench. One tool on the bench at a time, its result first,
-     the detail one tap away. It changes tool by itself until you take over. ---------- */
-  fx('bench', function(){
-    var box = $('#built .tools'), tools = $$('#built .tool'); if (!box || tools.length < 2) return;
+  /* ---------- 3d · tools: every tool keeps its full story, and leads with its result in large type ---------- */
+  fx('toolstat', function(){
     var STAT = [['1 click', 'for a complete bug report, where the team retyped up to forty a day'], ['18 min to under 1', 'to create a test order, with about $30 saved on each'], ['~4 hours', 'of QA time back every week, and no more after-hours escalations'], ['Record once', 'and get pytest and Appium 2 scripts in the Page Object pattern'], ['100,000', 'redundant calls a day found and fixed, along with two runaway services']];
-    var rail = document.createElement('div'), tabs = [], cur = 0, timer = 0, auto = !reduce, seen = false, DUR = 7000;
-    rail.className = 'bench-rail'; rail.setAttribute('role', 'tablist'); rail.setAttribute('aria-label', 'Tools I built');
-    tools.forEach(function(t, i){
-      var copy = $('.tool-copy', t), h = $('h3', t), tag = $('.tool-tag', t); if (!copy || !h) return;
-      t.id = t.id || 'tool-' + (i + 1); t.setAttribute('role', 'tabpanel');
-      /* the result goes first; everything after the first paragraph folds under "How it works" */
-      var st = document.createElement('p'); st.className = 'tool-stat'; st.innerHTML = '<b></b><span></span>'; st.firstChild.textContent = (STAT[i] || ['', ''])[0]; st.lastChild.textContent = (STAT[i] || ['', ''])[1];
-      (tag || h).parentNode.insertBefore(st, (tag || h).nextSibling);
-      var rest = [], n = st.nextSibling, firstP = false;
-      while (n){ var nx = n.nextSibling; if (n.nodeType === 1){ if (n.tagName === 'P' && !firstP) firstP = true; else rest.push(n); } n = nx; }
-      if (rest.length){ var det = document.createElement('details'), sm = document.createElement('summary'); det.className = 'tool-more'; sm.textContent = 'How it works'; det.appendChild(sm); rest.forEach(function(e){ det.appendChild(e); }); copy.appendChild(det); det.addEventListener('toggle', function(){ if (det.open) hold(); }); }
-      var b = document.createElement('button'); b.type = 'button'; b.className = 'bench-tab'; b.setAttribute('role', 'tab'); b.setAttribute('aria-controls', t.id);
-      b.innerHTML = '<small></small><b></b><i aria-hidden="true"></i>'; b.children[0].textContent = '0' + (i + 1); b.children[1].textContent = h.textContent;
-      b.addEventListener('click', function(){ hold(); show(i, true); });
-      b.addEventListener('keydown', function(e){ var j = -1; if (e.key === 'ArrowRight' || e.key === 'ArrowDown') j = (i + 1) % tools.length; else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') j = (i - 1 + tools.length) % tools.length; if (j > -1){ e.preventDefault(); hold(); show(j, true); tabs[j].focus(); } });
-      rail.appendChild(b); tabs.push(b);
+    $$('#built .tool').forEach(function(t, i){
+      var h = $('h3', t), tag = $('.tool-tag', t), at = tag || h; if (!at || !STAT[i]) return;
+      var st = document.createElement('p'); st.className = 'tool-stat'; st.innerHTML = '<b></b><span></span>'; st.firstChild.textContent = STAT[i][0]; st.lastChild.textContent = STAT[i][1];
+      at.parentNode.insertBefore(st, at.nextSibling);
     });
-    if (tabs.length !== tools.length) return;
-    box.parentNode.insertBefore(rail, box); box.classList.add('bench'); rail.style.setProperty('--dur', DUR + 'ms');
-    function hold(){ auto = false; clearTimeout(timer); rail.classList.add('held'); }
-    function show(i, user){
-      cur = i;
-      tools.forEach(function(t, k){ t.classList.toggle('on', k === i); });
-      tabs.forEach(function(b, k){ var on = k === i; b.setAttribute('aria-selected', on ? 'true' : 'false'); b.tabIndex = on ? 0 : -1; b.classList.remove('run'); });
-      if (!reduce){ tools[i].classList.remove('bench-in'); void tools[i].offsetWidth; tools[i].classList.add('bench-in'); }
-      try { window.dispatchEvent(new Event('scroll')); } catch (e){}   /* lets the reveal and the floating device pick the new tool up */
-      if (auto && seen){ void tabs[i].offsetWidth; tabs[i].classList.add('run'); clearTimeout(timer); timer = setTimeout(function(){ show((cur + 1) % tools.length, false); }, DUR); }
-      if (user){ S.track('tool_tab', { id: tools[i].id }); if (S.sfx) S.sfx('tap'); }
+  });
+
+  /* ---------- 3f · story: a result's story opens in one panel under the ridge, so cards never grow over each other ---------- */
+  fx('story', function(){
+    var climb = $('#proof .climb'), mks = $$('#proof .mk'); if (!climb || !mks.length || !('MutationObserver' in window)) return;
+    if (!(window.matchMedia && window.matchMedia('(min-width: 901px)').matches)){ root.classList.remove('fx-story'); return; }
+    var box = document.createElement('div'), idle = 'Hover or tap a result for the story behind it.'; box.className = 'mk-story'; box.setAttribute('aria-live', 'polite');
+    box.innerHTML = '<p class="mk-story-idle"></p>'; box.firstChild.textContent = idle; climb.parentNode.insertBefore(box, climb.nextSibling);
+    var cur = null;
+    function show(m){
+      if (m === cur) return; cur = m;
+      var n = $('.mk-n', m), t = $('.mk-t', m), d = $('.mk-d', m), c = $('.mk-c', m);
+      box.innerHTML = '<b class="mk-story-n"></b><div><p class="mk-story-t"></p><p class="mk-story-d"></p></div>';
+      box.children[0].textContent = (n && (n.getAttribute('aria-label') || n.textContent)) || ''; $('.mk-story-t', box).textContent = (t ? t.textContent : '') + (c ? ' · ' + c.textContent : '');
+      if (d) $('.mk-story-d', box).innerHTML = d.innerHTML;
+      box.classList.remove('in'); void box.offsetWidth; box.classList.add('in');
     }
-    show(0, false);
-    if ('IntersectionObserver' in window) new IntersectionObserver(function(es){ seen = es[0].isIntersecting; clearTimeout(timer); if (seen && auto) show(cur, false); else tabs.forEach(function(b){ b.classList.remove('run'); }); }, { threshold: 0.35 }).observe(box);
-    /* a link to a tool that is not on the bench puts it there */
-    function forHash(){ var id = location.hash.slice(1), k = -1; tools.forEach(function(t, n){ if (id && (t.id === id || (t.querySelector && t.querySelector('#' + (window.CSS && CSS.escape ? CSS.escape(id) : id))))) k = n; }); if (k > -1){ hold(); show(k, false); } }
-    window.addEventListener('hashchange', function(){ safe(forHash); }); safe(forHash);
+    var mo = new MutationObserver(function(rs){ rs.forEach(function(r){ if (r.target.classList.contains('on')) show(r.target); }); });
+    mks.forEach(function(m){ mo.observe(m, { attributes: true, attributeFilter: ['class'] }); m.addEventListener('focus', function(){ show(m); }); });
+  });
+
+  /* ---------- 3g · views: the eight workbook views are named up front, with a Next button on every one ---------- */
+  fx('ccnav', function(){
+    var tour = document.getElementById('cc-tour'); if (!tour) return;
+    var tabs = $$('[role="tab"]', tour), panels = $$('[role="tabpanel"]', tour), win = $('.cc-win', tour); if (tabs.length < 2 || !win) return;
+    var rail = document.createElement('div'); rail.className = 'cc-top'; rail.setAttribute('role', 'group'); rail.setAttribute('aria-label', 'The eight views');
+    var pills = tabs.map(function(t, i){ var b = document.createElement('button'); b.type = 'button'; b.innerHTML = '<small></small><span></span>'; b.firstChild.textContent = i + 1; b.lastChild.textContent = t.textContent.trim(); b.addEventListener('click', function(){ t.click(); }); rail.appendChild(b); return b; });
+    win.parentNode.insertBefore(rail, win);
+    panels.forEach(function(p, i){
+      var pane = $('.cc-pane', p) || p, j = (i + 1) % tabs.length, b = document.createElement('button'); b.type = 'button'; b.className = 'cc-next';
+      b.innerHTML = '<small></small><span></span>'; b.firstChild.textContent = 'View ' + (i + 1) + ' of ' + tabs.length + ' · next'; b.lastChild.textContent = tabs[j].textContent.trim() + ' →';
+      b.addEventListener('click', function(){ tabs[j].click(); }); pane.appendChild(b);
+    });
+    function sync(){ tabs.forEach(function(t, i){ pills[i].setAttribute('aria-pressed', t.getAttribute('aria-selected') === 'true' ? 'true' : 'false'); }); }
+    if ('MutationObserver' in window) tabs.forEach(function(t){ new MutationObserver(sync).observe(t, { attributes: true, attributeFilter: ['aria-selected'] }); });
+    sync();
+  });
+
+  /* ---------- 3h · lead: the long grids in How I lead answer the reader. Tiles open on hover or tap, stories take turns. ---------- */
+  fx('lead', function(){
+    var mg = $('#leadership .mg');
+    if (mg){
+      var tiles = $$(':scope > div', mg); mg.classList.add('mg-x');
+      tiles.forEach(function(t, i){
+        var dt = $('dt', t); if (!dt) return; t.tabIndex = 0; t.setAttribute('role', 'button'); t.setAttribute('aria-expanded', 'false');
+        function open(on){ t.classList.toggle('on', on); t.setAttribute('aria-expanded', on ? 'true' : 'false'); }
+        t.addEventListener('pointerenter', function(e){ if (e.pointerType === 'mouse') open(true); });
+        t.addEventListener('pointerleave', function(e){ if (e.pointerType === 'mouse') open(false); });
+        t.addEventListener('click', function(){ open(!t.classList.contains('on')); });
+        t.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); open(!t.classList.contains('on')); } });
+        if (!i) open(true);
+      });
+    }
+    var st = $('#leadership .ld-stories'), stories = st ? $$(':scope > .ld-story', st) : [];
+    if (stories.length > 1 && stories.every(function(x){ return $('h3, h4', x); })){
+      var rail = document.createElement('div'), tabs = [], cur = 0, timer = 0, auto = !reduce, near = false; rail.className = 'ld-rail'; rail.setAttribute('role', 'tablist');
+      function show(i, user){
+        cur = i; stories.forEach(function(x, k){ x.classList.toggle('on', k === i); }); tabs.forEach(function(b, k){ b.setAttribute('aria-selected', k === i ? 'true' : 'false'); b.classList.remove('run'); });
+        try { window.dispatchEvent(new Event('scroll')); } catch (e){}
+        clearTimeout(timer); if (auto && near){ void tabs[i].offsetWidth; tabs[i].classList.add('run'); timer = setTimeout(function(){ show((cur + 1) % stories.length); }, 8000); }
+        if (user && S.sfx) S.sfx('tap');
+      }
+      stories.forEach(function(x, i){ var b = document.createElement('button'); b.type = 'button'; b.setAttribute('role', 'tab'); b.innerHTML = '<span></span><i aria-hidden="true"></i>'; b.firstChild.textContent = $('h3, h4', x).textContent; b.addEventListener('click', function(){ auto = false; show(i, true); }); rail.appendChild(b); tabs.push(b); });
+      st.parentNode.insertBefore(rail, st); st.classList.add('ld-x'); show(0);
+      st.addEventListener('pointerdown', function(){ auto = false; clearTimeout(timer); tabs.forEach(function(b){ b.classList.remove('run'); }); });
+      if ('IntersectionObserver' in window) new IntersectionObserver(function(es){ near = es[0].isIntersecting; if (near && auto) show(cur); else clearTimeout(timer); }, { threshold: 0.3 }).observe(st);
+    }
+  });
+
+  /* ---------- 3i · skills: one group at a time, the group that matters for the lens first; "All" shows everything ---------- */
+  fx('skills', function(){
+    var sk = $('#skills .sk'); if (!sk) return;
+    var groups = $$(':scope > div', sk).filter(function(g){ return $('h3', g); }); if (groups.length < 3) return;
+    var rail = document.createElement('div'), tabs = [], all = document.createElement('button'); rail.className = 'sk-rail'; rail.setAttribute('role', 'tablist'); rail.setAttribute('aria-label', 'Skill groups');
+    function show(i){ sk.classList.toggle('sk-all', i < 0); groups.forEach(function(g, k){ g.classList.toggle('on', k === i); }); tabs.forEach(function(b, k){ b.setAttribute('aria-selected', k === i ? 'true' : 'false'); }); all.setAttribute('aria-selected', i < 0 ? 'true' : 'false'); try { window.dispatchEvent(new Event('scroll')); } catch (e){} }
+    groups.forEach(function(g, i){ var b = document.createElement('button'); b.type = 'button'; b.setAttribute('role', 'tab'); b.innerHTML = '<span></span><small></small>'; b.firstChild.textContent = $('h3', g).textContent; b.lastChild.textContent = $$('.chip', g).length; b.addEventListener('click', function(){ show(i); if (S.sfx) S.sfx('tap'); }); rail.appendChild(b); tabs.push(b); });
+    all.type = 'button'; all.setAttribute('role', 'tab'); all.className = 'sk-allb'; all.innerHTML = '<span>All skills</span><small></small>'; all.lastChild.textContent = $$('.chip', sk).length; all.addEventListener('click', function(){ show(-1); }); rail.appendChild(all);
+    sk.parentNode.insertBefore(rail, sk); sk.classList.add('sk-x');
+    function first(){ var best = 0, bo = Infinity; groups.forEach(function(g, k){ var o = g.style.order === '' ? k : parseFloat(g.style.order); if (o < bo){ bo = o; best = k; } }); tabs.forEach(function(b, k){ b.style.order = groups[k].style.order; }); show(best); }
+    first(); setTimeout(first, 600);
+    if ('MutationObserver' in window) new MutationObserver(function(){ setTimeout(first, 30); }).observe(root, { attributes: true, attributeFilter: ['data-lens'] });
+  });
+
+  /* ---------- 3j · small motion: before/after tiles replay on hover; the system flow passes a signal along while on screen ---------- */
+  fx('replay', function(){
+    $$('.ba-i').forEach(function(t){
+      t.addEventListener('pointerenter', function(e){
+        if (reduce || e.pointerType !== 'mouse') return; var b = $('b[data-count]', t);
+        t.classList.add('replay'); void t.offsetWidth; requestAnimationFrame(function(){ t.classList.remove('replay'); if (b && window.__count) window.__count(b, 900); });
+      });
+    });
+    var flow = $('.cc-flow');
+    if (flow){ $$('li', flow).forEach(function(li, i){ li.style.setProperty('--n', i); }); if (!reduce && 'IntersectionObserver' in window) new IntersectionObserver(function(es){ flow.classList.toggle('live', es[0].isIntersecting); }, { threshold: 0.3 }).observe(flow); }
   });
 
   /* ---------- 3e · camps: each section shows its camp number, large and outlined (styling and drift are in v3.css) ---------- */
@@ -199,6 +261,23 @@
         $$('.cs-stat2', d).forEach(function(s, i){ s.style.animationDelay = (i % 5) * 70 + 'ms'; s.classList.add('sw'); io.observe(s); });
       }
       upd();
+    });
+    /* all eight as one read: previous and next at the top of every case, arrow keys, and a rail of the steps */
+    var cases = $$('dialog.dlg').filter(function(d){ return /^case-/.test(d.id); });
+    cases.forEach(function(d, i){
+      var inn = $('.dlg-in', d), title = $('.cs-title', d); if (!inn || !title) return;
+      var prev = cases[(i - 1 + cases.length) % cases.length], next = cases[(i + 1) % cases.length], nav = document.createElement('div'), dots = '';
+      cases.forEach(function(c, k){ dots += '<button type="button" class="cs-dot' + (k === i ? ' on' : '') + '" data-open="' + c.id + '" aria-label="Case ' + (k + 1) + '"' + (k === i ? ' aria-current="true" disabled' : '') + '></button>'; });
+      nav.className = 'cs-nav'; nav.innerHTML = '<button type="button" class="cs-pn" data-open="' + prev.id + '" aria-label="Previous case study">‹</button><span class="cs-at">Case ' + (i + 1) + ' of ' + cases.length + '</span><span class="cs-dots">' + dots + '</span><button type="button" class="cs-pn" data-open="' + next.id + '" aria-label="Next case study">›</button>';
+      var kick = $('.cs-kick', d); inn.insertBefore(nav, kick || inn.firstChild.nextSibling);
+      d.addEventListener('keydown', function(e){ if (e.target && /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return; var b = e.key === 'ArrowRight' ? nav.lastChild : e.key === 'ArrowLeft' ? nav.firstChild : null; if (b){ e.preventDefault(); b.click(); } });
+      var steps = $$('.cs-step', d); if (steps.length < 2 || !('IntersectionObserver' in window)) return;
+      var rail = document.createElement('ol'); rail.className = 'cs-rail'; rail.setAttribute('aria-label', 'Steps in this case');
+      steps.forEach(function(st, k){ var h = $('h3', st), li = document.createElement('li'), b = document.createElement('button'); b.type = 'button'; b.textContent = h ? h.textContent : 'Step ' + (k + 1); b.addEventListener('click', function(){ st.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }); }); li.appendChild(b); rail.appendChild(li); });
+      d.appendChild(rail); d.classList.add('cs-dim'); steps[0].classList.add('seen');
+      var io = new IntersectionObserver(function(es){ es.forEach(function(e){ var k = steps.indexOf(e.target); if (e.isIntersecting){ e.target.classList.add('seen'); $$('li', rail).forEach(function(li, n){ li.classList.toggle('on', n === k); }); } }); }, { root: d, rootMargin: '-25% 0px -45% 0px', threshold: 0 });
+      steps.forEach(function(st){ io.observe(st); });
+      d.addEventListener('scroll', function(){ if (d.scrollTop + d.clientHeight > d.scrollHeight - 80) steps.forEach(function(st){ st.classList.add('seen'); }); }, { passive: true });
     });
   });
 

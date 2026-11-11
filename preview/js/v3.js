@@ -57,6 +57,7 @@
     }
     el.textContent = pre + fmt(from) + post; requestAnimationFrame(step);
   }
+  window.__count = countUp;
   function countAll(scope){ $$('[data-count]', scope).forEach(function(b, i){ setTimeout(function(){ countUp(b, 1100); }, i * 120); }); }
 
   /* ---------- an SVG drawn in percentages, refitted to real pixels so strokes stay true ---------- */
@@ -230,7 +231,7 @@
     /* on a laptop the section holds still while the scroll walks the camps.
        Only when it is safe: a fine pointer, motion allowed, room for the whole panel, and nothing above that breaks sticky. */
     function canPin(){
-      if (reduce || !S.fine || narrow.matches || window.innerWidth < 1001 || window.innerHeight < 700) return false;
+      if (reduce || !S.fine || narrow.matches || window.innerWidth < 1001 || window.innerHeight < 600) return false;
       if (!(window.CSS && CSS.supports && CSS.supports('position', 'sticky'))) return false;
       for (var el = pin.parentNode; el && el !== document.body && el.nodeType === 1; el = el.parentNode){
         var cs = getComputedStyle(el); if (/(auto|scroll|hidden)/.test(cs.overflowY + ' ' + cs.overflowX)) return false;
@@ -256,6 +257,15 @@
       if (i !== cur) select(i, { user: true });
     }
     S.onScroll(onScroll);
+    /* where the screen is too short to pin, the route walks the camps by itself until you take over */
+    var autoT = 0, near = false, hover = false;
+    function autoStep(){
+      clearTimeout(autoT);
+      if (pinned || narrow.matches || reduce || !near || rt.classList.contains('rt-used')) return;
+      autoT = setTimeout(function(){ if (!hover && !pinned && !rt.classList.contains('rt-used')) select((cur + 1) % tabs.length, { user: true }); autoStep(); }, 6000);
+    }
+    rt.addEventListener('pointerenter', function(){ hover = true; }); rt.addEventListener('pointerleave', function(){ hover = false; });
+    if ('IntersectionObserver' in window) new IntersectionObserver(function(es){ near = es[0].isIntersecting; root.classList.toggle('rt-near', near); autoStep(); }, { threshold: 0.2 }).observe(rt);
     function layout(){ setPin(); fit(); measure(); }
     setInterval(function(){ if (pinned) measure(); }, 2500);
     window.addEventListener('resize', function(){ cancelAnimationFrame(rz); rz = requestAnimationFrame(layout); });

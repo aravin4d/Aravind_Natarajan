@@ -83,7 +83,7 @@
      glitch: it flickers in like a bug being found · every section marker ticks in, one character at a time */
   safe(function(){
     if (reduce) return;
-    var FX = [['#letter-sec .s-h', 'ink'], ['#story .story .lead', 'rise'], ['#proof .s-h', 'rise'], ['#command-center .s-h', 'scramble'], ['#cases .s-h', 'ink'], ['#work .s-h', 'clear'], ['#built .s-h', 'scramble'],
+    var FX = [['#letter-sec .s-h', 'ink'], ['#story .story .lead', 'rise'], ['#proof .s-h', 'rise'], ['#command-center .s-h', 'scramble'], ['#cases .s-h', 'rise'], ['#work .s-h', 'clear'], ['#built .s-h', 'rise'],
               ['#leadership .s-h', 'rise'], ['#skills .s-h', 'scramble'], ['#summit h2', 'rise'], ['#offclock .s-h', 'ink'], ['#contact .s-h', 'rise']];
     var LO = 'abcdefghijklmnopqrstuvwxyz', UP = 'ABCDEFGHJKLMNOPRSTUVWXYZ', GL = '/\\|<>_-=+*#', items = [], inkN = 0;
     function srSpan(txt){ var s = document.createElement('span'); s.className = 'sr'; s.textContent = txt; return s; }
