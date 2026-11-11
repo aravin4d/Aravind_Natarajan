@@ -183,9 +183,19 @@
     geo.setIndex(new THREE.BufferAttribute(idx, 1));
     geo.computeVertexNormals();
     var groundMat = new THREE.MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: 1, metalness: 0 });
+    /* v5 terrain: the ground keeps its faceted shape, but each face now has grain: mottled colour, rock strata on steep
+       faces, wind ripples on sand, glitter and blue hollows in snow, clumped canopy at night, and a fine bump so light
+       catches it. All from world position in the shader, so there are no textures to download. Phones get colour only.
+       Also fixes the per-vertex roughness, which never reached the shader: glacier ice and the oasis now catch the light. */
+    var GU = { uThemeW: { value: new THREE.Vector3(cur === 'night' ? 1 : 0, cur === 'morning' ? 1 : 0, cur === 'dusk' ? 1 : 0) }, uDetail: { value: small ? 0 : 1 } };
+    var T_HEAD = "uniform vec3 uThemeW; uniform float uDetail; varying vec3 vWPos;\nfloat tHash(vec2 p){ p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }\nfloat tNoise(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f); return mix(mix(tHash(i), tHash(i + vec2(1.0, 0.0)), f.x), mix(tHash(i + vec2(0.0, 1.0)), tHash(i + vec2(1.0, 1.0)), f.x), f.y); }\nfloat tField(vec2 p, float fine){ return tNoise(p * 0.03) + tNoise(p * 0.11) * 0.5 + tNoise(p * 0.45) * 0.3 * fine; }", T_COLOR = "  float tDist = length(vViewPosition);\n  float tFine = (1.0 - smoothstep(250.0, 1100.0, tDist)) * uDetail;\n  float tUp = abs(normalize(cross(dFdx(vWPos), dFdy(vWPos))).y);\n  float tSteep = 1.0 - smoothstep(0.5, 0.82, tUp);\n  float tA = tNoise(vWPos.xz * 0.03), tB = tNoise(vWPos.xz * 0.11), tC = tNoise(vWPos.xz * 0.45);\n  float tLum = dot(diffuseColor.rgb, vec3(0.3, 0.59, 0.11));\n  diffuseColor.rgb *= 1.0 + (tA - 0.5) * 0.20 + (tB - 0.5) * 0.14 + (tC - 0.5) * 0.16 * tFine;\n  float tBand = smoothstep(0.35, 0.65, fract(vWPos.y / mix(26.0, 18.0, uThemeW.z) + tA * 0.6 + tB * 0.2));\n  diffuseColor.rgb *= 1.0 - tSteep * (0.10 + 0.16 * uThemeW.z) * tBand - tSteep * 0.06;\n  float tRip = sin(dot(vWPos.xz, vec2(0.55, 0.83)) * 1.6 + tB * 5.0);\n  diffuseColor.rgb *= 1.0 + uThemeW.z * (1.0 - tSteep) * tFine * 0.05 * tRip;\n  float tSnow = smoothstep(0.62, 0.85, tLum) * uThemeW.y;\n  diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * vec3(0.90, 0.95, 1.04), tSnow * (1.0 - tA) * 0.5);\n  diffuseColor.rgb += tSnow * uDetail * (1.0 - smoothstep(60.0, 260.0, tDist)) * pow(tHash(floor(vWPos.xz * 2.2)), 40.0) * 0.5;\n  diffuseColor.rgb *= 1.0 - uThemeW.x * (1.0 - tSteep) * smoothstep(0.45, 0.7, tB) * 0.16;", T_NORMAL = "  if (uDetail > 0.5){ vec2 tq = vWPos.xz; float th0 = tField(tq, tFine), thx = tField(tq + vec2(0.9, 0.0), tFine), thz = tField(tq + vec2(0.0, 0.9), tFine);\n    vec3 tg = vec3(th0 - thx, 0.0, th0 - thz) * (0.55 + 0.5 * tSteep);\n    normal = normalize(normal + (viewMatrix * vec4(tg, 0.0)).xyz * (0.35 + 0.65 * tFine)); }";
     groundMat.onBeforeCompile = function(sh){
-      sh.vertexShader = 'attribute float aRough;\nvarying float vRough;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n  vRough = aRough;');
-      sh.fragmentShader = 'varying float vRough;\n' + sh.fragmentShader.replace('float roughnessFactor = roughness;', 'float roughnessFactor = roughness * vRough;');
+      sh.uniforms.uThemeW = GU.uThemeW; sh.uniforms.uDetail = GU.uDetail;
+      sh.vertexShader = 'attribute float aRough;\nvarying float vRough;\nvarying vec3 vWPos;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n  vRough = aRough; vWPos = position;');
+      sh.fragmentShader = 'varying float vRough;\n' + T_HEAD + '\n' + sh.fragmentShader
+        .replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\n  roughnessFactor *= vRough;')
+        .replace('#include <color_fragment>', '#include <color_fragment>\n' + T_COLOR)
+        .replace('#include <normal_fragment_maps>', '#include <normal_fragment_maps>\n' + T_NORMAL);
     };
     var ground = new THREE.Mesh(geo, groundMat); ground.castShadow = true; ground.receiveShadow = true; ground.frustumCulled = false; scene.add(ground);
     var posAttr = geo.attributes.position, colAttr = geo.attributes.color, rAttr = geo.attributes.aRough;
@@ -477,6 +487,34 @@
       g.fillStyle = '#C99A5E'; g.beginPath(); g.moveTo(12, 22); g.lineTo(128, 22); g.lineTo(150, 50); g.lineTo(128, 78); g.lineTo(12, 78); g.closePath(); g.fill();
       g.strokeStyle = '#6A4526'; g.lineWidth = 5; g.stroke(); g.strokeStyle = 'rgba(106,69,38,.35)'; g.lineWidth = 1.5; for (var l = 0; l < 4; l++){ g.beginPath(); g.moveTo(18, 34 + l * 12); g.bezierCurveTo(60, 30 + l * 12, 90, 40 + l * 12, 124, 34 + l * 12); g.stroke(); }
       g.fillStyle = '#2E1A0C'; g.font = '700 38px Georgia, serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(year, 72, 52); }); }
+    /* v5 life: three climbers ahead of you on the trail. They walk when you scroll and wait at the top. */
+    function drawWalker(jacket){ return function(g, ph, f){ var sw2 = Math.sin(ph), bob = Math.abs(Math.cos(ph)) * 1.4;
+      g.lineCap = 'round'; g.lineJoin = 'round'; g.fillStyle = g.strokeStyle = '#17120F';
+      limb(g, 22, 44 - bob, sw2 * 0.5, 24, 5, 0.25); limb(g, 26, 44 - bob, -sw2 * 0.5, 24, 5, 0.25);
+      g.fillStyle = '#2A211B'; g.beginPath(); g.moveTo(11, 20 - bob); g.lineTo(20, 18 - bob); g.lineTo(20, 40 - bob); g.lineTo(12, 38 - bob); g.closePath(); g.fill();
+      g.fillStyle = jacket; g.beginPath(); g.moveTo(17, 17 - bob); g.lineTo(31, 17 - bob); g.lineTo(32, 45 - bob); g.lineTo(18, 45 - bob); g.closePath(); g.fill();
+      g.strokeStyle = jacket; g.lineWidth = 4; g.beginPath(); g.moveTo(29, 21 - bob); g.lineTo(35 + sw2 * 3, 33 - bob); g.stroke();
+      g.strokeStyle = '#17120F'; g.lineWidth = 1.6; g.beginPath(); g.moveTo(35 + sw2 * 3, 32 - bob); g.lineTo(38 + sw2 * 5, 68); g.stroke();
+      g.fillStyle = '#17120F'; g.beginPath(); g.arc(24, 10 - bob, 6, 0, 6.29); g.fill();
+      g.fillStyle = jacket; g.beginPath(); g.arc(24, 8 - bob, 6, Math.PI, 0); g.fill(); }; }
+    var CLIMB = ['#E4572E', '#F2C14E', '#3A86C8'].map(function(c0, q){ var cs = animal(sheet(8, 48, 72, drawWalker(c0)), 5.2, 7.8, 0, 0, { kind: 'climber', lead: 0.024 + q * 0.0055, ph: q * 2.1, side: (q - 1) * 7 }); scene.add(cs); return cs; });
+    function trailAt(uu, pk0, out){ var P3 = pathAt(uu), s3 = 1 - sstep(0, 0.1, Math.abs(uu - 0.5)); out[0] = lerp(P3[0], pk0.x, s3); out[1] = lerp(P3[1], pk0.z + 40, s3); return out; }
+    var CL_T = [0, 0], lastU = 0;
+    function stepClimbers(pk0){ var du = Math.abs(u - lastU); lastU = u;
+      CLIMB.forEach(function(cs){ var ud = cs.userData, up = u <= 0.54, uc = up ? Math.min(0.5, u + ud.lead) : Math.min(0.99, u + ud.lead), atTop = up && uc >= 0.4995;
+        trailAt(uc, pk0, CL_T); var x = CL_T[0], z = CL_T[1]; if (up){ var st = sstep(0.47, 0.5, uc); x = lerp(x, pk0.x + ud.side, st); z = lerp(z, pk0.z - 4, st); }
+        if (!atTop && du > 0.000004) ud.ph += du * 2600; setFrame(cs, atTop ? 2 : ud.ph);
+        cs.position.set(x, groundAt(x, z) - 0.2, z); cs.material.opacity = (up ? 1 - sstep(0.515, 0.54, u) : sstep(0.56, 0.6, u)); cs.visible = cs.material.opacity > 0.3; }); }
+    /* v5 life: a flock crossing the sky ahead of you, by day and at dusk */
+    var birdTex = sheet(8, 128, 64, drawEagle), BIRDS = [], birdW = 0;
+    for (var bq = 0; bq < (small ? 7 : 11); bq++){ var bs = animal(birdTex, 9, 4.5, 0, 0, { kind: 'bird', row: Math.ceil(bq / 2), sd: bq % 2 ? 1 : -1, o: bq * 1.37 }); bs.material.depthWrite = false; bs.material.alphaTest = 0.05; bs.center.set(0.5, 0.5); scene.add(bs); BIRDS.push(bs); }
+    function stepBirds(dt2){ birdW += ((cur === 'night' ? 0 : 1) - birdW) * Math.min(1, dt2 * 1.2); if (birdW < 0.02){ if (BIRDS[0].visible) BIRDS.forEach(function(b0){ b0.visible = false; }); return; }
+      var a = time * 0.11, ca = Math.cos(a), sa = Math.sin(a), cx = cgx + ca * 380, cz = cgz - 430 + sa * 250, cy = cam.position.y + 36 + Math.sin(time * 0.23) * 18;
+      var tx = -sa * 380, tz = ca * 250, tl = Math.sqrt(tx * tx + tz * tz) || 1; tx /= tl; tz /= tl; var face = (tx * camRight.x + tz * camRight.z) < 0 ? -1 : 1;
+      BIRDS.forEach(function(b0){ var ud = b0.userData; b0.visible = true;
+        b0.position.set(cx - tx * ud.row * 10 - tz * ud.sd * ud.row * 7.5, cy + Math.sin(time * 1.7 + ud.o) * 1.6 - ud.row * 0.8, cz - tz * ud.row * 10 + tx * ud.sd * ud.row * 7.5);
+        b0.material.map.repeat.x = face / 8; setFrame(b0, Math.sin(time * 0.5 + ud.o) > 0.55 ? 2 : time * 11 + ud.o * 3); b0.material.opacity = birdW; }); }
+
     var SIGNS = SIGNDEF.map(function(sg0, q){
       var s = new THREE.Sprite(new THREE.SpriteMaterial({ map: signTex(sg0[1]), transparent: true, alphaTest: 0.4 })); s.center.set(0.5, 0.02); s.scale.set(20, 25, 1);
       s.userData = { x: SIGNPOS[q][0], z: SIGNPOS[q][1] }; scene.add(s); return s; });
@@ -536,7 +574,25 @@
 
     /* ---------- scroll, pointer, tilt ---------- */
     var u = 0, uT = 0, pS = 0.62, maxS = 1, lastP = 0, vel = 0, wind = 0, windOff = new THREE.Vector2(), mx = 0, my = 0, cmx = 0, cmy = 0, tiltX = 0, tiltY = 0, dirBias = 0, camYs = null;
-    function measure(){ var sm = document.getElementById('summit'); maxS = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    /* v5 scenes: every part of the story gets its own weather, and crossing into it changes the scene over about two seconds.
+       fog: how far you can see (x). wx: how much is falling (x). gust: wind that blows even when you stand still.
+       light: sun and sky (x). cover: cloud (+/-). flash: lightning (night only). */
+    var MOODS = { clear: { fog: 1, wx: 1, gust: 0, light: 1, cover: 0, flash: 0 },
+      'command-center': { fog: 1.35, wx: 0.3, gust: 0, light: 1.1, cover: -0.35, flash: 0 },    /* instruments: still, clear air */
+      cases: { fog: 0.4, wx: 2.6, gust: 0.42, light: 0.66, cover: 0.5, flash: 1 },               /* the hard problems: a storm */
+      work: { fog: 0.6, wx: 0.6, gust: 0.06, light: 0.9, cover: 0.35, flash: 0 },                /* the long climb: through cloud */
+      leadership: { fog: 1.5, wx: 0.2, gust: 0, light: 1.18, cover: -0.25, flash: 0 },           /* breaking out above it */
+      built: { fog: 1.25, wx: 0.5, gust: 0, light: 1.1, cover: -0.1, flash: 0 },
+      story: { fog: 0.85, wx: 0.8, gust: 0.03, light: 0.94, cover: 0.12, flash: 0 },
+      skills: { fog: 1.4, wx: 1.5, gust: 0.22, light: 1.05, cover: -0.3, flash: 0 } };            /* thin, windy air under the top */
+    var MZ = [], MD = { fog: 1, wx: 1, gust: 0, light: 1, cover: 0, flash: 0 }, LT = { t: 9, next: 2.5 }, moodName = 'clear';
+    function moodZones(){ MZ = []; var yy = window.pageYOffset; for (var id in MOODS){ if (id === 'clear') continue; var el = document.getElementById(id); if (!el) continue; var r = el.getBoundingClientRect(); if (r.height < 40) continue; MZ.push([r.top + yy, r.bottom + yy, MOODS[id], id]); } }
+    function stepMood(dt2){ var st0 = window.__site, y = SY() + (st0 && st0.geo ? st0.geo().vh : window.innerHeight) * 0.5, tg = MOODS.clear; moodName = 'clear'; for (var q = 0; q < MZ.length; q++){ if (y >= MZ[q][0] && y < MZ[q][1]){ tg = MZ[q][2]; moodName = MZ[q][3]; break; } }
+      var kk = reduce ? 1 : 1 - Math.exp(-dt2 * 1.5); for (var key in MD) MD[key] += (tg[key] - MD[key]) * kk;
+      var fl = 0; if (cur === 'night' && MD.flash > 0.5 && !reduce){ LT.next -= dt2; if (LT.next < 0){ LT.t = 0; LT.next = 2.5 + Math.random() * 5; } }
+      if (LT.t < 0.6){ LT.t += dt2; var lt = LT.t; fl = (lt < 0.07 ? 1 : lt < 0.13 ? 0.15 : lt < 0.2 ? 0.75 : Math.max(0, 0.75 * (1 - (lt - 0.2) / 0.4))) * MD.flash; }
+      return fl; }
+    function measure(){ moodZones(); var sm = document.getElementById('summit'); maxS = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
       if (sm){ var r = sm.getBoundingClientRect(); pS = clamp((r.top + window.pageYOffset + r.height / 2 - window.innerHeight / 2) / maxS, 0.15, 0.95); } }
     function SY(){ var s = window.__site; return s && s.geo ? s.geo().y : window.pageYOffset; }   /* v4 smooth: the shared scroll position, so the render loop never forces a page layout */
     function targetU(){ var p = clamp(SY() / maxS, 0, 1); return p <= pS ? 0.5 * p / pS : 0.5 + 0.5 * (p - pS) / (1 - pS); }
@@ -603,6 +659,7 @@
       wind = Math.max(wind * Math.exp(-dt * 1.4), clamp(Math.abs(vel) / 2600, 0, 1)); dirBias = lerp(dirBias, clamp(vel / 1800, -1, 1), 0.05);
       cmx += ((mx + tiltX) - cmx) * 0.05; cmy += ((my + tiltY) - cmy) * 0.05;
       if (morph) stepMorph(dt);
+      var flash = stepMood(dt); wind = Math.max(wind, MD.gust * (0.8 + 0.2 * Math.sin(time * 0.9)));
 
       /* where we are and what we look at */
       var tm = morph ? ease(morph.t) : 1, from = morph ? morph.from : cur;
@@ -617,19 +674,20 @@
       cgx = Pp[0]; cgz = Pp[1];
       var campH = groundAt(CAMP.x, CAMP.z), w1 = sstep(0.4, 0.515, u), w2 = sstep(0.58, 0.86, u);
       look.set(lerp(lerp(pk.x, 0, w1), CAMP.x, w2) + cmx * 40,
-               lerp(lerp(pk.h + 26, pk.h * 0.25, w1), campH + 14, w2) - cmy * 26 + dirBias * 24,
+               lerp(lerp(pk.h + 26, pk.h * 0.25, w1), campH + 14, w2) - cmy * 26 + dirBias * 38,   /* v5: the old section tilt lives here now: the view leans into a fast scroll */
                lerp(lerp(pk.z, ZP - 2100, w1), CAMP.z - 150, w2));
       cam.lookAt(look);
       /* v3 camera: the lens widens with speed and at the top, and the view banks into each turn */
-      if (!reduce){ var fovT = 52 + wind * 7 + sw * 7 - sstep(0.62, 1, u) * 3;
+      if (!reduce){ var fovT = 52 + wind * 9 + sw * 7 - sstep(0.62, 1, u) * 3;
         if (Math.abs(cam.fov - fovT) > 0.02){ cam.fov += (fovT - cam.fov) * (1 - Math.exp(-dt * 3)); cam.updateProjectionMatrix(); }
         cam.rotateZ(clamp(-dirBias * 0.035 - cmx * 0.018 + Math.cos(u * Math.PI * 12) * 0.024 * (1 - sw), -0.085, 0.085)); }
 
       /* light and air for this height, blended across a theme change */
       var pal = palAt(cur, u); if (morph) pal = mixPal(palAt(morph.from, u), pal, tm);
       skyU.uTop.value.copy(pal.cTop); skyU.uMid.value.copy(pal.cMid); skyU.uHor.value.copy(pal.cHor); skyU.uMilky.value = pal.milky; skyU.uTime.value = time; skyU.uGlow.value = pal.glow;
-      var clear = sstep(0, 1, intro); fog.color.copy(pal.cFog); fog.near = lerp(10, pal.near, clear); fog.far = lerp(420, pal.far, clear);
-      hemi.color.copy(pal.cHs); hemi.groundColor.copy(pal.cHg); hemi.intensity = pal.hI;
+      var clear = sstep(0, 1, intro); fog.color.copy(pal.cFog); fog.near = lerp(10, pal.near * Math.min(1, MD.fog), clear); fog.far = lerp(420, pal.far * MD.fog, clear);
+      if (flash > 0){ var fb = 1 + flash * 2.2; skyU.uTop.value.multiplyScalar(fb); skyU.uMid.value.multiplyScalar(fb); skyU.uHor.value.multiplyScalar(fb); fog.color.multiplyScalar(1 + flash * 1.4); }
+      hemi.color.copy(pal.cHs); hemi.groundColor.copy(pal.cHg); hemi.intensity = pal.hI * MD.light + flash * 1.5;
       sky.position.copy(cam.position); stars.position.copy(cam.position); starU.uTime.value = time; starU.uOpacity.value = pal.stars;
       /* the orbs: the old one sets while the new one rises */
       var sunI = 0; tmpV.set(0, 0, 0);
@@ -645,7 +703,8 @@
       if (WK.t < WK.d + 0.2){ WK.t += dt; var gt = (WK.t - 0.28) / 0.4; if (ob && gt > 0 && gt < 1){ var gs = Math.sin(gt * Math.PI); glint.visible = true; camUp.set(0, 1, 0).applyQuaternion(cam.quaternion); camRight.set(1, 0, 0).applyQuaternion(cam.quaternion);
         glint.position.copy(ob.position).addScaledVector(camRight, ob.scale.x * 0.17).addScaledVector(camUp, ob.scale.x * 0.17); glint.scale.set(ob.scale.x * 0.95 * gs, ob.scale.x * 0.95 * gs, 1); glint.material.opacity = gs; glint.material.rotation = gt * 0.9; } else glint.visible = false; }
       tmpV.normalize(); if (tmpV.y < 0.06){ tmpV.y = 0.06; tmpV.normalize(); }
-      sun.color.copy(pal.cSun); sun.intensity = Math.max(0.15, sunI);
+      sun.color.copy(pal.cSun); sun.intensity = Math.max(0.15, sunI * MD.light);
+      GU.uThemeW.value.set((cur === 'night' ? tm : 0) + (from === 'night' ? 1 - tm : 0), (cur === 'morning' ? tm : 0) + (from === 'morning' ? 1 - tm : 0), (cur === 'dusk' ? tm : 0) + (from === 'dusk' ? 1 - tm : 0));
       fwd.set(look.x - cam.position.x, 0, look.z - cam.position.z).normalize();
       var fx = Math.round((cam.position.x + fwd.x * 700) / 8) * 8, fz = Math.round((cam.position.z + fwd.z * 700) / 8) * 8;
       sun.target.position.set(fx, 0, fz); sun.position.set(fx, 0, fz).addScaledVector(tmpV, 3000); sun.target.updateMatrixWorld();
@@ -657,7 +716,7 @@
       /* clouds: climb through them, then look down on them */
       var CLa = CLOUDS[from], CLb = CLOUDS[cur], white = 0, wsum = 0; whiteCol.setRGB(0, 0, 0);
       layers.forEach(function(L, n){ var a = CLa[n], b = CLb[n], ly = lerp(a[0], b[0], tm) * pk.h;
-        L.mesh.position.set(cam.position.x, ly, cam.position.z); L.u.uCover.value = lerp(a[1], b[1], tm); L.u.uOpacity.value = lerp(a[2], b[2], tm) * (0.4 + 0.6 * clear); L.u.uScale.value = lerp(a[3], b[3], tm);
+        L.mesh.position.set(cam.position.x, ly, cam.position.z); L.u.uCover.value = lerp(a[1], b[1], tm); L.u.uOpacity.value = clamp(lerp(a[2], b[2], tm) * (1 + MD.cover), 0, 1) * (0.4 + 0.6 * clear); L.u.uScale.value = lerp(a[3], b[3], tm);
         L.u.uTop.value.copy(pal.cCl); L.u.uShade.value.copy(pal.cSh); L.u.uFog.value.copy(pal.cFog); L.u.uCam.value.copy(cam.position); L.u.uFar.value = pal.far * 1.1;
         L.u.uDrift.value += dt * (0.004 + wind * 0.05);
         var band = L.u.uOpacity.value * (1 - sstep(0, 30, Math.abs(cam.position.y - ly))) * 0.9; white = 1 - (1 - white) * (1 - band);
@@ -669,7 +728,7 @@
       windOff.x += dt * (6 + wind * 160) * wx; windOff.y += dt * (2 + wind * 60) * wx;
       weaU.uTime.value = time; weaU.uWind.value.copy(windOff); weaU.uCam.value.copy(cam.position); weaU.uStreak.value = wind;
       weaU.uFall.value = wWin[0]; weaU.uSize.value = wWin[1] * (1 + wind * 0.4); weaU.uColor.value.setHex(wWin[4]); weaU.uShape.value = wWin[5];
-      weaU.uCount.value = clamp(wWin[2] * (0.45 + wind * 1.1), 0, 1); weaU.uOpacity.value = wWin[3] * Math.abs(tm - 0.5) * 2 * clear;
+      weaU.uCount.value = clamp(wWin[2] * (0.45 + wind * 1.1) * MD.wx, 0, 1); weaU.uOpacity.value = Math.min(1, wWin[3] * (0.7 + 0.3 * Math.min(2, MD.wx))) * Math.abs(tm - 0.5) * 2 * clear;
       postU.uShimmer.value = ((from === 'dusk' ? 1 - tm : 0) + (cur === 'dusk' ? tm : 0)) * (1 - 0.6 * sstep(0.3, 0.5, u) * (1 - sstep(0.5, 0.75, u))); postU.uTime.value = time;
 
       /* the living things */
@@ -689,6 +748,7 @@
           else if (ud.kind === 'still'){ a.position.set(ud.x, groundAt(ud.x, ud.z), ud.z); } });
         if (morph) D2.snap.forEach(function(s3){ s3[0].position.y = groundAt(s3[1], s3[2]) + s3[3]; });
       });
+      stepClimbers(pk); stepBirds(dt);
       SIGNS.forEach(function(s){ s.position.set(s.userData.x, groundAt(s.userData.x, s.userData.z) - 0.5, s.userData.z); s.material.color.copy(pal.cSign); });
       stepFlag(dt, pk, from, tm);
 
@@ -737,7 +797,7 @@
     function idle(fn){ if (window.requestIdleCallback) window.requestIdleCallback(fn, { timeout: 2500 }); else setTimeout(fn, 60); }
     setTimeout(function(){ idle(function(){ ensure(rest[0]); idle(function(){ ensure(rest[1]); }); }); }, 1800);
     window.__climb = { summit: function(){ return pS; }, u: function(){ return u; } };
-    window.__world = { jump: function(){ uT = targetU(); u = uT; camYs = null; }, morphAt: function(t){ if (morph){ morph.t = Math.min(0.999, t); stepMorph(0); } }, groundAt: groundAt, theme: function(){ return cur; }, peak: function(){ return T[cur].peak; }, snapshot: snapshot, orb: function(){ return orbS; }, wink: function(){ if (WK.t < WK.d) return false; WK.t = 0; return true; }, debug: debugView, gust: function(k){ wind = Math.max(wind, k == null ? 1 : k); }, quality: function(){ return { pr: GOV.pr, max: GOV.max, fps: GOV.fps }; }, pause: function(v){ paused = !!v; }, paused: function(){ return paused; }, flag: function(){ return { on: FLAG.on, t: FLAG.t, pos: flag.position.toArray() }; }, flagAt: function(t){ if (FLAG.on) FLAG.t = t; }, flagCfg: FL };
+    window.__world = { mood: function(){ return { name: moodName, fog: MD.fog, light: MD.light, wx: MD.wx, zones: MZ.length }; }, jump: function(){ uT = targetU(); u = uT; camYs = null; }, morphAt: function(t){ if (morph){ morph.t = Math.min(0.999, t); stepMorph(0); } }, groundAt: groundAt, theme: function(){ return cur; }, peak: function(){ return T[cur].peak; }, snapshot: snapshot, orb: function(){ return orbS; }, wink: function(){ if (WK.t < WK.d) return false; WK.t = 0; return true; }, debug: debugView, gust: function(k){ wind = Math.max(wind, k == null ? 1 : k); }, quality: function(){ return { pr: GOV.pr, max: GOV.max, fps: GOV.fps }; }, pause: function(v){ paused = !!v; }, paused: function(){ return paused; }, flag: function(){ return { on: FLAG.on, t: FLAG.t, pos: flag.position.toArray() }; }, flagAt: function(t){ if (FLAG.on) FLAG.t = t; }, flagCfg: FL };
   }
   try { init(); } catch (err){
     root.classList.remove('has-3d'); root.classList.add('no-3d');
