@@ -64,7 +64,7 @@
     night: function(x, z){
       var roll = fbm(x * 0.0021 + 3.1, z * 0.0021 - 1.7, 5) * 0.5 + 0.5, rid = ridged(x * 0.0016 + 8.3, z * 0.0016 + 2.9, 4);
       var h = 34 + roll * 150 + rid * 80;
-      h += 300 * gauss(x, z, 0, ZP, 290) + 170 * gauss(x, z, -640, ZP + 380, 280) + 200 * gauss(x, z, 680, ZP + 240, 300)
+      h += 372 * gauss(x, z, 0, ZP, 290) + 170 * gauss(x, z, -640, ZP + 380, 280) + 200 * gauss(x, z, 680, ZP + 240, 300)
          + 130 * gauss(x, z, -480, ZP - 640, 260) + 160 * gauss(x, z, 560, ZP - 760, 280) + 110 * gauss(x, z, -920, 200, 320) + 130 * gauss(x, z, 960, -300, 340)
          + 90 * gauss(x, z, -700, -2900, 300) + 100 * gauss(x, z, 720, -3200, 320);
       h += 260 * sstep(-3950, -5700, z) * (0.55 + 0.45 * rid);
@@ -74,7 +74,7 @@
     morning: function(x, z){
       var r = ridged(x * 0.0023 + 11, z * 0.0023 + 7, 5);
       var h = r * 200 + fbm(x * 0.007, z * 0.007, 3) * 18;
-      var pk = 540 * gauss(x, z, 0, ZP, 250) + 340 * gauss(x, z, -620, ZP + 300, 220) + 390 * gauss(x, z, 640, ZP + 180, 230)
+      var pk = 650 * gauss(x, z, 0, ZP, 250) + 340 * gauss(x, z, -620, ZP + 300, 220) + 390 * gauss(x, z, 640, ZP + 180, 230)
          + 230 * gauss(x, z, -360, ZP + 950, 170) + 250 * gauss(x, z, 400, ZP + 1050, 180) + 310 * gauss(x, z, -720, ZP - 700, 260) + 330 * gauss(x, z, 720, ZP - 820, 260)
          + 210 * gauss(x, z, -950, 400, 260) + 230 * gauss(x, z, 1000, -100, 280) + 220 * gauss(x, z, -640, -3000, 260) + 240 * gauss(x, z, 660, -3300, 260);
       h += pk * (0.72 + 0.56 * ridged(x * 0.0055, z * 0.0055, 4));
@@ -84,7 +84,7 @@
     },
     dusk: function(x, z){
       var r = ridged(x * 0.0024 + 5.3, z * 0.0024 + 1.1, 5);
-      var rock = r * 150 + 430 * gauss(x, z, 0, ZP, 270) + 250 * gauss(x, z, -580, ZP + 340, 230) + 280 * gauss(x, z, 620, ZP + 220, 240)
+      var rock = r * 150 + 520 * gauss(x, z, 0, ZP, 270) + 250 * gauss(x, z, -580, ZP + 340, 230) + 280 * gauss(x, z, 620, ZP + 220, 240)
         + 180 * gauss(x, z, -420, ZP + 1000, 200) + 200 * gauss(x, z, 460, ZP + 900, 210) + 170 * gauss(x, z, -900, 300, 240) + 180 * gauss(x, z, 900, -200, 260);
       rock *= 0.8 + 0.36 * ridged(x * 0.006, z * 0.006, 3);
       rock = lerp(terrace(rock, 36, 0.09), rock, gauss(x, z, 0, ZP, 300));
@@ -603,6 +603,9 @@
       var tm = morph ? ease(morph.t) : 1, from = morph ? morph.from : cur;
       var pkA = T[from].peak, pkB = T[cur].peak, pk = { x: lerp(pkA.x, pkB.x, tm), z: lerp(pkA.z, pkB.z, tm), h: lerp(pkA.h, pkB.h, tm) };
       var Pp = pathAt(u), sw = 1 - sstep(0, 0.1, Math.abs(u - 0.5)); if (sw > 0){ Pp[0] = lerp(Pp[0], pk.x, sw); Pp[1] = lerp(Pp[1], pk.z + 40, sw); }
+      /* v3 camera: the trail switches back across the slope on the way up and down, and drifts in a slow arc around the top */
+      if (!reduce){ var sbk = Math.sin(u * Math.PI * 12) * 40 * (1 - sw) * sstep(0.015, 0.07, u) * (1 - sstep(0.93, 0.99, u)), arc = sw * sw;
+        Pp[0] += sbk + Math.sin(time * 0.16) * 72 * arc; Pp[1] += (1 - Math.cos(time * 0.16)) * 44 * arc; }
       var g0 = groundAt(Pp[0], Pp[1]), gm = Math.max(g0, groundAt(Pp[0] + 22, Pp[1]), groundAt(Pp[0] - 22, Pp[1]), groundAt(Pp[0], Pp[1] - 30), groundAt(Pp[0], Pp[1] + 22), groundAt(Pp[0], Pp[1] - 60) - 8);
       var cy = Math.max(g0 + Pp[2], gm + 14); cy = Math.max(cy, lerp(cy, pk.h + 30, sw * sw * (3 - 2 * sw))); camYs = camYs === null ? cy : lerp(camYs, cy, reduce ? 1 : 1 - Math.exp(-dt * 7)); camYs = Math.max(camYs, gm + 9);
       cam.position.set(Pp[0] + cmx * 14, camYs - cmy * 5 + Math.sin(time * 1.3) * 0.5, Pp[1]);
@@ -612,6 +615,10 @@
                lerp(lerp(pk.h + 26, pk.h * 0.25, w1), campH + 14, w2) - cmy * 26 + dirBias * 24,
                lerp(lerp(pk.z, ZP - 2100, w1), CAMP.z - 150, w2));
       cam.lookAt(look);
+      /* v3 camera: the lens widens with speed and at the top, and the view banks into each turn */
+      if (!reduce){ var fovT = 52 + wind * 7 + sw * 7 - sstep(0.62, 1, u) * 3;
+        if (Math.abs(cam.fov - fovT) > 0.02){ cam.fov += (fovT - cam.fov) * (1 - Math.exp(-dt * 3)); cam.updateProjectionMatrix(); }
+        cam.rotateZ(clamp(-dirBias * 0.035 - cmx * 0.018 + Math.cos(u * Math.PI * 12) * 0.024 * (1 - sw), -0.085, 0.085)); }
 
       /* light and air for this height, blended across a theme change */
       var pal = palAt(cur, u); if (morph) pal = mixPal(palAt(morph.from, u), pal, tm);

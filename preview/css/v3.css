@@ -418,3 +418,16 @@ html.rt-near .cvt{ opacity:0 !important; pointer-events:none !important; }
 .rec p{ margin:0; font-size:13.5px; line-height:1.45; color:var(--muted); } .rec b{ display:block; font-weight:600; color:var(--ink); }
 .rec-more{ margin:14px 0 0; font-size:14.5px; } .rec-more a{ font-weight:600; color:var(--accent); }
 @media (max-width:900px){ .rec{ grid-template-columns:minmax(0,1fr); } }
+
+/* ============ the 2-minute version ============ */
+.brief-btn{ display:inline-flex; align-items:center; height:34px; padding:0 14px; border-radius:99px; border:1px solid var(--accent); background:transparent; color:var(--ink); font:600 13px var(--sans); white-space:nowrap; cursor:pointer; transition:background .2s ease, color .2s ease, transform .16s var(--e); }
+.brief-btn:hover{ background:var(--accent); color:var(--on); } .brief-btn:active{ transform:scale(.96); }
+.brief-btn[aria-pressed="true"]{ background:var(--accent); color:var(--on); }
+.brief-hdr{ height:30px; padding:0 12px; font-size:12.5px; background:rgba(var(--veil),.72); }
+@media (max-width:900px){ .brief-hdr{ display:none; } }
+html.brief #leadership, html.brief #built, html.brief #story, html.brief #skills, html.brief #offclock, html.brief #education,
+html.brief .ba, html.brief .rec-more, html.brief #command-center .cc-block:not(.cc-tour), html.brief .cc-clips, html.brief .cc-demo, html.brief .ai-rib{ display:none !important; }
+.brief-end{ display:none; }
+html.brief .brief-end{ display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:14px 22px; padding:28px 24px; border-top:1px solid var(--line); border-bottom:1px solid var(--line); background:rgba(var(--veil),.86); text-align:center; }
+.brief-end p{ margin:0; max-width:60ch; font-size:16px; color:var(--ink); }
+@media print{ .brief-btn, .brief-end{ display:none !important; } }

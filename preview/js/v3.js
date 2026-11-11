@@ -412,6 +412,31 @@
     hooks.push(function(user){ if (user){ var sk = $('#skills .sk'); if (sk) openFold(sk); } });
   });
 
+  /* ---------- the 2-minute version: the same page with only the essentials showing. Nothing is removed. ---------- */
+  safe(function(){
+    var btns = $$('.brief-btn'), offs = $$('.brief-off'); if (!btns.length) return;
+    function set(on, user){
+      root.classList.toggle('brief', on);
+      btns.forEach(function(b){ b.setAttribute('aria-pressed', on ? 'true' : 'false'); b.textContent = on ? 'Full version' : '2-minute version'; });
+      try { window.dispatchEvent(new Event('resize')); window.dispatchEvent(new Event('scroll')); } catch (e){}
+      if (user){
+        if (on) window.scrollTo(0, 0);
+        try { var q = location.search.replace(/^\?/, '').split('&').filter(function(p){ return p && p.indexOf('short') !== 0; }); if (on) q.push('short=1'); history.replaceState(null, '', location.pathname + (q.length ? '?' + q.join('&') : '') + location.hash); } catch (e){}
+        S.track('brief', { on: on }); if (S.sfx) S.sfx('tap');
+      }
+    }
+    btns.forEach(function(b){ b.addEventListener('click', function(){ set(!root.classList.contains('brief'), true); }); });
+    offs.forEach(function(b){ b.addEventListener('click', function(){ var y = window.pageYOffset; set(false, true); var t = document.getElementById('leadership'); if (t) try { t.scrollIntoView({ block: 'start' }); } catch (e){ window.scrollTo(0, y); } }); });
+    /* a link to something the short version hides brings the full version back first */
+    document.addEventListener('click', function(e){
+      if (!root.classList.contains('brief')) return;
+      var a = e.target.closest ? e.target.closest('a[href^="#"]') : null; if (!a) return;
+      var t = document.getElementById(a.getAttribute('href').slice(1)); if (!t || t.closest('dialog') || t.offsetParent !== null) return;
+      set(false, false);
+    }, true);
+    if (/[?&]short(=1)?(&|$)/.test(location.search)) set(true, false);
+  });
+
   /* start in the lens the link asked for */
   setLens(lens, false);
   window.__lens = { get: function(){ return lens; }, set: function(l){ setLens(l, true); } };
