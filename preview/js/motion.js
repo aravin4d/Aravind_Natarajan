@@ -189,8 +189,8 @@
     var MK = { rise: mkRise, scramble: mkScramble, ink: mkInk, clear: mkClear, glitch: mkGlitch };
     FX.forEach(function(f){ var el = $(f[0]); if (!el) return; var m = MK[f[1]](el); m.el = el; m.on = false; m.reset(); items.push(m); });
     $$('main .s-k, #summit .alt-big').forEach(function(el){ var m = mkTick(el); m.el = el; m.on = false; items.push(m); });
-    function check(){ var vh = window.innerHeight;
-      items.forEach(function(it){ var r = it.el.getBoundingClientRect();
+    function check(){ var vh = S.geo ? S.geo().vh : window.innerHeight;
+      items.forEach(function(it){ var r = S.box ? S.box(it.el) : it.el.getBoundingClientRect();
         if (r.bottom < -40 || r.top > vh + 40){ if (it.on){ it.on = false; it.reset(); } return; }
         if (!it.on && r.top < vh * 0.9 && r.bottom > vh * 0.06){ it.on = true; it.play(r.top > vh * 0.42 ? 1 : -1); } }); }
     S.onScroll(check); window.addEventListener('resize', check); setTimeout(check, 80);

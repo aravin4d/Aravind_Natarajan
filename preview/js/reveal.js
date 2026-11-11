@@ -192,7 +192,8 @@
       if ((vis && (drift || V.parts.length || V.glint >= 0 || (V.lock && V.p < 1))) || (V.lock && V.p < 1)) more = true; }
     if (more) kick();
   }
-  function kick(){ if (!raf) raf = requestAnimationFrame(frame); }
+  var ledg = document.getElementById('ledger');
+  function kick(){ if (ledg && ledg.tagName === 'DIALOG' && !ledg.open) return; if (!raf) raf = requestAnimationFrame(frame); }
 
   function setup(){
     $$('#work .wk-card').forEach(function(c, i){ add(c, true, 10 + i); });

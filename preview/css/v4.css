@@ -1,0 +1,69 @@
+/* v4 (11 Nov 2026): smooth-scroll fixes, the new opening, and the interactive layer. Loaded last. */
+
+/* ---------- 1 · smooth: fewer compositor layers ----------
+   The page was carrying 250 to 490 GPU layers (600 to 800 MB). Most belonged to looping decoration in sections that
+   were nowhere near the screen: paused animations still keep their layers. Sections more than ~400 px away (.zz, set
+   in sparkle.js) now drop their loops completely and pick them up again when you come back. */
+.zz .bv-stars i, .zz .bv-float, .zz .dv-rec2 em, .zz .dv-rec i, .zz .dv-row, .zz .dv-ticket, .zz .bv-done, .zz .dv-step, .zz .bv-go,
+.zz .cc-pin::after, .zz .rt-camp i::before, .zz .rt-camp i::after, .zz .ai-list a::before, .zz .cc-flow.live li, .zz .h-seek i, .zz .h-seek i::after,
+.zz .env, .zz .an-high.in, .zz .smf-c, .zz .dv-al.hot em, .zz .nudge i::after, .zz .rc-sw, .zz .camp-no{ animation:none !important; }
+.zz .tool-vis > *, .zz .af-face{ visibility:hidden; }
+/* footprints: the long fade kept dozens of prints on their own layers while scrolling */
+.stp.on.old{ transition:opacity .5s ease, transform .55s cubic-bezier(.3,1.35,.5,1); }
+/* buttons in the page no longer blur the moving 3D scene behind them (29 small blurs, redone every frame);
+   a slightly denser fill reads the same. The fixed header chips keep their blur. */
+main .btn, #summit .btn, footer .btn{ -webkit-backdrop-filter:none; backdrop-filter:none; background:rgba(var(--veil),.86); }
+/* tool stars: 100 dots each twinkling on its own layer whenever Tools was near the screen. They now sit still and
+   come alive on the tool you point at, which also makes the twinkle a response instead of a loop. */
+.bv-stars i{ animation:none; opacity:.5; transform:scale(.85); }
+.tool-vis.glow .bv-stars i{ animation:twk 2.6s ease-in-out var(--d) infinite; }
+
+/* ---------- 2 · the opening ----------
+   No drawing. A plain veil in the sky's own colour, an altimeter that settles on base-camp height, a hairline that
+   follows the real loading, and then the veil lifts in one piece. System mono only, so it never waits on a font. */
+html.js #open{ position:fixed; left:0; top:0; width:100%; height:100%; z-index:200; display:grid; place-items:center; background:var(--bg); transform:translateZ(0); transition:transform .95s cubic-bezier(.76,0,.24,1); }
+html.js #open::after{ content:''; position:absolute; left:0; right:0; top:100%; height:22vh; background:linear-gradient(var(--bg), transparent); pointer-events:none; }
+html.js #open.gone{ transform:translate3d(0,-125%,0); }
+.open-in{ text-align:center; transition:opacity .35s ease, transform .95s cubic-bezier(.76,0,.24,1); }
+#open.gone .open-in{ opacity:0; transform:translateY(60px); }
+.open-k{ margin:0; font:500 11.5px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing:.22em; text-transform:uppercase; color:var(--muted); animation:openIn .5s ease both; }
+.open-m{ margin:18px 0 0; font:300 clamp(52px,8.4vw,104px)/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing:-.04em; color:var(--ink); font-variant-numeric:tabular-nums; animation:openIn .5s ease .08s both; }
+.open-m i{ font-style:normal; font-size:.3em; letter-spacing:0; margin-left:.35em; color:var(--muted); }
+.open-bar{ width:132px; height:1px; margin:26px auto 0; background:var(--line); overflow:hidden; animation:openIn .5s ease .16s both; }
+.open-bar i{ display:block; width:100%; height:100%; background:var(--accent); transform-origin:0 50%; transform:scaleX(.08); transition:transform .45s ease; }
+@keyframes openIn{ from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:none; } }
+@media print{ .open{ display:none !important; } }
+
+/* ---------- 3 · the interactive layer (js/v4.js) ---------- */
+.cov{ display:none; }
+@media (min-width:900px) and (hover:hover){
+  .cov{ display:block; position:fixed; left:clamp(14px,1.6vw,24px); bottom:18px; z-index:57; opacity:0; transform:translateY(8px); pointer-events:none; transition:opacity .4s ease, transform .4s ease; }
+  .past-hero .cov{ opacity:1; transform:none; pointer-events:auto; }
+  .rt-live .cov, .scrubbing .cov{ opacity:.35; }
+}
+.cov-b{ display:inline-flex; align-items:center; gap:9px; height:36px; padding:0 14px 0 9px; border-radius:99px; border:1px solid var(--line); background:rgba(var(--veil),.92); color:var(--ink); font:500 12px var(--mono, ui-monospace, monospace); cursor:pointer; transition:border-color .2s ease, transform .2s ease; }
+.cov-b:hover, .cov.open .cov-b{ border-color:var(--accent); }
+.cov-b svg{ width:20px; height:20px; transform:rotate(-90deg); flex:0 0 auto; }
+.cov-b circle{ fill:none; stroke-width:2.4; }
+.cov-r0{ stroke:var(--line); } .cov-r1{ stroke:var(--accent); stroke-linecap:round; transition:stroke-dashoffset .6s cubic-bezier(.2,.8,.2,1); }
+.cov.bump .cov-b{ animation:covBump .5s cubic-bezier(.2,1.5,.4,1); } .cov.say .cov-b{ border-color:var(--accent); }
+@keyframes covBump{ 0%{ transform:none; } 40%{ transform:scale(1.07); } 100%{ transform:none; } }
+.cov-pop{ position:absolute; left:0; bottom:46px; width:316px; padding:16px 16px 14px; border-radius:16px; border:1px solid var(--line); background:rgb(var(--veil)); box-shadow:0 22px 50px -22px rgba(0,0,0,.55); color:var(--ink); animation:covIn .22s ease both; }
+@keyframes covIn{ from{ opacity:0; transform:translateY(6px); } to{ opacity:1; transform:none; } }
+.cov-h{ margin:0 0 10px; font:600 14px var(--sans); } .cov-h b{ font-weight:500; color:var(--muted); }
+.cov-pop ul{ list-style:none; margin:0; padding:0; }
+.cov-pop li button{ display:grid; grid-template-columns:18px 1fr auto; align-items:center; gap:9px; width:100%; padding:7px 8px; border:0; border-radius:9px; background:none; color:inherit; font:500 13.5px var(--sans); text-align:left; cursor:pointer; }
+.cov-pop li button:hover, .cov-pop li button:focus-visible{ background:rgba(128,128,128,.14); }
+.cov-pop li i{ width:14px; height:14px; border-radius:50%; border:1.5px solid var(--faint, var(--muted)); }
+.cov-pop li.ok i{ border-color:var(--accent); background:var(--accent); box-shadow:inset 0 0 0 2.5px rgb(var(--veil)); }
+.cov-pop li em{ font:400 11.5px var(--sans); font-style:normal; color:var(--muted); } .cov-pop li.ok em{ visibility:hidden; }
+.cov-f{ margin:11px 0 0; padding-top:10px; border-top:1px solid var(--line); font:400 11.5px/1.7 var(--sans); color:var(--muted); }
+.cov-f kbd{ display:inline-block; min-width:18px; padding:0 5px; border-radius:5px; border:1px solid var(--line); font:500 11px var(--mono, ui-monospace, monospace); text-align:center; color:var(--ink); }
+.cov-ping{ outline:2px solid var(--accent); outline-offset:8px; border-radius:12px; animation:covPing 1.3s ease 2; }
+@keyframes covPing{ 0%{ outline-color:var(--accent); outline-offset:2px; } 100%{ outline-color:transparent; outline-offset:18px; } }
+/* the trail can be dragged */
+.alt ol.scrub{ cursor:ns-resize; touch-action:none; } .alt ol.scrub a{ cursor:pointer; }
+.scrubbing, .scrubbing *{ cursor:ns-resize !important; user-select:none !important; }
+.scrubbing .alt .alt-l{ opacity:1; transform:none; }
+@media (prefers-reduced-motion: reduce){ .cov.bump .cov-b, .cov-ping, .cov-pop{ animation:none; } }
+@media print{ .cov{ display:none !important; } }

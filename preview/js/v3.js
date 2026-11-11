@@ -249,8 +249,8 @@
     function measure(){ pTop = window.pageYOffset + pin.getBoundingClientRect().top; pH = pin.offsetHeight; }
     function onScroll(){
       if (!pinned){ if (wasLive){ wasLive = false; root.classList.remove('rt-live'); } return; }
-      var top = pTop - window.pageYOffset, total = pH - window.innerHeight; if (total <= 0) return;
-      var live = top <= 0 && top + pH >= window.innerHeight;
+      var g = S.geo(), top = pTop - g.y, total = pH - g.vh; if (total <= 0) return;
+      var live = top <= 0 && top + pH >= g.vh;
       if (live !== wasLive){ wasLive = live; root.classList.toggle('rt-live', live); }   /* while the route holds the screen, the résumé toast stays out of its corner */
       if (!live || Date.now() < lock) return;
       var i = clamp(Math.floor(clamp(-top / total, 0, 0.9999) * tabs.length), 0, tabs.length - 1);
@@ -386,7 +386,7 @@
     var hero = document.getElementById('top'); if (!hero) return;
     var end = 0, was = null;
     function m(){ end = window.pageYOffset + hero.getBoundingClientRect().bottom - 90; f(); }
-    function f(){ var p = window.pageYOffset > end; if (p !== was){ was = p; root.classList.toggle('past-hero', p); } }
+    function f(){ var p = S.geo().y > end; if (p !== was){ was = p; root.classList.toggle('past-hero', p); } }
     S.onScroll(f); window.addEventListener('resize', m); setTimeout(m, 1500); m();
   });
 

@@ -8,8 +8,8 @@
   var S = window.__site; if (!S) return;
   var root = document.documentElement, reduce = S.reduce, fine = S.fine, $ = S.$, $$ = S.$$, safe = S.safe, NS = 'http://www.w3.org/2000/svg';
   function clamp(v, a, b){ return v < a ? a : v > b ? b : v; }
-  function inView(el, top, bot){ var r = el.getBoundingClientRect(), vh = window.innerHeight; return r.top < vh * (top || 0.8) && r.bottom > vh * (bot || 0.15); }
-  function gone(el){ var r = el.getBoundingClientRect(); return r.bottom < -20 || r.top > window.innerHeight + 20; }
+  function inView(el, top, bot){ var r = S.box ? S.box(el) : el.getBoundingClientRect(), vh = window.innerHeight; return r.top < vh * (top || 0.8) && r.bottom > vh * (bot || 0.15); }
+  function gone(el){ var r = S.box ? S.box(el) : el.getBoundingClientRect(); return r.bottom < -20 || r.top > window.innerHeight + 20; }
 
   /* ---------- odometer: every digit is a strip that rolls into place and overshoots a little ----------
      A hidden copy of the final digit keeps the width and the baseline exactly as they were. */
@@ -127,8 +127,8 @@
     var run = false, lastY = window.pageYOffset, down = true;
     function frame(now){
       if (!run) return;
-      var vh = window.innerHeight, y = window.pageYOffset; if (y !== lastY){ down = y > lastY; lastY = y; }
-      T.forEach(function(o){ var r = o.vis.getBoundingClientRect(); if (r.bottom < -120 || r.top > vh + 120){ o.lastC = 2; return; }
+      var gg = S.geo(), vh = gg.vh, y = gg.y; if (y !== lastY){ down = y > lastY; lastY = y; }
+      T.forEach(function(o){ var r = S.box ? S.box(o.vis) : o.vis.getBoundingClientRect(); if (r.bottom < -120 || r.top > vh + 120){ o.lastC = 2; return; }
         var c = (r.top + r.height / 2) / vh, L = clamp((1.02 - c) / 0.44, 0, 1); L = L * L * (3 - 2 * L); o.land += (L - o.land) * 0.16;
         if (!o.landed && o.land > 0.965 && down){ o.landed = true; thud(o); } else if (o.landed && o.land < 0.6) o.landed = false;
         if (down && o.lastC > 0.52 && c <= 0.52 && !o.on && o.orbit < 0) o.orbit = now;
@@ -140,7 +140,7 @@
         o.fl.style.transform = 'translate3d(' + drift.toFixed(2) + 'px,' + oy.toFixed(2) + 'px,0)';
         o.rig.style.setProperty('--rx', o.rx.toFixed(2) + 'deg'); o.rig.style.setProperty('--ry', o.ry.toFixed(2) + 'deg');
         var hgt = Math.max(0, sp * 48 - bob + 3);
-        o.sh.style.transform = 'scale(' + (0.84 + hgt * 0.011).toFixed(3) + ',' + (0.84 + hgt * 0.007).toFixed(3) + ')'; o.sh.style.opacity = clamp(0.62 - hgt * 0.008, 0.14, 0.62).toFixed(3); o.sh.style.filter = 'blur(' + (2.5 + hgt * 0.3).toFixed(1) + 'px)';
+        o.sh.style.transform = 'scale(' + (0.84 + hgt * 0.011).toFixed(3) + ',' + (0.84 + hgt * 0.007).toFixed(3) + ')'; o.sh.style.opacity = clamp(0.62 - hgt * 0.008, 0.14, 0.62).toFixed(3); var bl = (Math.round((2.5 + hgt * 0.3) * 2) / 2) + 'px'; if (bl !== o.bl){ o.bl = bl; o.sh.style.filter = 'blur(' + bl + ')'; }
         o.vis.style.setProperty('--space', clamp(sp * 1.15, 0, 1).toFixed(3)); });
       requestAnimationFrame(frame);
     }
@@ -216,7 +216,7 @@
   safe(function(){
     var sm = $('#summit'), rd = sm && $('.sm-made', sm); if (!rd) return; var made = false;
     function text(){ var P = S.peaks[root.getAttribute('data-time')] || S.peaks.morning; $('b', rd).textContent = 'You made it.'; $('.sm-peak', rd).textContent = P[0]; $('.sm-alt', rd).textContent = P[1].toLocaleString('en-US') + ' m'; }
-    function check(){ if (made) return; var r = sm.getBoundingClientRect(), c = (r.top + r.height / 2) / window.innerHeight; if (c > 0.22 && c < 0.74){ made = true; text(); sm.classList.add('made'); S.emit('summit:reached'); S.track('summit'); } }
+    function check(){ if (made) return; var r = S.box ? S.box(sm) : sm.getBoundingClientRect(), c = (r.top + r.height / 2) / window.innerHeight; if (c > 0.22 && c < 0.74){ made = true; text(); sm.classList.add('made'); S.emit('summit:reached'); S.track('summit'); } }
     S.onScroll(check); setTimeout(check, 400); document.addEventListener('timechange', function(){ if (made) text(); });
   });
 

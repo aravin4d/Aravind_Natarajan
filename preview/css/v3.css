@@ -254,17 +254,8 @@ html.js .hero > .wrap{ transition:opacity .45s ease; }
 .rp-svg{ display:none; } .rp-card::before{ display:none; }
 .rp-stage{ margin-top:22px; }
 
-/* opening: a ridge draws, then the page lifts like cloud. Shown once per visit, 3 s at most. */
+/* opening: moved to css/v4.css (the ridge line drawing is gone) */
 .open{ display:none; }
-html.js .open{ position:fixed; inset:0; z-index:200; display:grid; place-items:center; background:var(--bg); clip-path:inset(0 0 0 0); transition:clip-path .9s cubic-bezier(.76,0,.24,1); }
-html.js .open.gone{ clip-path:inset(0 0 100% 0); }
-.open-in{ width:min(560px,78vw); text-align:center; transition:opacity .4s ease, transform .9s cubic-bezier(.76,0,.24,1); }
-.open.gone .open-in{ opacity:0; transform:translateY(-40px); }
-.open-ridge{ display:block; width:100%; height:110px; overflow:visible; }
-.open-ridge path{ fill:none; stroke:var(--accent); stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; vector-effect:non-scaling-stroke; stroke-dasharray:1200; stroke-dashoffset:1200; animation:openDraw 1.5s cubic-bezier(.5,0,.2,1) .1s forwards; }
-@keyframes openDraw{ to{ stroke-dashoffset:0; } }
-.open-n{ margin:20px 0 0; font:400 clamp(26px,4vw,40px)/1.1 Georgia, 'Times New Roman', serif; letter-spacing:-.02em; color:var(--ink); }
-.open-a{ margin:8px 0 0; font:500 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; color:var(--muted); }
 
 /* a thin line across the top that fills as you climb (runs on the compositor; no script) */
 .pgl{ display:none; }

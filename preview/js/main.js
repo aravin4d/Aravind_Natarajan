@@ -16,7 +16,32 @@
 
   /* one scroll loop for everything that follows the scroll */
   var onScroll = [], ticking = false;
-  window.addEventListener('scroll', function(){ if (ticking) return; ticking = true; requestAnimationFrame(function(){ ticking = false; onScroll.forEach(function(f){ f(); }); }); }, { passive: true });
+  /* v4 smooth: page geometry is measured once and reused. Scroll frames read from this cache, so a style write in one
+     effect never forces the browser to lay the page out again for the next one (that was most of the scroll cost). */
+  var G = { y: window.pageYOffset, vh: window.innerHeight, vw: window.innerWidth, max: 1, ver: 1, sp: -1 }, GB = new WeakMap(), GL = new WeakMap(), gDirty = true, gT = 0;
+  function gRead(){ gDirty = false; G.vh = window.innerHeight; G.vw = window.innerWidth; G.max = Math.max(1, document.documentElement.scrollHeight - G.vh); G.y = window.pageYOffset; }
+  function gBump(){ G.ver++; G.sp = -1; gDirty = true; }
+  function gLater(ms){ clearTimeout(gT); gT = setTimeout(function(){ gBump(); if (!ticking){ ticking = true; requestAnimationFrame(run); } }, ms || 0); }
+  function gLive(el){ var v = GL.get(el); if (v !== undefined) return v; v = false;
+    try { for (var e = el; e && e !== document.body && e.nodeType === 1; e = e.parentNode){ if (e.tagName === 'DIALOG'){ v = e; break; } var ps = getComputedStyle(e).position; if (ps === 'fixed' || ps === 'sticky'){ v = true; break; } } } catch (er){ v = true; }
+    GL.set(el, v); return v; }
+  var GONE = { top: -99999, bottom: -99999, left: 0, right: 0, width: 0, height: 0 };   /* inside a closed dialog: nothing to measure */
+  function gBox(el){
+    if (gDirty) gRead();
+    var c = GB.get(el);
+    if (!c || c.ver !== G.ver){ var lv = gLive(el); if (lv){ if (lv !== true && !lv.open) return GONE; return el.getBoundingClientRect(); }
+      var r = el.getBoundingClientRect(), y = window.pageYOffset; c = { ver: G.ver, t: r.top + y, l: r.left, w: r.width, h: r.height }; GB.set(el, c); }
+    var t = c.t - G.y; return { top: t, bottom: t + c.h, left: c.l, right: c.l + c.w, width: c.w, height: c.h };
+  }
+  window.__site.geo = function(){ if (gDirty) gRead(); return G; };
+  window.__site.box = gBox; window.__site.remeasure = gLater;
+  function run(){ ticking = false; if (gDirty) gRead(); for (var i = 0; i < onScroll.length; i++) onScroll[i](); }
+  window.addEventListener('scroll', function(){ G.y = window.pageYOffset; if (ticking) return; ticking = true; requestAnimationFrame(run); }, { passive: true });
+  window.addEventListener('resize', gBump); window.addEventListener('load', function(){ gLater(0); });
+  document.addEventListener('timechange', function(){ gLater(60); }); document.addEventListener('click', function(){ gLater(450); }, true);
+  if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', function(){ gLater(60); });
+  if ('ResizeObserver' in window){ try { var gro = new ResizeObserver(function(){ gLater(80); }); gro.observe(document.body); $$('main > section').forEach(function(s){ gro.observe(s); }); } catch (e){} }
+  else setInterval(gBump, 2500);
   function onView(el, cb, th){
     if (!('IntersectionObserver' in window)){ cb(el); return; }
     var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting){ io.disconnect(); cb(el); } }); }, { threshold: th || 0.15 });
@@ -75,7 +100,10 @@
     var probe = document.createElement('span'); probe.className = 'nl-probe'; probe.setAttribute('aria-hidden', 'true'); nm.appendChild(probe);
     function fix(){ L.forEach(function(s){ probe.textContent = s.textContent; s.style.width = probe.getBoundingClientRect().width.toFixed(2) + 'px'; }); }
     var started = false;
-    function start(){ if (started) return; started = true; fix();
+    function start(){ if (started) return;
+      /* v4: the name lands as the opening veil lifts, not unseen behind it */
+      if (window.__openWait){ if (!start.w){ start.w = true; document.addEventListener('open:lift', function(){ setTimeout(start, 260); }); setTimeout(function(){ window.__openWait = false; start(); }, 4200); } return; }
+      started = true; fix();
       var lastD = parseFloat(L[L.length - 1].style.getPropertyValue('--d')) || 0.9;
       requestAnimationFrame(function(){ requestAnimationFrame(function(){
         root.classList.add('intro-go');
@@ -87,8 +115,9 @@
     var rz = 0; window.addEventListener('resize', function(){ clearTimeout(rz); rz = setTimeout(fix, 150); });
     /* the letters lean in and get bolder near the cursor */
     var st = L.map(function(){ return { w: 500, y: 0, r: 0 }; }), hx = 0, hy = 0, on = false, raf = 0;
-    function tick(){ raf = 0; var busy = false, ready = root.classList.contains('intro-done');
-      if (ready) L.forEach(function(s, i){ var r = s.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2, dx = hx - cx, dy = (hy - cy) * 0.7, sg = r.height * 0.7, f = on ? Math.exp(-(dx * dx + dy * dy) / (2 * sg * sg)) : 0, S = st[i];
+    function tick(){ raf = 0; var busy = false, ready = root.classList.contains('intro-done'); if (on && window.pageYOffset > window.innerHeight * 0.9) on = false;
+      var RS = ready ? L.map(function(s){ return s.getBoundingClientRect(); }) : null;   /* measure every letter first, then write: one layout, not one per letter */
+      if (ready) L.forEach(function(s, i){ var r = RS[i], cx = r.left + r.width / 2, cy = r.top + r.height / 2, dx = hx - cx, dy = (hy - cy) * 0.7, sg = r.height * 0.7, f = on ? Math.exp(-(dx * dx + dy * dy) / (2 * sg * sg)) : 0, S = st[i];
         var tw = 500 + 330 * f, ty = -0.07 * f, tr = (dx > 0 ? -1 : 1) * 5 * f;
         S.w += (tw - S.w) * 0.2; S.y += (ty - S.y) * 0.2; S.r += (tr - S.r) * 0.2;
         if (Math.abs(tw - S.w) > 0.8 || Math.abs(ty - S.y) > 0.001 || Math.abs(tr - S.r) > 0.02) busy = true;
@@ -112,7 +141,7 @@
       var y = band.getBoundingClientRect().top + window.pageYOffset - Math.max(0, (window.innerHeight - band.offsetHeight) / 2);
       window.scrollTo({ top: y, behavior: reduce ? 'auto' : 'smooth' }); pk.classList.add('sent');
       setTimeout(function(){ window.__emit('env:greet'); }, reduce ? 0 : 800); });
-    function upd(){ var r = band.getBoundingClientRect(); if (r.top < window.innerHeight * 0.86) pk.classList.add('gone'); else { pk.classList.remove('gone'); pk.classList.remove('sent'); } }
+    function upd(){ var r = gBox(band); if (r.top < window.__site.geo().vh * 0.86) pk.classList.add('gone'); else { pk.classList.remove('gone'); pk.classList.remove('sent'); } }
     onScroll.push(upd); upd();
     if (!reduce) setInterval(function(){ if (document.hidden || pk.classList.contains('gone') || pk.matches(':hover')) return; pk.classList.remove('nudge'); void pk.offsetWidth; pk.classList.add('nudge'); }, 6500);
     pk.addEventListener('animationend', function(e){ if (e.animationName === 'peekNudge') pk.classList.remove('nudge'); });
@@ -126,8 +155,8 @@
   var PEAKS = { night: ['Doddabetta', 2637, 330, 2240], morning: ['Mont Blanc', 4808, 1035, 1224], dusk: ['Emi Koussi', 3415, 900, 520] };
   window.__peaks = PEAKS;
   window.__site.peaks = PEAKS; window.__site.altitude = function(pr){ return altitude(pr); }; window.__site.summitP = function(){ return summitP(); };
-  function summitP(){ var sm = document.getElementById('summit'), max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight); if (!sm) return 0.62;
-    var r = sm.getBoundingClientRect(); return Math.min(0.95, Math.max(0.15, (r.top + window.pageYOffset + r.height / 2 - window.innerHeight / 2) / max)); }
+  function summitP(){ var g = window.__site.geo(); if (g.sp >= 0) return g.sp; var sm = document.getElementById('summit'); if (!sm) return 0.62;
+    var r = gBox(sm); g.sp = Math.min(0.95, Math.max(0.15, (r.top + g.y + r.height / 2 - g.vh / 2) / g.max)); return g.sp; }
   function ease2(t){ return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }
   function altitude(pr){ var P = PEAKS[root.getAttribute('data-time')] || PEAKS.morning, sp = summitP(); return pr <= sp ? P[2] + (P[1] - P[2]) * ease2(pr / sp) : P[1] - (P[1] - P[3]) * ease2((pr - sp) / (1 - sp)); }
   var camps = $$('[data-camp]');
@@ -136,11 +165,11 @@
     function setCamp(i){ if (i === cur) return; if (items[i]){ var d0 = $('.alt-dot', items[i]); if (d0 && !reduce){ d0.classList.remove('hop'); void d0.offsetWidth; d0.classList.add('hop');
       [i - 1, i + 1].forEach(function(k, n){ var dn = items[k] && $('.alt-dot', items[k]); if (dn) setTimeout(function(){ dn.classList.remove('nudge'); void dn.offsetWidth; dn.classList.add('nudge'); }, 80 + n * 50); }); } } cur = i; items.forEach(function(li, k){ if (k === i) li.classList.add('on'); else li.classList.remove('on'); }); var n = camps[i] ? camps[i].getAttribute('data-camp') : ''; if (readC) readC.textContent = n; if (tbl) tbl.textContent = n; }
     function update(){
-      var mid = window.innerHeight * 0.45, best = 0;
-      camps.forEach(function(s, i){ if (s.getBoundingClientRect().top <= mid) best = i; });
+      var g = window.__site.geo(), mid = g.vh * 0.45, best = 0;
+      camps.forEach(function(s, i){ if (gBox(s).top <= mid) best = i; });
       setCamp(best);
-      var max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight), pr = Math.min(1, window.pageYOffset / max);
-      if (readM) readM.textContent = Math.round(altitude(pr)).toLocaleString('en-US') + ' m';
+      var max = g.max, pr = Math.min(1, g.y / max), mt = Math.round(altitude(pr)).toLocaleString('en-US') + ' m';
+      if (readM && readM.__t !== mt){ readM.__t = mt; readM.textContent = mt; }
       if (readC && camps[best] && camps[best].id === 'summit'){ var pk = PEAKS[root.getAttribute('data-time')]; if (pk) readC.textContent = pk[0] + ' summit'; }
       if (nav) nav.style.setProperty('--pr', pr.toFixed(4));
     }
@@ -331,6 +360,6 @@
   /* ---------- painted fallback moves gently when there's no 3D ---------- */
   safe(function(){
     var paint = $('.env-paint'); if (!paint) return;
-    onScroll.push(function(){ if (!root.classList.contains('no-3d')) return; var max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight); paint.style.setProperty('--sp', Math.min(1, window.pageYOffset / max).toFixed(4)); });
+    onScroll.push(function(){ if (!root.classList.contains('no-3d')) return; var g = window.__site.geo(); paint.style.setProperty('--sp', Math.min(1, g.y / g.max).toFixed(3)); });
   });
 })();

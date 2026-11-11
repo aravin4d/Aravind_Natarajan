@@ -102,16 +102,17 @@
   var THEMES = ['night', 'morning', 'dusk'];
 
   function init(){
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    /* v4 smooth: cap at 1.5x. Behind fog, cloud and a page of text, 2x is not visible but costs 78% more pixels every frame. */
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap; renderer.shadowMap.autoUpdate = false; renderer.shadowMap.needsUpdate = true;
     var gl2 = renderer.capabilities.isWebGL2;
     var scene = new THREE.Scene();
     var cam = new THREE.PerspectiveCamera(52, window.innerWidth / window.innerHeight, 2, 14000);
     var fog = new THREE.Fog(0xffffff, 60, 1800); scene.fog = fog;
     var hemi = new THREE.HemisphereLight(0xffffff, 0x444444, 0.6); scene.add(hemi);
     var sun = new THREE.DirectionalLight(0xffffff, 1); scene.add(sun); scene.add(sun.target);
-    sun.castShadow = true; sun.shadow.mapSize.set(small ? 2048 : 4096, small ? 2048 : 4096);
+    sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048);   /* v4 smooth: 4096 was 4x the fill for a soft shadow seen through haze */
     var sc = sun.shadow.camera; sc.left = -1500; sc.right = 1500; sc.top = 1500; sc.bottom = -1500; sc.near = 10; sc.far = 7000;
     sun.shadow.bias = -0.0006; sun.shadow.normalBias = 1.2;
 
@@ -522,7 +523,7 @@
     /* ---------- post: heat shimmer, passing through cloud, a soft vignette ---------- */
     function rtW(){ return Math.floor(window.innerWidth * renderer.getPixelRatio()); } function rtH(){ return Math.floor(window.innerHeight * renderer.getPixelRatio()); }
     var rt = gl2 && THREE.WebGLMultisampleRenderTarget ? new THREE.WebGLMultisampleRenderTarget(rtW(), rtH(), { format: THREE.RGBAFormat }) : new THREE.WebGLRenderTarget(rtW(), rtH(), { format: THREE.RGBAFormat });
-    if (rt.samples !== undefined) rt.samples = 4;
+    if (rt.samples !== undefined) rt.samples = renderer.getPixelRatio() > 1.2 ? 2 : 4;   /* v4 smooth: dense screens need less smoothing */
     var postU = { tDiffuse: { value: rt.texture }, uTime: { value: 0 }, uShimmer: { value: 0 }, uWhite: { value: 0 }, uWhiteCol: { value: new THREE.Color(1, 1, 1) }, uVig: { value: 0.35 } };
     var postScene = new THREE.Scene(), postCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
     postScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.ShaderMaterial({ uniforms: postU, depthTest: false, depthWrite: false,
@@ -537,13 +538,16 @@
     var u = 0, uT = 0, pS = 0.62, maxS = 1, lastP = 0, vel = 0, wind = 0, windOff = new THREE.Vector2(), mx = 0, my = 0, cmx = 0, cmy = 0, tiltX = 0, tiltY = 0, dirBias = 0, camYs = null;
     function measure(){ var sm = document.getElementById('summit'); maxS = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
       if (sm){ var r = sm.getBoundingClientRect(); pS = clamp((r.top + window.pageYOffset + r.height / 2 - window.innerHeight / 2) / maxS, 0.15, 0.95); } }
-    function targetU(){ var p = clamp(window.pageYOffset / maxS, 0, 1); return p <= pS ? 0.5 * p / pS : 0.5 + 0.5 * (p - pS) / (1 - pS); }
+    function SY(){ var s = window.__site; return s && s.geo ? s.geo().y : window.pageYOffset; }   /* v4 smooth: the shared scroll position, so the render loop never forces a page layout */
+    function targetU(){ var p = clamp(SY() / maxS, 0, 1); return p <= pS ? 0.5 * p / pS : 0.5 + 0.5 * (p - pS) / (1 - pS); }
     window.addEventListener('scroll', function(){ uT = targetU(); }, { passive: true });
     window.addEventListener('mousemove', function(e){ mx = e.clientX / window.innerWidth * 2 - 1; my = e.clientY / window.innerHeight * 2 - 1; }, { passive: true });
     window.addEventListener('deviceorientation', function(e){ if (e.gamma == null) return; tiltX = clamp(e.gamma / 30, -1, 1); tiltY = clamp((e.beta - 45) / 30, -1, 1); }, { passive: true });
     function resize(){ renderer.setSize(window.innerWidth, window.innerHeight); cam.aspect = window.innerWidth / window.innerHeight; cam.updateProjectionMatrix(); rt.setSize(rtW(), rtH()); measure(); uT = targetU(); }
     window.addEventListener('resize', resize); window.addEventListener('load', function(){ measure(); uT = targetU(); });
-    setInterval(function(){ measure(); uT = targetU(); }, 2500);
+    /* v4 smooth: was a forced page layout every 2.5 s (a visible hitch mid-scroll). Now only when the page's size really changes. */
+    if ('ResizeObserver' in window){ var mT = 0; new ResizeObserver(function(){ clearTimeout(mT); mT = setTimeout(function(){ measure(); uT = targetU(); }, 200); }).observe(document.body); }
+    else setInterval(function(){ measure(); uT = targetU(); }, 2500);
 
     /* ---------- theme changes: a wave that sweeps out from where you stand ---------- */
     var morph = null, dist = new Float32Array(NV), cgx = 0, cgz = 0;
@@ -583,18 +587,19 @@
        Nothing else changes: every effect stays on. */
     var GOV = { max: renderer.getPixelRatio(), pr: renderer.getPixelRatio(), acc: 0, n: 0, slow: 0, fast: 0, t0: performance.now(), fps: 0 };
     function govern(ms){ GOV.acc += ms; GOV.n++; if (GOV.acc < 1500) return; var avg = GOV.acc / GOV.n; GOV.fps = 1000 / avg; GOV.acc = 0; GOV.n = 0;
-      if (performance.now() - GOV.t0 < 7000 || morph || document.hidden) return;
-      if (avg > 24){ GOV.slow++; GOV.fast = 0; } else if (avg < 12.5){ GOV.fast++; GOV.slow = 0; } else { GOV.slow = 0; GOV.fast = 0; }
-      var to = GOV.pr; if (GOV.slow >= 2 && GOV.pr > 1) to = Math.max(1, GOV.pr - 0.25); else if (GOV.fast >= 6 && GOV.pr < GOV.max) to = Math.min(GOV.max, GOV.pr + 0.25);
+      if (performance.now() - GOV.t0 < 4000 || morph || document.hidden) return;
+      /* v4 smooth: this used to act only below 41 fps. Now anything under about 54 fps for three seconds steps the resolution down. */
+      if (avg > 18.4){ GOV.slow++; GOV.fast = 0; } else if (avg < 12.5){ GOV.fast++; GOV.slow = 0; } else { GOV.slow = 0; GOV.fast = 0; }
+      var to = GOV.pr; if (GOV.slow >= 2 && GOV.pr > 0.75) to = Math.max(0.75, GOV.pr - 0.25); else if (GOV.fast >= 6 && GOV.pr < GOV.max) to = Math.min(GOV.max, GOV.pr + 0.25);
       if (to !== GOV.pr){ GOV.pr = to; GOV.slow = GOV.fast = 0; renderer.setPixelRatio(to); resize(); } }
-    var paused = false;
+    var paused = false, SH = { k: '', n: 0 };
     function frame(now){
       requestAnimationFrame(frame);
       if (document.hidden || paused){ last = now; return; }
       var dt = Math.min(0.05, Math.max(0.001, (now - last) / 1000)); last = now; time += dt; govern(dt * 1000);
       if (intro < 1) intro = Math.min(1, intro + dt / 2.6);
       u += (uT - u) * (reduce ? 1 : 1 - Math.exp(-dt * 5.5));
-      var p = window.pageYOffset / maxS, v = (p - lastP) * maxS / dt; lastP = p; vel = lerp(vel, v, 0.2);
+      var p = SY() / maxS, v = (p - lastP) * maxS / dt; lastP = p; vel = lerp(vel, v, 0.2);
       wind = Math.max(wind * Math.exp(-dt * 1.4), clamp(Math.abs(vel) / 2600, 0, 1)); dirBias = lerp(dirBias, clamp(vel / 1800, -1, 1), 0.05);
       cmx += ((mx + tiltX) - cmx) * 0.05; cmy += ((my + tiltY) - cmy) * 0.05;
       if (morph) stepMorph(dt);
@@ -644,6 +649,10 @@
       fwd.set(look.x - cam.position.x, 0, look.z - cam.position.z).normalize();
       var fx = Math.round((cam.position.x + fwd.x * 700) / 8) * 8, fz = Math.round((cam.position.z + fwd.z * 700) / 8) * 8;
       sun.target.position.set(fx, 0, fz); sun.position.set(fx, 0, fz).addScaledVector(tmpV, 3000); sun.target.updateMatrixWorld();
+      /* v4 smooth: the shadow map was redrawn every frame (the whole terrain, a second time). Now only when the sun or the
+         patch of ground it covers has moved, during a theme change, while the flag is landing, and a few times a second otherwise. */
+      SH.n++; var shK = fx + ':' + fz + ':' + Math.round(tmpV.x * 400) + ':' + Math.round(tmpV.y * 400) + ':' + Math.round(tmpV.z * 400);
+      if (shK !== SH.k || morph || (FLAG.on && FLAG.t < 3) || SH.n >= 20){ SH.k = shK; SH.n = 0; renderer.shadowMap.needsUpdate = true; }
 
       /* clouds: climb through them, then look down on them */
       var CLa = CLOUDS[from], CLb = CLOUDS[cur], white = 0, wsum = 0; whiteCol.setRGB(0, 0, 0);

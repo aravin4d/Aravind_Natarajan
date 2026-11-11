@@ -10,13 +10,14 @@
   function theme(){ var t = root.getAttribute('data-time'); return t === 'night' || t === 'morning' ? t : 'dusk'; }
   function clamp(v, a, b){ return v < a ? a : v > b ? b : v; }
   function rnd(a, b){ return a + Math.random() * (b - a); }
-  function dlgOpen(){ return root.classList.contains('dlg-open') || !!document.querySelector('dialog[open]'); }
+  var dlgAt = -1e9, dlgV = false;
+  function dlgOpen(){ if (root.classList.contains('dlg-open')) return true; var n = performance.now(); if (n - dlgAt > 300){ dlgAt = n; dlgV = !!document.querySelector('dialog[open]'); } return dlgV; }
   function sfx(n, o){ if (S.sfx) S.sfx(n, o); }
 
   /* ---------- W3-11: loops in sections more than a screen away wait until you come back ---------- */
   safe(function(){
     if (!('IntersectionObserver' in window)) return;
-    var io = new IntersectionObserver(function(es){ es.forEach(function(e){ e.target.classList.toggle('zz', !e.isIntersecting); }); }, { rootMargin: '150px 0px' });
+    var io = new IntersectionObserver(function(es){ es.forEach(function(e){ e.target.classList.toggle('zz', !e.isIntersecting); }); }, { rootMargin: '400px 0px' });
     $$('main > section').forEach(function(s){ io.observe(s); });
   });
 
@@ -89,7 +90,9 @@
 
   /* ---------- W3-02: scroll lean. Content has a little weight: it lags and tilts as you scroll, then springs back ---------- */
   safe(function(){
-    if (reduce) return;
+    /* v4 smooth: switched off. Tilting whole sections on a fast scroll re-rasterised every section on screen and measured
+       each one every frame: the single biggest script cost while scrolling. ?lean=1 turns it back on for comparison. */
+    if (reduce || !/[?&]lean=1/.test(location.search)) return;
     var els = $$('main > section > .wrap').concat($$('#summit > [data-reveal]'));
     var st = { r: 0, vr: 0, y: 0, vy: 0, v: 0 }, lastY = window.pageYOffset, lastT = performance.now(), lastS = 0, raf = 0, prev = 0;
     if ('IntersectionObserver' in window){ var io = new IntersectionObserver(function(es){ es.forEach(function(e){ e.target.__lv = e.isIntersecting; }); }, { rootMargin: '80px 0px' }); els.forEach(function(el){ io.observe(el); }); }
@@ -167,7 +170,7 @@
     window.addEventListener('touchmove', function(){ lastUser = performance.now(); }, { passive: true });
     window.addEventListener('pointerdown', function(e){ if (tw) cancel(); if (e.target === root || e.clientX >= root.clientWidth) lastUser = performance.now(); }, { passive: true });
     window.addEventListener('keydown', function(){ lastKey = performance.now(); if (tw) cancel(); });
-    window.addEventListener('scroll', function(){ var y = window.pageYOffset; if (y !== lastY) dir = y > lastY ? 1 : -1; lastY = y; if (tw) return; clearTimeout(tmr); tmr = setTimeout(end, 180); }, { passive: true });
+    window.addEventListener('scroll', function(){ var y = S.geo().y; if (y !== lastY) dir = y > lastY ? 1 : -1; lastY = y; if (tw) return; clearTimeout(tmr); tmr = setTimeout(end, 180); }, { passive: true });
     if ('onscrollend' in window) window.addEventListener('scrollend', function(){ if (!tw){ clearTimeout(tmr); tmr = setTimeout(end, 40); } });
     function end(){
       var now = performance.now();

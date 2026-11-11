@@ -30,7 +30,7 @@
     document.body.insertBefore(sky, document.body.firstChild);
     var sm = document.getElementById('summit'), last = -1;
     function alt(){
-      var y = window.pageYOffset, max = docMax(), top = sm ? clamp(y + sm.getBoundingClientRect().top - window.innerHeight * 0.25, 1, max) : max;
+      var g = S.geo(), y = g.y, max = g.max, top = sm ? clamp(y + S.box(sm).top - g.vh * 0.25, 1, max) : max;
       var a = y <= top ? y / top : 1 - 0.7 * (y - top) / Math.max(1, max - top);
       a = Math.round(clamp(a, 0, 1) * 100) / 100;
       if (a !== last){ last = a; sky.style.setProperty('--alt', a); }   /* on the layer itself: a variable on <html> would restyle the whole page on every scroll step */
@@ -332,11 +332,11 @@
     }
     function at(x){ for (var i = 1; i < pts.length; i++) if (x <= pts[i][0]){ var a = pts[i - 1], b = pts[i], t = (x - a[0]) / Math.max(0.001, b[0] - a[0]); return [x, a[1] + (b[1] - a[1]) * t, i]; } var l = pts[pts.length - 1]; return [l[0], l[1], pts.length - 1]; }
     function upd(){
-      var p = at(clamp(window.pageYOffset / maxY, 0, 1) * W);
+      var p = at(clamp(S.geo().y / maxY, 0, 1) * W), pk = p[0].toFixed(1) + p[2]; if (pk === upd.k) return; upd.k = pk;
       you.setAttribute('cx', p[0].toFixed(1)); you.setAttribute('cy', p[1].toFixed(1));
       done.setAttribute('d', pts.slice(0, p[2]).map(function(q, i){ return (i ? 'L' : 'M') + q[0].toFixed(1) + ' ' + q[1].toFixed(1); }).join(' ') + ' L' + p[0].toFixed(1) + ' ' + p[1].toFixed(1));
     }
-    build(); upd(); S.onScroll(upd); window.addEventListener('resize', function(){ build(); upd(); });
+    build(); upd(); S.onScroll(upd); window.addEventListener('resize', function(){ upd.k = ''; build(); upd(); });
     setInterval(function(){ if (Math.abs(document.documentElement.scrollHeight - lastH) > 40){ build(); upd(); } }, 3000);
   });
 

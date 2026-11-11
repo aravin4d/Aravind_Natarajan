@@ -156,11 +156,11 @@
   }
 
   /* ---------- walking: the prints follow the scroll, a little below the middle of the screen ---------- */
-  function targetIdx(){ if (!N) return -1; var y = window.pageYOffset, vh = window.innerHeight, max = document.documentElement.scrollHeight - vh; if (y >= max - 6) return N - 1;
+  function targetIdx(){ if (!N) return -1; var g = S.geo(), y = g.y, vh = g.vh, max = g.max; if (y >= max - 6) return N - 1;
     var rest = max - y, near = rest < vh * 0.6 ? 1 - rest / (vh * 0.6) : 0, ty = y + vh * (0.64 + 0.36 * near), lo = 0, hi = N - 1;
     if (CMY[hi] <= ty) return hi; if (CMY[0] > ty) return -1; while (hi - lo > 1){ var m = (lo + hi) >> 1; if (CMY[m] <= ty) lo = m; else hi = m; } return lo; }
   function firstAt(y){ if (!N) return 0; var lo = 0, hi = N - 1; if (CMY[0] >= y) return 0; if (CMY[hi] < y) return hi; while (hi - lo > 1){ var m = (lo + hi) >> 1; if (CMY[m] < y) lo = m; else hi = m; } return hi; }
-  function onScreen(p){ var y = p.y - window.pageYOffset; return y > -30 && y < window.innerHeight + 30; }
+  function onScreen(p){ var g = S.geo(), y = p.y - g.y; return y > -30 && y < g.vh + 30; }
   function sync(n, inst){
     if (n === shown) return;
     var fresh = !inst && !reduce && Math.abs(n - shown) <= 3 && performance.now() - lastFreshT > 60;
@@ -175,8 +175,8 @@
     var dt = Math.min(0.25, Math.max(0.008, (now - (lastT || now)) / 1000)); lastT = now;
     target = started ? targetIdx() : -1;
     /* a long jump (the nav, the cable car): everything well above the screen is simply there already, and only the stretch you can see is walked */
-    if (target - wF > 30){ var yTop = window.pageYOffset - window.innerHeight * 0.25, j = firstAt(yTop) - 8; if (j > wF) wF = j; }
-    else if (wF - target > 30){ var yBot = window.pageYOffset + window.innerHeight * 1.25, j2 = firstAt(yBot) + 8; if (j2 < wF) wF = Math.max(target, j2); }
+    if (target - wF > 30){ var yTop = S.geo().y - S.geo().vh * 0.25, j = firstAt(yTop) - 8; if (j > wF) wF = j; }
+    else if (wF - target > 30){ var yBot = S.geo().y + S.geo().vh * 1.25, j2 = firstAt(yBot) + 8; if (j2 < wF) wF = Math.max(target, j2); }
     var diff = target - wF, moving = false;
     if (Math.abs(diff) > 0.01){ var cap = now - startT < 2600 && Math.abs(diff) < 26 ? 15 : 170, sp = reduce ? 1e6 : clamp(Math.abs(diff) * 6, 10, cap) * dt; wF += clamp(diff, -sp, sp); if (Math.abs(target - wF) < 0.02) wF = target; moving = true; }
     sync(Math.floor(wF + 0.0001), false);
@@ -202,7 +202,7 @@
   /* now and then, while you read: a firefly lifts off a print at night, a crystal glints in the morning, a breath of wind crosses the sand at dusk */
   function ambient(){
     if (reduce || document.hidden || !built || root.classList.contains('dlg-open')) return;
-    var vis = []; for (var i = Math.max(0, shown - 40); i <= shown; i++){ var p = PR[i]; if (p && onScreen(p) && p.y - window.pageYOffset > 90) vis.push(p); }
+    var vis = []; for (var i = Math.max(0, shown - 40); i <= shown; i++){ var p = PR[i]; if (p && onScreen(p) && p.y - S.geo().y > 90) vis.push(p); }
     if (!vis.length) return; var q = vis[(Math.random() * vis.length) | 0], t = theme(), el = document.createElement('i');
     el.className = 'st-amb st-amb-' + t; el.style.left = f1(q.x) + 'px'; el.style.top = f1(q.y - OY) + 'px'; lay.appendChild(el); setTimeout(function(){ if (el.parentNode) el.parentNode.removeChild(el); }, 3400); }
   setInterval(ambient, 4200);
@@ -247,6 +247,7 @@
   window.addEventListener('resize', function(){ later(); }); window.addEventListener('load', function(){ later(60); });
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ later(); });
   if ('ResizeObserver' in window) new ResizeObserver(function(){ later(320); }).observe(document.body);
-  setInterval(function(){ if (signature() !== sig) later(0); }, 2500);
+  /* v4 smooth: this measured every section every 2.5 s (a 70 to 130 ms stall mid-scroll in testing). The size observer above already covers it. */
+  if (!('ResizeObserver' in window)) setInterval(function(){ if (signature() !== sig) later(0); }, 2500);
   later(0);
 })();

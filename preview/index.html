@@ -35,9 +35,10 @@ setTimeout(function(){d.classList.add('intro-done');if(!window.__mainReady)d.cla
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Caveat:wght@500;600;700&display=swap">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+Devanagari:wght@600&text=%E0%A4%AD%E0%A4%BE%E0%A4%B0%E0%A4%A4&display=swap">
-<link rel="stylesheet" href="css/style.css?v=20261111m">
-<link rel="stylesheet" href="css/v3.css?v=20261111m">
-<link rel="stylesheet" href="css/v3fx.css?v=20261111m">
+<link rel="stylesheet" href="css/style.css?v=20261111p">
+<link rel="stylesheet" href="css/v3.css?v=20261111p">
+<link rel="stylesheet" href="css/v3fx.css?v=20261111p">
+<link rel="stylesheet" href="css/v4.css?v=20261111p">
 <script>(function(){var d=document.documentElement,done=false;function ok(){if(done)return;done=true;d.classList.add('fonts-ok');}
 try{Promise.all([document.fonts.load('500 80px Fraunces'),document.fonts.load('400 16px "IBM Plex Sans"'),document.fonts.load('600 16px "IBM Plex Sans"')]).then(ok,ok);}catch(e){ok();}
 setTimeout(ok,1800);})();</script>
@@ -50,12 +51,26 @@ setTimeout(ok,1800);})();</script>
 </script>
 </head>
 <body>
-<div class="open" id="open" aria-hidden="true"><div class="open-in"><svg class="open-ridge" viewBox="0 0 600 120" preserveAspectRatio="none"><path d="M0 112 L66 84 L118 98 L188 46 L246 80 L318 16 L378 64 L440 42 L520 90 L600 72"/></svg><p class="open-n">Aravind Natarajan</p><p class="open-a">Base camp · the climb starts here</p></div></div>
-<script>(function(){var o=document.getElementById('open'),d=document.documentElement,t0=Date.now(),done=false;
-function go(){if(done)return;done=true;o.classList.add('gone');setTimeout(function(){if(o.parentNode)o.parentNode.removeChild(o);},1000);}
+<div class="open" id="open" aria-hidden="true"><div class="open-in"><p class="open-k" id="openK">Base camp</p><p class="open-m"><b id="openM">0</b><i>m</i></p><div class="open-bar"><i id="openBar"></i></div></div></div>
+<script>/* v4 opening: an altimeter settles on base-camp height while the fonts and the 3D world load behind a plain veil;
+   the veil lifts only once the mountain is really there, so nothing is ever seen half-drawn. Once per visit, 3.6 s at most. */
+(function(){var o=document.getElementById('open'),d=document.documentElement,t0=Date.now(),done=false,ready=0;
+function rm(){if(o.parentNode)o.parentNode.removeChild(o);}
 var seen=false;try{seen=sessionStorage.getItem('opened')==='1';sessionStorage.setItem('opened','1');}catch(e){}
-if(seen||(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)){if(o.parentNode)o.parentNode.removeChild(o);return;}
-var iv=setInterval(function(){var el=Date.now()-t0;if((el>1300&&d.classList.contains('fonts-ok')&&(d.classList.contains('has-3d')||el>2300))||el>3000){clearInterval(iv);go();}},80);})();</script>
+if(seen||(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)){rm();return;}
+window.__openWait=true;
+var P={night:['Doddabetta',330],morning:['Mont Blanc',1035],dusk:['Emi Koussi',900]}[d.getAttribute('data-time')]||['Mont Blanc',1035];
+var k=document.getElementById('openK'),m=document.getElementById('openM'),bar=document.getElementById('openBar');
+k.textContent='Base camp \u00b7 '+P[0];
+function go(){if(done)return;done=true;window.__openWait=false;m.textContent=P[1].toLocaleString('en-US');bar.style.transform='scaleX(1)';
+ setTimeout(function(){o.classList.add('gone');try{document.dispatchEvent(new Event('open:lift'));}catch(e){}setTimeout(rm,1100);},180);}
+function tick(){if(done)return;var el=Date.now()-t0,f=d.classList.contains('fonts-ok'),w=d.classList.contains('has-3d')||d.classList.contains('no-3d');
+ var c=Math.min(1,el/1150),e=1-Math.pow(1-c,3);m.textContent=Math.round(P[1]*e).toLocaleString('en-US');
+ bar.style.transform='scaleX('+Math.min(.25+(f?.3:0)+(w?.45:0),.12+el/3600).toFixed(3)+')';
+ if(f&&w){if(!ready)ready=el;if(el>1250&&el-ready>380){go();return;}}
+ if(el>3600){go();return;}
+ requestAnimationFrame(tick);}
+requestAnimationFrame(tick);})();</script>
 <div class="pgl" aria-hidden="true"></div>
 <canvas id="world" aria-hidden="true"></canvas>
 <div class="env-paint" aria-hidden="true"><svg class="pt pt-night" viewBox="0 0 1600 700" preserveAspectRatio="xMidYMax slice"><circle class="mo" cx="1180" cy="150" r="46"/><path class="l1" d="M0 293 C80 293 80 251 160 251 C240 251 240 288 320 288 C400 288 400 341 480 341 C560 341 560 360 640 360 C720 360 720 347 800 347 C880 347 880 304 960 304 C1040 304 1040 260 1120 260 C1200 260 1200 291 1280 291 C1360 291 1360 315 1440 315 C1520 315 1520 335 1600 335 V700 H0Z"/><path class="l2" d="M0 386 Q6 374 26 385 Q32 379 53 390 Q59 384 80 396 Q86 382 106 394 Q112 394 133 406 Q139 402 160 414 Q166 414 186 426 Q192 417 213 429 Q219 423 240 435 Q246 437 266 449 Q272 442 293 454 Q299 440 320 451 Q326 447 346 459 Q352 446 373 458 Q379 452 400 464 Q406 452 426 464 Q432 441 453 452 Q459 444 480 456 Q486 437 506 449 Q512 432 533 444 Q539 433 560 444 Q566 426 586 437 Q592 422 613 434 Q619 415 640 426 Q646 408 666 419 Q672 401 693 413 Q699 397 720 408 Q726 390 746 402 Q752 388 773 400 Q779 382 800 393 Q806 378 826 390 Q832 383 853 394 Q859 386 880 398 Q886 392 906 403 Q912 388 933 400 Q939 396 960 407 Q966 398 986 410 Q992 400 1013 412 Q1019 395 1040 407 Q1046 399 1066 411 Q1072 413 1093 424 Q1099 410 1120 422 Q1126 419 1146 430 Q1152 424 1173 436 Q1179 437 1200 449 Q1206 441 1226 453 Q1232 438 1253 450 Q1259 448 1280 460 Q1286 451 1306 463 Q1312 449 1333 461 Q1339 454 1360 465 Q1366 446 1386 457 Q1392 450 1413 462 Q1419 448 1440 459 Q1446 443 1466 455 Q1472 440 1493 451 Q1499 429 1520 441 Q1526 427 1546 438 Q1552 418 1573 430 Q1579 410 1600 422 V700 H0Z"/><path class="l3" d="M0 568 Q9 542 36 557 Q47 543 74 558 Q85 549 112 564 Q123 562 150 578 Q161 556 188 571 Q199 565 227 580 Q237 566 265 581 Q276 558 303 574 Q314 561 341 577 Q352 548 379 563 Q390 545 417 560 Q428 538 455 553 Q466 535 493 550 Q504 532 531 548 Q542 536 569 551 Q580 524 607 539 Q618 530 646 545 Q656 531 684 547 Q695 532 722 548 Q733 527 760 543 Q771 533 798 548 Q809 542 836 557 Q847 552 874 568 Q885 555 912 570 Q923 562 950 577 Q961 565 988 580 Q999 562 1027 577 Q1037 564 1065 579 Q1076 561 1103 576 Q1114 555 1141 571 Q1152 543 1179 558 Q1190 544 1217 559 Q1228 538 1255 553 Q1266 538 1293 553 Q1304 521 1331 536 Q1342 515 1369 530 Q1380 505 1407 520 Q1418 519 1446 534 Q1456 518 1484 533 Q1495 526 1522 541 Q1533 524 1560 539 Q1571 535 1598 550 V700 H0Z"/></svg><svg class="pt pt-morning" viewBox="0 0 1600 700" preserveAspectRatio="xMidYMax slice"><path class="l1" d="M0 420 L140 330 L260 380 L420 230 L560 320 L700 170 L800 110 L900 190 L1040 120 L1160 250 L1300 200 L1440 300 L1600 260 V700 H0Z"/><path class="sn" d="M760 146 L800 110 L842 142 L826 150 L812 138 L798 156 L784 144 Z M1010 142 L1040 120 L1072 150 L1058 152 L1046 140 L1034 156 Z M395 256 L420 230 L448 262 L432 262 L420 250 L408 266 Z"/><path class="l2" d="M0 451 L178 443 L356 433 L533 420 L711 457 L889 483 L1067 500 L1244 461 L1422 442 L1600 409 V700 H0Z"/><path class="l3" d="M0 588 L160 576 L320 581 L480 599 L640 610 L800 616 L960 588 L1120 590 L1280 559 L1440 580 L1600 601 V700 H0Z"/></svg><svg class="pt pt-dusk" viewBox="0 0 1600 700" preserveAspectRatio="xMidYMax slice"><circle class="su" cx="420" cy="300" r="90"/><path class="l1" d="M0 430 L120 430 L150 330 L330 330 L360 420 L560 420 L590 300 L640 290 L700 260 L760 300 L820 300 L850 380 L1020 380 L1050 320 L1260 320 L1290 410 L1600 410 V700 H0Z"/><path class="l2" d="M0 520 C130 520 130 470 260 470 C390 470 390 540 520 540 C660 540 660 480 800 480 C950 480 950 545 1100 545 C1240 545 1240 490 1380 490 C1490 490 1490 530 1600 530 V700 H0Z"/><path class="l3" d="M0 610 C150 610 150 575 300 575 C470 575 470 630 640 630 C810 630 810 585 980 585 C1140 585 1140 640 1300 640 C1450 640 1450 600 1600 600 V700 H0Z"/></svg></div>
@@ -499,20 +514,21 @@ var iv=setInterval(function(){var el=Date.now()-t0;if((el>1300&&d.classList.cont
   <div class="wb"><div class="wb-k">Write back</div><div class="wb-row"><a class="btn wb-b" data-wb="mail" href="mailto:Aravin4d@gmail.com?subject=Re%3A%20your%20letter"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>By email</a><a class="btn wb-b" data-wb="li" href="https://www.linkedin.com/in/natarajan-aravind" target="_blank" rel="noopener"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.5h4v11H3zM9.5 9.5h3.8v1.6h.1c.5-.9 1.8-1.9 3.7-1.9 4 0 4.7 2.6 4.7 6v5.3h-4v-4.7c0-1.1 0-2.6-1.6-2.6s-1.8 1.2-1.8 2.5v4.8h-4z"/></svg>On LinkedIn</a></div><div class="wb-note" aria-live="polite"></div></div>
 </div></div></dialog>
 
-<script defer src="js/main.js?v=20261111m"></script>
-<script defer src="js/steps.js?v=20261111m"></script>
-<script defer src="js/play.js?v=20261111m"></script>
-<script defer src="js/motion.js?v=20261111m"></script>
-<script defer src="js/sections.js?v=20261111m"></script>
-<script defer src="js/reveal.js?v=20261111m"></script>
-<script defer src="js/v3fx.js?v=20261111m"></script>
-<script defer src="js/v3.js?v=20261111m"></script>
-<script defer src="js/letter.js?v=20261111m"></script>
-<script defer src="js/sound.js?v=20261111m"></script>
-<script defer src="js/sparkle.js?v=20261111m"></script>
-<script defer src="js/eggs.js?v=20261111m"></script>
-<script defer src="js/register.js?v=20261111m"></script>
+<script defer src="js/main.js?v=20261111p"></script>
+<script defer src="js/steps.js?v=20261111p"></script>
+<script defer src="js/play.js?v=20261111p"></script>
+<script defer src="js/motion.js?v=20261111p"></script>
+<script defer src="js/sections.js?v=20261111p"></script>
+<script defer src="js/reveal.js?v=20261111p"></script>
+<script defer src="js/v3fx.js?v=20261111p"></script>
+<script defer src="js/v3.js?v=20261111p"></script>
+<script defer src="js/letter.js?v=20261111p"></script>
+<script defer src="js/v4.js?v=20261111p"></script>
+<script defer src="js/sound.js?v=20261111p"></script>
+<script defer src="js/sparkle.js?v=20261111p"></script>
+<script defer src="js/eggs.js?v=20261111p"></script>
+<script defer src="js/register.js?v=20261111p"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script defer src="js/world.js?v=20261111m"></script>
+<script defer src="js/world.js?v=20261111p"></script>
 </body>
 </html>
