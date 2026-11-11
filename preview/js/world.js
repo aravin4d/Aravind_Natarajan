@@ -389,13 +389,20 @@
     /* ---------- the camps at the end of the descent ---------- */
     function fireAt(group, x, y, z){ var L = new THREE.PointLight(0xFF8A3A, 2.2, 260, 2); L.position.set(x, y + 6, z); group.add(L);
       var fl = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, color: 0xFFA050, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending })); fl.position.set(x, y + 4, z); fl.scale.set(26, 30, 1); group.add(fl);
-      var logs = new THREE.Mesh(merge([part(new THREE.CylinderGeometry(0.6, 0.6, 7, 5), 0x3A2414, M(0, 0.6, 0, 1, 1, 1, 0, 0, Math.PI / 2)), part(new THREE.CylinderGeometry(0.6, 0.6, 7, 5), 0x3A2414, M(0, 0.6, 0, 1, 1, 1, Math.PI / 2, 0, 0))]), decoMat); logs.position.set(x, y, z); group.add(logs);
+      var kit = [part(new THREE.CylinderGeometry(0.6, 0.6, 7, 5), 0x3A2414, M(0, 0.9, 0, 1, 1, 1, 0, 0.4, Math.PI / 2)), part(new THREE.CylinderGeometry(0.6, 0.6, 7, 5), 0x3A2414, M(0, 0.9, 0, 1, 1, 1, Math.PI / 2, 0, 0.5)), part(new THREE.CylinderGeometry(0.55, 0.55, 6, 5), 0x2A1A0E, M(0, 1.7, 0, 1, 1, 1, Math.PI / 2, 0, -0.6))];
+      for (var st0 = 0; st0 < 9; st0++){ var sa0 = st0 / 9 * 6.283; kit.push(part(new THREE.DodecahedronGeometry(1, 0), st0 % 2 ? 0x6A625C : 0x524B46, M(Math.cos(sa0) * 4.6, 0.35, Math.sin(sa0) * 4.6, 1.15, 0.8, 1.15, 0, sa0 * 1.7, 0))); }
+      /* v6 camp: two logs to sit on, set back from the fire */
+      kit.push(part(new THREE.CylinderGeometry(0.9, 0.9, 9, 6), 0x4A301C, M(-9.5, 0.8, 5.5, 1, 1, 1, Math.PI / 2, 0, 0.5)), part(new THREE.CylinderGeometry(0.9, 0.9, 9, 6), 0x4A301C, M(9.5, 0.8, 5.5, 1, 1, 1, Math.PI / 2, 0, -0.5)));
+      var logs = new THREE.Mesh(merge(kit), decoMat); logs.castShadow = true; logs.position.set(x, y, z); group.add(logs);
       return { light: L, flame: fl, base: 2.2 }; }
 
     /* ---------- build each theme's living things ---------- */
     var SIGNDEF = [[0.03, 2016, 1], [0.12, 2018, -1], [0.21, 2020, 1], [0.3, 2022, -1], [0.39, 2024, 1], [0.47, 2026, -1]];
     var SIGNPOS = SIGNDEF.map(function(sg0){ var P2 = pathAt(sg0[0] + 0.02); return [P2[0] + sg0[2] * 46, P2[1]]; });
     var TH = {};
+    /* v6 camp: where the fire sits in each world. All three are on dry, open ground about 85 units ahead of where the
+       camera stops, so the last view is the camp itself. (The desert fire used to sit in the middle of the oasis pool.) */
+    var SEAT = { night: [14, CAMP.z + 60], morning: [-14, CAMP.z + 50], dusk: [-40, CAMP.z + 82] };
     function buildDeco(name){
       if (TH[name]) return TH[name];
       var HA = T[name].h, fn = function(x, z){ return gridH(HA, x, z); };
@@ -437,8 +444,9 @@
         var eleTex = sheet(8, 180, 128, drawElephant);
         for (n = 0; n < 3; n++){ var el = animal(eleTex, 30 - n * 5, 22 - n * 3.5, lerp(420, -320, 0.3 + n * 0.08), -3020 - n * 18, { kind: 'walk', vx: -3.2, x0: 420, x1: -320, rate: 1.1, flip: true }); group.add(el); anim.push(el); }
         var tent = merge([part(new THREE.ConeGeometry(11, 12, 4), 0xB0663A, M(0, 6, 0, 1, 1, 1.4, 0, Math.PI / 4, 0)), part(new THREE.BoxGeometry(3, 5, 0.4), 0x2A1810, M(0, 2.5, 7.6, 1, 1, 1))]);
-        var tm = new THREE.Mesh(tent, decoMat); tm.castShadow = true; tm.rotation.y = 0.3; group.add(tm); D.snap.push([tm, CAMP.x - 22, CAMP.z - 30, 0]);
-        fires.push(fireAt(group, CAMP.x + 8, fn(CAMP.x + 8, CAMP.z - 10), CAMP.z - 10));
+        var tm = new THREE.Mesh(tent, decoMat); tm.castShadow = true; tm.rotation.y = 0.5; group.add(tm); D.snap.push([tm, SEAT.night[0] - 34, SEAT.night[1] - 18, 0]);
+        var tm2 = new THREE.Mesh(tent, decoMat); tm2.castShadow = true; tm2.rotation.y = -0.6; tm2.scale.setScalar(0.85); group.add(tm2); D.snap.push([tm2, SEAT.night[0] + 30, SEAT.night[1] - 24, 0]);
+        fires.push(fireAt(group, SEAT.night[0], fn(SEAT.night[0], SEAT.night[1]), SEAT.night[1]));
       }
       if (name === 'morning'){
         var pine = merge([part(new THREE.ConeGeometry(4, 12, 7), 0x2A4A33, M(0, 8, 0, 1, 1, 1)), part(new THREE.ConeGeometry(3.1, 9, 7), 0x325A3C, M(0, 14, 0, 1, 1, 1)), part(new THREE.ConeGeometry(2, 6, 7), 0x3A6645, M(0, 19, 0, 1, 1, 1)), part(new THREE.CylinderGeometry(0.5, 0.7, 5, 5), 0x4A3322, M(0, 2.5, 0, 1, 1, 1))]);
@@ -453,29 +461,31 @@
         var ibexTex = sheet(1, 96, 80, drawIbex);
         [[0.4, 62], [0.42, -70], [0.43, 44], [0.6, -58]].forEach(function(b){ var P1 = pathAt(b[0]); var ib = animal(ibexTex, 9, 7.5, P1[0] + b[1], P1[1] - 40, { kind: 'still', flip: b[1] < 0 }); group.add(ib); anim.push(ib); });
         var hut = merge([part(new THREE.BoxGeometry(18, 10, 14), 0x7A5234, M(0, 5, 0, 1, 1, 1)), part(new THREE.CylinderGeometry(12.5, 12.5, 20, 3, 1), 0x3B2F2B, M(0, 12.5, 0, 1, 0.55, 1, 0, 0, Math.PI / 2)), part(new THREE.BoxGeometry(2.4, 7, 2.4), 0x5A4A42, M(5, 15, 3, 1, 1, 1)), part(new THREE.BoxGeometry(3, 3, 0.4), 0xFFC66A, M(-4, 5, 7.2, 1, 1, 1)), part(new THREE.BoxGeometry(3, 3, 0.4), 0xFFC66A, M(4, 5, 7.2, 1, 1, 1))]);
-        var hm = new THREE.Mesh(hut, decoMat); hm.castShadow = true; group.add(hm); D.snap.push([hm, CAMP.x + 10, CAMP.z - 40, -2]);
+        var hm = new THREE.Mesh(hut, decoMat); hm.castShadow = true; hm.rotation.y = -0.35; group.add(hm); D.hut = [SEAT.morning[0] + 44, SEAT.morning[1] - 30]; D.snap.push([hm, D.hut[0], D.hut[1], -2]);
+        fires.push(fireAt(group, SEAT.morning[0], fn(SEAT.morning[0], SEAT.morning[1]), SEAT.morning[1]));
         D.smoke = []; for (var s2 = 0; s2 < 7; s2++){ var sm = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, color: 0xDDE3EC, transparent: true, depthWrite: false, opacity: 0.4 })); sm.userData = { o: s2 / 7 }; group.add(sm); D.smoke.push(sm); }
       }
       if (name === 'dusk'){
         var rock = merge([part(new THREE.DodecahedronGeometry(1, 0), 0x8A4028, M(0, 0.4, 0, 1, 0.7, 1))]);
         var LR = [], t3 = 0, wantR = small ? 900 : 1800;
         while (LR.length < wantR && t3++ < wantR * 8){ var pk3 = pick(0.5), rx = pk3[0], rz = pk3[1];
-          if (clearance(rx, rz) < 30 || nearCamp(rx, rz, 60)) continue; var ry = fn(rx, rz), zone = sstep(ZP - 950, ZP - 150, rz);
+          if (clearance(rx, rz) < 30 || nearCamp(rx, rz, 110)) continue; var ry = fn(rx, rz), zone = sstep(ZP - 950, ZP - 150, rz);
           if (R() > 0.2 + zone * 0.8 && ry < 70) continue; if (slope(rx, rz) > 1.3) continue; var sh3 = 0.8 + R() * 0.35;
           LR.push({ x: rx, y: ry - 0.5, z: rz, ry: R() * 6.28, rx: R(), rz: R(), s: 2 + R() * 7, sy: 0.7 + R() * 0.5, t: [sh3, sh3 * 0.9, sh3 * 0.85] }); }
         fields.push(field(rock, decoMat, LR));
         var palm = [part(new THREE.CylinderGeometry(0.6, 1.1, 20, 6), 0x6B4A2C, M(0, 10, 0, 1, 1, 1, 0, 0, 0.08))];
         for (var fr = 0; fr < 8; fr++){ palm.push(part(new THREE.PlaneGeometry(12, 2.6, 2, 1), fr % 2 ? 0x2F5A2A : 0x3A6A30, M(Math.cos(fr / 8 * 6.28) * 5.2, 18.8, Math.sin(fr / 8 * 6.28) * 5.2, 1, 1, 1, 0.55, -fr / 8 * 6.28, 0))); }
         var palmG = merge(palm), LPm = [];
-        for (var pm = 0; pm < 30; pm++){ var pa = R() * 6.28, pr = 70 + R() * 70, pmx = CAMP.x + Math.cos(pa) * pr, pmz = CAMP.z + Math.sin(pa) * pr; LPm.push({ x: pmx, y: fn(pmx, pmz) - 1, z: pmz, ry: R() * 6.28, s: 0.8 + R() * 0.6, t: [1, 1, 1], rz: (R() - 0.5) * 0.25 }); }
+        for (var pm = 0; pm < 30; pm++){ var pa = R() * 6.28, pr = 70 + R() * 70, pmx = CAMP.x + Math.cos(pa) * pr, pmz = CAMP.z + Math.sin(pa) * pr;
+          if (pmz > CAMP.z + 24 && Math.abs(pmx - CAMP.x) < 130) continue;   /* v6 camp: no palms between the camera and the camp (one used to fill the whole last view) */ LPm.push({ x: pmx, y: fn(pmx, pmz) - 1, z: pmz, ry: R() * 6.28, s: 0.8 + R() * 0.6, t: [1, 1, 1], rz: (R() - 0.5) * 0.25 }); }
         fields.push(field(palmG, decoMat2, LPm));
         var camelTex = sheet(8, 160, 120, function(g, ph){ drawCamel(g, ph, false); }), riderTex = sheet(8, 160, 120, function(g, ph){ drawCamel(g, ph, true); });
         for (var cm2 = 0; cm2 < 6; cm2++){ var cl2 = animal(cm2 === 0 ? riderTex : camelTex, 22, 16.5, -660 + cm2 * 46, -2960 - cm2 * 6, { kind: 'caravan', vx: 5.5, x0: -700, x1: 700, rate: 0.95, ph: cm2 * 0.7 }); group.add(cl2); anim.push(cl2); }
         var foxTex = sheet(8, 96, 64, drawFox); var fox = animal(foxTex, 7, 4.7, CAMP.x - 200, CAMP.z + 60, { kind: 'fox', next: 4, run: 0 }); fox.visible = false; group.add(fox); anim.push(fox);
-        for (var rc2 = 0; rc2 < 3; rc2++){ var rest = animal(camelTex, 18, 13.5, CAMP.x + 40 + rc2 * 22, CAMP.z - 70 - rc2 * 8, { kind: 'still', frame: 2 + rc2 * 2 }); group.add(rest); anim.push(rest); }
+        for (var rc2 = 0; rc2 < 3; rc2++){ var rest = animal(camelTex, 18, 13.5, CAMP.x + 52 + rc2 * 20, CAMP.z + 74 - rc2 * 9, { kind: 'still', frame: 2 + rc2 * 2 }); group.add(rest); anim.push(rest); }
         var btent = merge([part(new THREE.BoxGeometry(26, 7, 16), 0x3B2418, M(0, 3.5, 0, 1, 1, 1)), part(new THREE.CylinderGeometry(9, 9, 26, 3, 1), 0x4A2E1E, M(0, 7, 0, 1, 0.35, 1, 0, 0, Math.PI / 2))]);
-        var bt = new THREE.Mesh(btent, decoMat); bt.castShadow = true; group.add(bt); D.snap.push([bt, CAMP.x - 34, CAMP.z - 40, 0]);
-        fires.push(fireAt(group, CAMP.x - 10, fn(CAMP.x - 10, CAMP.z - 12), CAMP.z - 12));
+        var bt = new THREE.Mesh(btent, decoMat); bt.castShadow = true; group.add(bt); bt.rotation.y = 0.45; D.snap.push([bt, SEAT.dusk[0] - 40, SEAT.dusk[1] - 6, 0]);
+        fires.push(fireAt(group, SEAT.dusk[0], fn(SEAT.dusk[0], SEAT.dusk[1]), SEAT.dusk[1]));
       }
       fields.forEach(function(F){ group.add(F.mesh); });
       D.snap.forEach(function(s3){ s3[0].position.set(s3[1], fn(s3[1], s3[2]) + s3[3], s3[2]); });
@@ -487,24 +497,34 @@
       g.fillStyle = '#C99A5E'; g.beginPath(); g.moveTo(12, 22); g.lineTo(128, 22); g.lineTo(150, 50); g.lineTo(128, 78); g.lineTo(12, 78); g.closePath(); g.fill();
       g.strokeStyle = '#6A4526'; g.lineWidth = 5; g.stroke(); g.strokeStyle = 'rgba(106,69,38,.35)'; g.lineWidth = 1.5; for (var l = 0; l < 4; l++){ g.beginPath(); g.moveTo(18, 34 + l * 12); g.bezierCurveTo(60, 30 + l * 12, 90, 40 + l * 12, 124, 34 + l * 12); g.stroke(); }
       g.fillStyle = '#2E1A0C'; g.font = '700 38px Georgia, serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(year, 72, 52); }); }
-    /* v5 life: three climbers ahead of you on the trail. They walk when you scroll and wait at the top. */
-    function drawWalker(jacket){ return function(g, ph, f){ var sw2 = Math.sin(ph), bob = Math.abs(Math.cos(ph)) * 1.4;
-      g.lineCap = 'round'; g.lineJoin = 'round'; g.fillStyle = g.strokeStyle = '#17120F';
-      limb(g, 22, 44 - bob, sw2 * 0.5, 24, 5, 0.25); limb(g, 26, 44 - bob, -sw2 * 0.5, 24, 5, 0.25);
-      g.fillStyle = '#2A211B'; g.beginPath(); g.moveTo(11, 20 - bob); g.lineTo(20, 18 - bob); g.lineTo(20, 40 - bob); g.lineTo(12, 38 - bob); g.closePath(); g.fill();
-      g.fillStyle = jacket; g.beginPath(); g.moveTo(17, 17 - bob); g.lineTo(31, 17 - bob); g.lineTo(32, 45 - bob); g.lineTo(18, 45 - bob); g.closePath(); g.fill();
-      g.strokeStyle = jacket; g.lineWidth = 4; g.beginPath(); g.moveTo(29, 21 - bob); g.lineTo(35 + sw2 * 3, 33 - bob); g.stroke();
-      g.strokeStyle = '#17120F'; g.lineWidth = 1.6; g.beginPath(); g.moveTo(35 + sw2 * 3, 32 - bob); g.lineTo(38 + sw2 * 5, 68); g.stroke();
-      g.fillStyle = '#17120F'; g.beginPath(); g.arc(24, 10 - bob, 6, 0, 6.29); g.fill();
-      g.fillStyle = jacket; g.beginPath(); g.arc(24, 8 - bob, 6, Math.PI, 0); g.fill(); }; }
-    var CLIMB = ['#E4572E', '#F2C14E', '#3A86C8'].map(function(c0, q){ var cs = animal(sheet(8, 48, 72, drawWalker(c0)), 6, 9, 0, 0, { kind: 'climber', lead: 0.034 + q * 0.006, ph: q * 2.1, side: (q - 1) * 7 }); scene.add(cs); return cs; });
+    /* v6 life: three climbers ahead of you on the trail, seen from behind. Each keeps its own pace, so they walk
+       instead of sliding with the scroll: they stride when you move, stand when you stop, wait at the top, and end the
+       day standing round the camp fire. */
+    function drawWalker(jacket){ return function(g, ph, f){ var sw2 = Math.sin(ph), bob = Math.abs(Math.cos(ph)) * 1.2, sx = sw2 * 0.8;
+      g.save(); g.translate(sx, 0); g.lineCap = 'round'; g.lineJoin = 'round';
+      g.strokeStyle = '#17120F'; g.lineWidth = 1.4; g.beginPath(); g.moveTo(10, 38 - bob + sw2 * 3); g.lineTo(8, 69); g.moveTo(38, 38 - bob - sw2 * 3); g.lineTo(40, 69); g.stroke();
+      g.strokeStyle = '#1B1512'; g.lineWidth = 5.6; g.beginPath(); g.moveTo(20.5, 44 - bob); g.lineTo(20, 68 - Math.max(0, sw2) * 5); g.moveTo(27.5, 44 - bob); g.lineTo(28, 68 - Math.max(0, -sw2) * 5); g.stroke();
+      g.strokeStyle = jacket; g.lineWidth = 4.6; g.beginPath(); g.moveTo(16, 22 - bob); g.lineTo(10.5, 37 - bob + sw2 * 3); g.moveTo(32, 22 - bob); g.lineTo(37.5, 37 - bob - sw2 * 3); g.stroke();
+      g.fillStyle = jacket; g.beginPath(); g.moveTo(15, 19 - bob); g.quadraticCurveTo(24, 15 - bob, 33, 19 - bob); g.lineTo(32, 46 - bob); g.lineTo(16, 46 - bob); g.closePath(); g.fill();
+      g.fillStyle = '#2A211B'; g.beginPath(); g.moveTo(17.5, 20 - bob); g.lineTo(30.5, 20 - bob); g.lineTo(31, 40 - bob); g.lineTo(17, 40 - bob); g.closePath(); g.fill();
+      g.fillStyle = 'rgba(255,255,255,.14)'; g.fillRect(19, 24 - bob, 10, 2);
+      g.fillStyle = '#17120F'; g.beginPath(); g.arc(24, 10.5 - bob, 5.8, 0, 6.29); g.fill();
+      g.fillStyle = jacket; g.beginPath(); g.arc(24, 9 - bob, 5.8, Math.PI, 0); g.fill(); g.restore(); }; }
+    var CLIMB = ['#E4572E', '#F2C14E', '#3A86C8'].map(function(c0, q){ var cs = animal(sheet(8, 48, 72, drawWalker(c0)), 6, 9, 0, 0, { kind: 'climber', lead: 0.034 + q * 0.006, ph: q * 2.1, side: (q - 1) * 7, uc: -1, sx: (q - 1) * 10, sz: q === 1 ? 11 : 4, y: null }); scene.add(cs); return cs; });
     function trailAt(uu, pk0, out){ var P3 = pathAt(uu), s3 = 1 - sstep(0, 0.1, Math.abs(uu - 0.5)); out[0] = lerp(P3[0], pk0.x, s3); out[1] = lerp(P3[1], pk0.z + 40, s3); return out; }
-    var CL_T = [0, 0], lastU = 0;
-    function stepClimbers(pk0){ var du = Math.abs(u - lastU); lastU = u;
-      CLIMB.forEach(function(cs){ var ud = cs.userData, up = u <= 0.54, uc = up ? Math.min(0.5, u + ud.lead) : Math.min(0.99, u + ud.lead), atTop = up && uc >= 0.4995;
-        trailAt(uc, pk0, CL_T); var x = CL_T[0], z = CL_T[1]; if (up){ var st = sstep(0.47, 0.5, uc); x = lerp(x, pk0.x + ud.side, st); z = lerp(z, pk0.z - 4, st); }
-        if (!atTop && du > 0.000004) ud.ph += du * 2600; setFrame(cs, atTop ? 2 : ud.ph);
-        cs.position.set(x, groundAt(x, z) - 0.2, z); cs.material.opacity = (up ? 1 - sstep(0.515, 0.54, u) : sstep(0.56, 0.6, u)); cs.visible = cs.material.opacity > 0.3; }); }
+    var CL_T = [0, 0];
+    function stepClimbers(pk0, dt2){
+      var seat = SEAT[cur] || SEAT.dusk;
+      CLIMB.forEach(function(cs){ var ud = cs.userData, up = u <= 0.54, want = up ? Math.min(0.5, u + ud.lead) : u + ud.lead, d = want - ud.uc, moved = 0;
+        if (ud.uc < 0 || Math.abs(d) > 0.045){ ud.uc = want; ud.y = null; ud.f = 0; } else { var stp = clamp(d, -dt2 * 0.014, dt2 * 0.014); ud.uc += stp; moved = Math.abs(stp); }
+        ud.f = Math.min(1, (ud.f || 0) + dt2 * 1.6);
+        var atTop = up && ud.uc >= 0.4995;
+        trailAt(Math.min(1, ud.uc), pk0, CL_T); var x = CL_T[0], z = CL_T[1];
+        if (up){ var st = sstep(0.47, 0.5, ud.uc); x = lerp(x, pk0.x + ud.side, st); z = lerp(z, pk0.z - 4, st); }
+        else { var en = sstep(0.95, 1 + ud.lead - 0.004, ud.uc); x = lerp(x, seat[0] + ud.sx, en); z = lerp(z, seat[1] + ud.sz, en); }
+        if (moved > 0.000002) ud.ph += Math.min(moved * 2600, dt2 * 13); setFrame(cs, moved > 0.000002 && !atTop ? ud.ph * 8 / 6.283 : 0);
+        var gy = groundAt(x, z) - 0.3; ud.y = ud.y === null ? gy : lerp(ud.y, gy, Math.min(1, dt2 * 10));
+        cs.position.set(x, ud.y, z); cs.material.opacity = (up ? 1 - sstep(0.515, 0.54, u) : sstep(0.56, 0.6, u)) * ud.f; cs.visible = cs.material.opacity > 0.3; }); }
     /* v5 life: a flock crossing the sky ahead of you, by day and at dusk */
     var birdTex = sheet(8, 128, 64, drawEagle), BIRDS = [], birdW = 0;
     for (var bq = 0; bq < (small ? 7 : 11); bq++){ var bs = animal(birdTex, 9, 4.5, 0, 0, { kind: 'bird', row: Math.ceil(bq / 2), sd: bq % 2 ? 1 : -1, o: bq * 1.37 }); bs.material.depthWrite = false; bs.material.alphaTest = 0.05; bs.center.set(0.5, 0.5); scene.add(bs); BIRDS.push(bs); }
@@ -736,7 +756,7 @@
       THEMES.forEach(function(nm){ var D2 = TH[nm]; if (!D2 || !D2.group.visible) return;
         if (D2.flyU){ D2.flyU.uTime.value = time; D2.flyU.uOpacity.value = nm === cur ? tm : 1 - tm; D2.flyU.uScatter.value = lerp(D2.flyU.uScatter.value, wind, 0.08); }
         D2.fires.forEach(function(F){ var fl = 0.8 + Math.sin(time * 11) * 0.08 + Math.sin(time * 23.7) * 0.06 + Math.random() * 0.08; F.light.intensity = F.base * fl; F.flame.scale.set(24 * fl, 30 * fl, 1); });
-        if (D2.smoke) D2.smoke.forEach(function(s){ var ph = (time * 0.12 + s.userData.o) % 1; s.position.set(CAMP.x + 15 + ph * 16, groundAt(CAMP.x + 10, CAMP.z - 40) + 20 + ph * 60, CAMP.z - 37); var z2 = 6 + ph * 26; s.scale.set(z2, z2, 1); s.material.opacity = 0.5 * Math.sin(ph * Math.PI); });
+        if (D2.smoke) D2.smoke.forEach(function(s){ var ph = (time * 0.12 + s.userData.o) % 1; s.position.set(D2.hut[0] + 4 + ph * 16, groundAt(D2.hut[0], D2.hut[1]) + 20 + ph * 60, D2.hut[1] + 2); var z2 = 6 + ph * 26; s.scale.set(z2, z2, 1); s.material.opacity = 0.5 * Math.sin(ph * Math.PI); });
         D2.anim.forEach(function(a){ var ud = a.userData;
           if (ud.kind === 'owl'){ ud.t += dt; if (ud.t > ud.next){ ud.t = 0; ud.next = 2 + Math.random() * 7; ud.blink = 0.16; } if (ud.blink > 0){ ud.blink -= dt; a.scale.y = 0.4; } else a.scale.y = 2.5; }
           else if (ud.kind === 'deer'){ ud.ph += dt; if (ud.ph > ud.next){ ud.ph = 0; ud.next = 3 + Math.random() * 5; ud.up = !ud.up; } setFrame(a, ud.up ? 1 : 0); a.position.set(ud.x, groundAt(ud.x, ud.z), ud.z); }
@@ -748,7 +768,7 @@
           else if (ud.kind === 'still'){ a.position.set(ud.x, groundAt(ud.x, ud.z), ud.z); } });
         if (morph) D2.snap.forEach(function(s3){ s3[0].position.y = groundAt(s3[1], s3[2]) + s3[3]; });
       });
-      stepClimbers(pk); stepBirds(dt);
+      stepClimbers(pk, dt); stepBirds(dt);
       SIGNS.forEach(function(s){ s.position.set(s.userData.x, groundAt(s.userData.x, s.userData.z) - 0.5, s.userData.z); s.material.color.copy(pal.cSign); });
       stepFlag(dt, pk, from, tm);
 

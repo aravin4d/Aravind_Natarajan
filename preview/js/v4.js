@@ -99,4 +99,32 @@
         b.style.transform = 'translate(' + (dx * 7).toFixed(1) + 'px,' + (dy * 5).toFixed(1) + 'px)'; });
       b.addEventListener('pointerleave', function(){ r = null; b.style.transform = ''; }); });
   });
+  /* ---------- 5 · phones: nothing hidden off to the side, nothing behind an unlabelled tap ----------
+     Sideways swipe decks and "Show all of it" folds made readers hunt. On phones each set of cards now sits under a
+     row of labelled chips (every card named, one open), short tiles sit in a grid, and long blocks simply show.
+     The 2-minute version gets its own button beside the trail button, where the thumb already is. */
+  safe(function(){
+    if (!(window.matchMedia && window.matchMedia('(max-width: 700px)').matches)) return;
+    root.classList.remove('fx-decks'); root.classList.add('v4-phone');
+    function tabify(box, items, label, name){
+      if (!box || items.length < 2) return; var bar = document.createElement('div'); bar.className = 'tb'; bar.setAttribute('role', 'tablist'); bar.setAttribute('aria-label', name);
+      var btns = items.map(function(it, i){ var b = document.createElement('button'); b.type = 'button'; b.className = 'tb-b'; b.setAttribute('role', 'tab'); b.textContent = label(it, i); bar.appendChild(b);
+        b.addEventListener('click', function(){ pick(i, true); }); return b; });
+      function pick(i, user){ items.forEach(function(it, k){ it.classList.toggle('tb-off', k !== i); btns[k].setAttribute('aria-selected', k === i ? 'true' : 'false'); });
+        if (user){ S.track('phone_tab', { set: name, i: i }); S.remeasure(60); var r = bar.getBoundingClientRect(); if (r.top < 70) window.scrollTo({ top: window.pageYOffset + r.top - 84, behavior: 'smooth' }); } }
+      box.parentNode.insertBefore(bar, box); box.classList.add('tb-box'); pick(0, false);
+      function forHash(){ var id = location.hash.slice(1), t = id ? document.getElementById(id) : null; if (!t) return; items.forEach(function(it, k){ if (it.contains(t)) pick(k, false); }); }
+      window.addEventListener('hashchange', forHash); forHash();
+    }
+    function txt(el, sel){ var e = el.querySelector(sel); return e ? e.textContent.replace(/\s+/g, ' ').replace(/[.:]\s*$/, '').trim() : ''; }
+    $$('main .oc').forEach(function(box){ tabify(box, $$('.oc-card', box).filter(function(c){ return c.parentNode === box; }), function(it){ return txt(it, 'h3'); }, 'Off the clock'); });
+    $$('main ol.nd').forEach(function(box){ tabify(box, $$('li', box).filter(function(c){ return c.parentNode === box; }), function(it){ return txt(it, 'b'); }, 'First 90 days'); });
+    $$('.cc-clips ul').forEach(function(box){ tabify(box, $$('li', box).filter(function(c){ return c.parentNode === box; }), function(it){ return txt(it, 'p b'); }, 'Clips'); });
+    /* the 2-minute version, always in reach */
+    var src = $('.brief-hero') || $('.brief-hdr'); if (src){ var fab = document.createElement('button'); fab.type = 'button'; fab.className = 'brief-fab';
+      function lab(){ var on = src.getAttribute('aria-pressed') === 'true'; fab.textContent = on ? 'Full version' : '2-min version'; fab.setAttribute('aria-pressed', on ? 'true' : 'false'); }
+      fab.addEventListener('click', function(){ src.click(); setTimeout(lab, 60); S.remeasure(200); }); document.body.appendChild(fab); lab();
+      try { new MutationObserver(lab).observe(src, { attributes: true, attributeFilter: ['aria-pressed'] }); } catch (e){} }
+    S.remeasure(120);
+  });
 })();
