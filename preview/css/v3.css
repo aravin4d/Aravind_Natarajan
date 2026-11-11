@@ -400,3 +400,12 @@ html.rt-near .cvt{ opacity:0 !important; pointer-events:none !important; }
 @media print{ .ai-rib, .ai-stats{ display:none !important; } }
 .nd .nd-two li{ display:list-item; margin:5px 0 0; padding:0; border:0; border-radius:0; background:none; box-shadow:none; opacity:1; transform:none; overflow:visible; }
 .nd .nd-two li::before{ display:none; }
+
+/* ============ round five · 11 Nov ============ */
+/* QA Manager leads; the other two roles stay visible, smaller */
+.h-also{ margin-left:10px; padding-left:12px; border-left:1px solid var(--line); font-weight:400; opacity:.78; }
+@media (max-width:700px){ .h-also{ display:block; margin:4px 0 0; padding:0; border:0; } }
+/* legibility: the hero paragraph reads on any sky, and the smallest labels step up */
+.h-proof{ text-shadow:0 1px 14px rgba(var(--veil),.9), 0 0 2px rgba(var(--veil),.6); }
+.cc-cap{ color:var(--muted); font-size:13px; }
+.rt-k, .ba-t, .rt-nums span, .ba-c, .cs-spine span, .mg-pk, .nd-two h4{ font-size:13px; }
